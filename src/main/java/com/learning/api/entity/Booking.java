@@ -25,4 +25,7 @@ public class Booking {
 
     @Column(name = "lesson_count", nullable = false)
     private Integer lessonCount;
+    
+    @Column(name = "status", nullable = false)
+    private Byte status;
 }
