@@ -39,6 +39,5 @@ public class User {
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
     
-    @OneToOne(mappedBy = "user")
-    private Tutor tutor;
+
 }
