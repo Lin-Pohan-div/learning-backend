@@ -9,16 +9,16 @@ import java.sql.Date;
 
 
 @Entity
-@Table(name = "lessons")
+@Table(name = "bookings")
 @Getter
 @Setter
-public class Lesson {
+public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "booking_id", nullable = false)
-    private Long bookingId;
+    @Column(name = "order_id", nullable = false)
+    private Long orderId;
 
     @Column(name = "tutor_id", nullable = false)
     private Long tutorId;
@@ -37,7 +37,5 @@ public class Lesson {
 
     @Column(name = "slot_locked")
     private Boolean slotLocked;
-    
-//    @OneToOne(mappedBy = "lesson")
-//    private LessonFeedback feedback;
+
 }
