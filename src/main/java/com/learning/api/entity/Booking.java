@@ -9,12 +9,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Booking {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "order_id", nullable = false)
+    // 先 true
+    @Column(name = "order_id", nullable = true)
     private Long orderId;
 
     @Column(name = "course_id", nullable = false)
@@ -23,12 +23,12 @@ public class Booking {
     @Column(name = "unit_price", nullable = false)
     private Integer unitPrice;
 
-    @Column(name = "discount_price", nullable = true)
+    @Column(name = "discount_price", nullable = false)
     private Integer discountPrice;
 
     @Column(name = "lesson_count", nullable = false)
     private Integer lessonCount;
     
     @Column(name = "status", nullable = false)
-    private Byte status;
+    private Integer status;
 }
