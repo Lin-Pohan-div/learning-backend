@@ -44,6 +44,7 @@ class ReviewControlTest {
     private Review savedReview;
     private Long savedUserId;
     private Long savedCourseId;
+    private Long savedCourseId2;
 
     @BeforeEach
     void setUp() {
@@ -80,6 +81,17 @@ class ReviewControlTest {
         testCourse.setActive(true);
         testCourse = courseRepository.save(testCourse);
         savedCourseId = testCourse.getId();
+
+        com.learning.api.entity.Course testCourse2 = new com.learning.api.entity.Course();
+        testCourse2.setTutorId(tutorUser.getId());
+        testCourse2.setName("Test Course 2");
+        testCourse2.setSubject(1);
+        testCourse2.setLevel(1);
+        testCourse2.setDescription("Second course for POST testing");
+        testCourse2.setPrice(600);
+        testCourse2.setActive(true);
+        testCourse2 = courseRepository.save(testCourse2);
+        savedCourseId2 = testCourse2.getId();
 
         reviewRepository.deleteAll();
 
@@ -149,7 +161,7 @@ class ReviewControlTest {
     void post_validRequest_shouldReturn201WithCreatedReview() throws Exception {
         Map<String, Object> body = Map.of(
                 "userId", savedUserId,
-                "courseId", savedCourseId,
+                "courseId", savedCourseId2,
                 "rating", 5,
                 "comment", "Excellent session"
         );
@@ -160,7 +172,7 @@ class ReviewControlTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.userId").value(savedUserId))
-                .andExpect(jsonPath("$.courseId").value(savedCourseId))
+                .andExpect(jsonPath("$.courseId").value(savedCourseId2))
                 .andExpect(jsonPath("$.rating").value(5))
                 .andExpect(jsonPath("$.comment").value("Excellent session"));
     }

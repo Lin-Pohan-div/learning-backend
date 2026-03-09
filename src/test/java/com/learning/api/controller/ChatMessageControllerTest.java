@@ -76,10 +76,11 @@ class ChatMessageControllerTest {
         testCourse = courseRepository.save(testCourse);
 
         testBooking = new Booking();
-        testBooking.setOrderId(1L);
+        testBooking.setUserId(1L);
         testBooking.setCourseId(testCourse.getId());
         testBooking.setUnitPrice(100);
         testBooking.setLessonCount(1);
+        testBooking.setLessonused(0);
         testBooking.setStatus((byte)1);
         testBooking = bookingRepository.save(testBooking);
 

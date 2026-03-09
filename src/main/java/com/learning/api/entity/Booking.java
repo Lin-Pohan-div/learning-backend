@@ -13,8 +13,8 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "order_id", nullable = false)
-    private Long orderId;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
     @Column(name = "course_id", nullable = false)
     private Long courseId;
@@ -27,7 +27,9 @@ public class Booking {
 
     @Column(name = "lesson_count", nullable = false)
     private Integer lessonCount;
-    
+
+    @Column(name = "lesson_used", nullable = false)
+    private Integer lessonused;
     @Column(name = "status", nullable = false)
     private Byte status;
 }
