@@ -23,14 +23,19 @@ public class SecurityConfig {
                 // /api/auth
                 .authorizeHttpRequests(auth -> auth
                         // 測試 正式上線要刪
-                        .requestMatchers("/api/TestController").permitAll()
+                        //.requestMatchers("/api/TestController").permitAll()
 
-                        .requestMatchers("/api/auth/**").permitAll()
+                        //.requestMatchers("/api/auth/**").permitAll()
                         // teacher
-                        .requestMatchers("/api/teacher/**").hasRole("TEACHER")
+                        //.requestMatchers("/api/teacher/**").hasRole("TEACHER")
                         // student
-                        .requestMatchers("/api/student/**").hasRole("STUDENT")
-
+                        //.requestMatchers("/api/student/**").hasRole("STUDENT")
+                        //chat-messages
+                        .requestMatchers("/api/chat-messages/**").permitAll()
+                        //reviews
+                        .requestMatchers("/api/reviews/**").permitAll()
+                        //lesson-feedbacks
+                        .requestMatchers("/api/lesson-feedbacks/**").permitAll()
                         .anyRequest().authenticated()
                 );
 
