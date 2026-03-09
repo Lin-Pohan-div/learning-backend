@@ -30,12 +30,15 @@ public class SecurityConfig {
                         //.requestMatchers("/api/teacher/**").hasRole("TEACHER")
                         // student
                         //.requestMatchers("/api/student/**").hasRole("STUDENT")
+                        
                         //chat-messages
                         .requestMatchers("/api/chat-messages/**").permitAll()
                         //reviews
                         .requestMatchers("/api/reviews/**").permitAll()
                         //lesson-feedbacks
                         .requestMatchers("/api/lesson-feedbacks/**").permitAll()
+                        
+                        
                         .anyRequest().authenticated()
                 );
 
