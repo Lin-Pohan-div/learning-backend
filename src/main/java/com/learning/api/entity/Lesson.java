@@ -11,7 +11,6 @@ import java.sql.Date;
 @Getter
 @Setter
 public class Lesson {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -34,6 +33,6 @@ public class Lesson {
     @Column(nullable = false)
     private Byte status;
     
-    @OneToOne(mappedBy = "lesson")
-    private LessonFeedback feedback;
+//    @OneToOne(mappedBy = "lesson")
+//    private LessonFeedback feedback;
 }
