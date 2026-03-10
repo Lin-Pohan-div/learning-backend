@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.learning.api.dto.LessonFeedbackRequest;
+import com.learning.api.dto.FeedbackRequest;
 import com.learning.api.entity.LessonFeedback;
 import com.learning.api.service.LessonFeedbackService;
 import java.util.List;
@@ -12,9 +12,9 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 @RestController
-@RequestMapping("/api/lesson-feedbacks")
+@RequestMapping("/api/Feedbacks")
 @RequiredArgsConstructor
-public class LessonFeedbackController {
+public class FeedbackController {
 
     private final LessonFeedbackService lessonFeedbackService;
 
@@ -45,7 +45,7 @@ public class LessonFeedbackController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody LessonFeedbackRequest request) {
+    public ResponseEntity<?> create(@RequestBody FeedbackRequest request) {
         try {
             if (request.getBookingId() == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
