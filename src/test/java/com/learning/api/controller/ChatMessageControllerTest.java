@@ -81,8 +81,8 @@ class ChatMessageControllerTest {
         testBooking.setUnitPrice(100);
         testBooking.setDiscountPrice(100);
         testBooking.setLessonCount(1);
-        testBooking.setLessonused(0);
-        testBooking.setStatus((byte)1);
+        testBooking.setLessonUsed(0);
+        testBooking.setStatus(1);
         testBooking = bookingRepository.save(testBooking);
 
         ChatMessage msg = new ChatMessage();

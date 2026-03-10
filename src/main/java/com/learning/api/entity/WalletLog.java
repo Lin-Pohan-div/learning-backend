@@ -49,11 +49,6 @@ public class WalletLog {
     @Column(name = "merchant_trade_no", unique = true, length = 100)
     private String merchantTradeNo;
 
-<<<<<<< HEAD
-    @Column(name = "created_at", insertable = false, updatable = false)
-    private Timestamp createdAt;
-}
-=======
     /**
      * DB 自動產生
      */
@@ -61,4 +56,3 @@ public class WalletLog {
     private LocalDateTime createdAt;
 
 }
->>>>>>> 62f94148526ad4d50cad68cd7af090cfea14d7c0

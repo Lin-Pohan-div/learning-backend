@@ -14,11 +14,11 @@ public class ChatMessage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "order_id", nullable = false)
-    private Long orderId;
+    @Column(name = "booking_id", nullable = false)
+    private Long bookingId;
 
     @Column(nullable = false)
-    private Integer role;
+    private Byte role;
 
     @Column(nullable = false, length = 1000)
     private String message;

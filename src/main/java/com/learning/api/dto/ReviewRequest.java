@@ -6,6 +6,6 @@ import lombok.Data;
 public class ReviewRequest {
     private Long userId;
     private Long courseId;
-    private Byte rating;
+    private Integer rating;
     private String comment;
 }

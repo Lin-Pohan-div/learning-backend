@@ -14,8 +14,8 @@ public class LessonFeedback {
     private Long id;
 
     
-    @JoinColumn(name = "booking_id")
-    private Long bookId;
+    @Column(name = "booking_id")
+    private Long bookingId;
 
     @Column(nullable = false)
     private Byte rating;

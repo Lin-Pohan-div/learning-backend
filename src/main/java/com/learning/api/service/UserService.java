@@ -41,10 +41,10 @@ public class UserService {
             user.setRole(1); // 如果前端沒傳，預設給 1 (學生)
         }
         if (user.getWallet() == null) {
-            user.setWallet(0L); // 預設錢包為 0
+            user.setWallet(0); // 預設錢包為 0
         }
         if (user.getIsAdmin() == null) {
-            user.setIsAdmin(0); // 預設不是管理員
+            user.setIsAdmin((byte) 0); // 預設不是管理員
         }
 
         user.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));

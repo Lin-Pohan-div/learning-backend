@@ -27,7 +27,7 @@ public class TutorFeedbackController {
         }
 
         // 2. 檢查是否已經填寫過
-        if (feedbackRepo.existsByLessonId(feedback.getLessonId())) {
+        if (feedbackRepo.existsByBookingId(feedback.getBookingId())) {
             return ResponseEntity.status(400).body(Map.of("msg", "這堂課已經填寫過回饋囉！"));
         }
 

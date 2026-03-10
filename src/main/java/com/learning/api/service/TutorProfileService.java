@@ -40,7 +40,7 @@ public class TutorProfileService {
         tutor.setId(dto.getTutorId()); // 綁定 ID
         tutor.setIntro(dto.getIntro());
         tutor.setCertificate(dto.getCertificate());
-        tutor.setVideo(dto.getVideo());
+        tutor.setVideoUrl1(dto.getVideo());
 
         tutorRepo.save(tutor);
 
