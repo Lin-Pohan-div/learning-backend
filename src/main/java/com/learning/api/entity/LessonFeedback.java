@@ -21,15 +21,8 @@ public class LessonFeedback {
 
     @Column(nullable = true, length = 1000)
     private String comment;
-<<<<<<< HEAD
 
     //@OneToOne
     //@JoinColumn(name = "lesson_id")
     //private Lesson lesson;
-=======
-    
-//    @OneToOne
-//    @JoinColumn(name = "lesson_id")
-//    private Lesson lesson;
->>>>>>> fdd70f84c76e7adb8da930e439252dc5e691a8a4
 }
