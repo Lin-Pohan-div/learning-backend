@@ -19,7 +19,7 @@ public class ChatMessage {
     private Long orderId;
 
     @Column(nullable = false)
-    private Integer role;
+    private Integer role; //1Student 2tutor
 
     @Column(nullable = false, length = 1000)
     private String message;
