@@ -3,8 +3,7 @@ package com.learning.api.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "wallet_logs")
@@ -19,14 +18,30 @@ public class WalletLog {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
+    /**
+     * 1: 儲值
+     * 2: 購課
+     * 3: 授課收入
+     * 4: 退款
+     * 5: 提現
+     * 6: 平台初始贈點
+     */
     @Column(name = "transaction_type", nullable = false)
-    private Byte transactionType;
+    private Integer transactionType;
 
+    /**
+     * 正數增加 / 負數減少
+     */
     @Column(nullable = false)
     private Long amount;
 
-    @Column(name = "related_type")
-    private Byte relatedType;
+    /**
+     * 1 booking
+     * 2 lesson
+     * 3 bank
+     */
+    @Column(name = "related_type",  nullable = false )
+    private Integer relatedType;
 
     @Column(name = "related_id")
     private Long relatedId;
@@ -34,6 +49,16 @@ public class WalletLog {
     @Column(name = "merchant_trade_no", unique = true, length = 100)
     private String merchantTradeNo;
 
+<<<<<<< HEAD
     @Column(name = "created_at", insertable = false, updatable = false)
     private Timestamp createdAt;
 }
+=======
+    /**
+     * DB 自動產生
+     */
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+}
+>>>>>>> 62f94148526ad4d50cad68cd7af090cfea14d7c0

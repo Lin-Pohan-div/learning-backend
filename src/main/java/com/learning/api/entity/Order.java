@@ -21,15 +21,22 @@ public class Order {
     @Column(name = "unit_price", nullable = false)
     private Integer unitPrice;
 
-    @Column(name = "discount_price", nullable = true)
+    @Column(name = "discount_price", nullable = false)
     private Integer discountPrice;
 
     @Column(name = "lesson_count", nullable = false)
     private Integer lessonCount;
 
     @Column(name = "lesson_used", nullable = false)
+<<<<<<< HEAD
     private Integer lessonused;
     
     @Column(name = "status", nullable = false)
     private Byte status;
+=======
+    private Integer lessonUsed;
+    
+    @Column(name = "status", nullable = false)
+    private Integer status;
+>>>>>>> 62f94148526ad4d50cad68cd7af090cfea14d7c0
 }

@@ -17,8 +17,8 @@ public class TutorSchedule {
     private Long tutorId;
 
     @Column(nullable = false)
-    private Byte weekday;
+    private Integer weekday;
 
     @Column(nullable = false)
-    private Byte hour;
+    private Integer hour;
 }

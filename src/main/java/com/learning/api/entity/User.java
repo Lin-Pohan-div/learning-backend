@@ -35,9 +35,10 @@ public class User {
     @Column(nullable = false)
     private long wallet;
 
+    @Column(nullable=false)
+    private Integer wallet;
+
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
     
-/*     @OneToOne(mappedBy = "user")
-    private Tutor tutor; */
 }

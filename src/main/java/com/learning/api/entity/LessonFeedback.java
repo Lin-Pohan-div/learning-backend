@@ -13,16 +13,15 @@ public class LessonFeedback {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "booking_id", nullable = false)
-    private Long bookingId;
+    
+    @JoinColumn(name = "booking_id")
+    private Long bookId;
 
     @Column(nullable = false)
     private Byte rating;
 
     @Column(nullable = true, length = 1000)
     private String comment;
+    
 
-    //@OneToOne
-    //@JoinColumn(name = "lesson_id")
-    //private Lesson lesson;
 }

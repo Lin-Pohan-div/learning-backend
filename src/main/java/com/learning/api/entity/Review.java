@@ -19,7 +19,7 @@ public class Review {
     private Long courseId;
 
     @Column(nullable = false)
-    private Byte rating;
+    private Integer rating;
 
     @Column(nullable = true, length = 1000)
     private String comment;
