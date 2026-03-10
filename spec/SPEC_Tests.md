@@ -144,7 +144,7 @@
 
 ---
 
-### 2. Lesson Feedback API — `LessonFeedbackControllerTest`
+### 2. Lesson Feedback API — `LessonFeedbackControllerTest` (mapped to `/api/Feedbacks`)
 
 測試前置設定（`@BeforeEach`）：
 - 清除所有既有 feedback（`deleteAllInBatch()`）
@@ -156,7 +156,7 @@
 
 * **請求資訊（HTTP Request）**
   - Method: `GET`
-  - URL: `/api/lesson-feedbacks`
+  - URL: `/api/Feedbacks`
 
 * **回應內容 (Response)**
   - HTTP Status: `200 OK`
@@ -182,7 +182,7 @@
 
 * **請求資訊（HTTP Request）**
   - Method: `GET`
-  - URL: `/api/lesson-feedbacks/{id}`
+  - URL: `/api/Feedbacks/{id}`
 
 | 測試案例 | 說明 | 預期結果 |
 |---|---|---|
@@ -191,11 +191,11 @@
 
 ---
 
-#### 2-3. 依 Lesson ID 取得課程回饋（GET BY LESSON ID）
+#### 2-3. 依 Booking ID 取得課程回饋（GET BY LESSON ID）
 
 * **請求資訊（HTTP Request）**
   - Method: `GET`
-  - URL: `/api/lesson-feedbacks/lesson/{lessonId}`
+  - URL: `/api/Feedbacks/lesson/{bookingId}`
 
 | 測試案例 | 說明 | 預期結果 |
 |---|---|---|
@@ -207,7 +207,7 @@
 
 * **請求資訊（HTTP Request）**
   - Method: `GET`
-  - URL: `/api/lesson-feedbacks/lesson/{lessonId}/average-rating`
+  - URL: `/api/Feedbacks/lesson/{bookingId}/average-rating`
 
 * **回應內容 (Response)**
   - HTTP Status: `200 OK`
@@ -229,7 +229,7 @@
 
 * **請求資訊（HTTP Request）**
   - Method: `POST`
-  - URL: `/api/lesson-feedbacks`
+  - URL: `/api/Feedbacks`
   - Headers: `Content-Type: application/json`
   - Payload (Request Body):
 ```json
@@ -268,7 +268,7 @@
 
 * **請求資訊（HTTP Request）**
   - Method: `PUT`
-  - URL: `/api/lesson-feedbacks/{id}`
+  - URL: `/api/Feedbacks/{id}`
   - Headers: `Content-Type: application/json`
   - Payload (Request Body):
 ```json
@@ -289,7 +289,7 @@
 
 * **請求資訊（HTTP Request）**
   - Method: `DELETE`
-  - URL: `/api/lesson-feedbacks/{id}`
+  - URL: `/api/Feedbacks/{id}`
 
 | 測試案例 | 說明 | 預期結果 |
 |---|---|---|

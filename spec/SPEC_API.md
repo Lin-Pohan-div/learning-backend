@@ -16,7 +16,7 @@ Base URL: `http://localhost:8080`
 
 * **請求資訊（HTTP Request）**
 - Method: `GET`
-- URL: `/api/chat-messages/booking/{bookingId}`
+- URL: `/api/chatMessage/booking/{bookingId}`  <!-- controller mapping uses singular chatMessage -->
 - Headers: 無特殊需求
 - Payload: 無
 
@@ -42,7 +42,7 @@ Base URL: `http://localhost:8080`
 
 * **請求資訊（HTTP Request）**
 - Method: `POST`
-- URL: `/api/chat-messages`
+- URL: `/api/chatMessage`
 - Headers: `Content-Type: application/json`
 - Payload (Request Body):
 ```json
@@ -85,7 +85,7 @@ Base URL: `http://localhost:8080`
 
 * **請求資訊（HTTP Request）**
 - Method: `PUT`
-- URL: `/api/chat-messages/{id}`
+- URL: `/api/chatMessage/{id}`
 - Headers: `Content-Type: application/json`
 - Payload (Request Body):
 ```json
@@ -124,7 +124,7 @@ Base URL: `http://localhost:8080`
 
 * **請求資訊（HTTP Request）**
 - Method: `DELETE`
-- URL: `/api/chat-messages/{id}`
+- URL: `/api/chatMessage/{id}`
 - Payload: 無
 
 * **回應內容 (Response)**
@@ -343,7 +343,7 @@ Base URL: `http://localhost:8080`
 
 * **請求資訊（HTTP Request）**
 - Method: `GET`
-- URL: `/api/lesson-feedbacks`
+- URL: `/api/Feedbacks`  <!-- controller path uses capital F -->
 - Payload: 無
 
 * **回應內容 (Response)**
@@ -366,7 +366,7 @@ Base URL: `http://localhost:8080`
 
 * **請求資訊（HTTP Request）**
 - Method: `GET`
-- URL: `/api/lesson-feedbacks/{id}`
+- URL: `/api/Feedbacks/{id}`
 - Payload: 無
 
 * **回應內容 (Response)**
@@ -388,7 +388,7 @@ Base URL: `http://localhost:8080`
 
 * **請求資訊（HTTP Request）**
 - Method: `GET`
-- URL: `/api/lesson-feedbacks/lesson/{lessonId}`
+- URL: `/api/Feedbacks/lesson/{bookingId}`  <!-- parameter is bookingId in controller -->
 - Payload: 無
 
 * **回應內容 (Response)**
@@ -411,7 +411,7 @@ Base URL: `http://localhost:8080`
 
 * **請求資訊（HTTP Request）**
 - Method: `GET`
-- URL: `/api/lesson-feedbacks/lesson/{lessonId}/average-rating`
+- URL: `/api/Feedbacks/lesson/{bookingId}/average-rating`
 - Payload: 無
 
 * **回應內容 (Response)**
@@ -431,7 +431,7 @@ Base URL: `http://localhost:8080`
 
 * **請求資訊（HTTP Request）**
 - Method: `POST`
-- URL: `/api/lesson-feedbacks`
+- URL: `/api/Feedbacks`
 - Headers: `Content-Type: application/json`
 - Payload (Request Body):
 ```json
@@ -444,7 +444,7 @@ Base URL: `http://localhost:8080`
 
 | 欄位 | 型別 | 必填 | 說明 |
 |---|---|---|---|
-| `lessonId` | Long | 是 | 所屬課堂的 ID |
+| `bookingId` | Long | 是 | 所屬 Booking 的 ID |
 | `rating` | Byte | 是 | 評分（通常為 1-5） |
 | `comment` | String | 否 | 回饋內容，最長 1000 字元 |
 
@@ -462,7 +462,7 @@ Base URL: `http://localhost:8080`
 - 錯誤回應 (400 Bad Request):
 ```json
 {
-  "message": "驗證失敗: lessonId 不能為空"
+  "message": "驗證失敗: bookingId 不能為空"
 }
 ```
 
@@ -472,7 +472,7 @@ Base URL: `http://localhost:8080`
 
 * **請求資訊（HTTP Request）**
 - Method: `PUT`
-- URL: `/api/lesson-feedbacks/{id}`
+- URL: `/api/Feedbacks/{id}`
 - Headers: `Content-Type: application/json`
 - Payload (Request Body):
 ```json
@@ -502,7 +502,7 @@ Base URL: `http://localhost:8080`
 
 * **請求資訊（HTTP Request）**
 - Method: `DELETE`
-- URL: `/api/lesson-feedbacks/{id}`
+- URL: `/api/Feedbacks/{id}`
 - Payload: 無
 
 * **回應內容 (Response)**
