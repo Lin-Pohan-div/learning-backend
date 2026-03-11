@@ -28,6 +28,7 @@ public class User {
     private LocalDate birthday;
 
     @Column(nullable = false)
+    // 1=學生 2=老師 3=admin
     private Integer role;
 
     @Column(nullable = false)

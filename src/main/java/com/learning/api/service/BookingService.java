@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 public class BookingService {
 
     @Autowired
-    private MemberRepo memberRepo;
+    private UserRepo memberRepo;
 
     @Autowired
     private CourseRepository courseRepo;
@@ -21,7 +21,7 @@ public class BookingService {
     @Autowired
     private OrderRepo orderRepo;
 
-    // 之後 JWT 做完 改掉 bookingReq.getUserId() -> 這是前端送 id
+    // bookingReq.getUserId() 僅供開發測試使用，正式版改由登入資訊取得
     public boolean sendBooking(BookingReq bookingReq){
 
         if (bookingReq == null) return false;
@@ -75,9 +75,8 @@ public class BookingService {
 
     private Integer afterDiscPrice(Integer originalPrice, Integer lessonCount){
         // 95% 10 堂
-        if (lessonCount >= 10){
-            return ((int) (originalPrice*0.95));
-        }
+        if (lessonCount >= 10) return ((int) (originalPrice*0.95));
+
 
         // 0%
         return originalPrice;

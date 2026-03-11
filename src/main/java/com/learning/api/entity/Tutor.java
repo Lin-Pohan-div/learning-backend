@@ -44,5 +44,4 @@ public class Tutor {
 
     @Column(name = "bank_account", length = 20)
     private String bankAccount;
-
 }
