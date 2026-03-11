@@ -9,10 +9,17 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import com.learning.api.entity.Bookings;
 import com.learning.api.entity.LessonFeedback;
+import com.learning.api.entity.Order;
+import com.learning.api.repo.BookingRepository;
+import com.learning.api.repo.CourseRepository;
 import com.learning.api.repo.LessonFeedbackRepository;
+import com.learning.api.repo.OrderRepo;
+import com.learning.api.repo.UserRepository;
 
 import jakarta.transaction.Transactional;
+import java.sql.Date;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.*;
@@ -29,11 +36,24 @@ public class LessonFeedbackControllerTest {
     @Autowired
     private LessonFeedbackRepository lessonFeedbackRepository;
 
+    @Autowired
+    private BookingRepository bookingRepository;
+
+    @Autowired
+    private CourseRepository courseRepository;
+
+    @Autowired
+    private OrderRepo orderRepo;
+
+    @Autowired
+    private UserRepository userRepository;
+
     @Autowired(required = false)
     private ObjectMapper objectMapper;
 
     private MockMvc mockMvc;
     private LessonFeedback savedFeedback;
+    private Long savedBookingId;
 
     @BeforeEach
     void setUp() {
@@ -44,8 +64,58 @@ public class LessonFeedbackControllerTest {
 
         lessonFeedbackRepository.deleteAllInBatch();
 
+        // Create users for tutor and student FK constraints
+        com.learning.api.entity.User tutor = new com.learning.api.entity.User();
+        tutor.setName("Test Tutor");
+        tutor.setEmail("tutor_feedback@example.com");
+        tutor.setPassword("hashedpassword");
+        tutor.setRole(2);
+        tutor.setWallet(0);
+        tutor = userRepository.save(tutor);
+
+        com.learning.api.entity.User student = new com.learning.api.entity.User();
+        student.setName("Test Student");
+        student.setEmail("student_feedback@example.com");
+        student.setPassword("hashedpassword");
+        student.setRole(1);
+        student.setWallet(0);
+        student = userRepository.save(student);
+
+        // Create a course so orders.course_id FK constraint is satisfied
+        com.learning.api.entity.Course course = new com.learning.api.entity.Course();
+        course.setTutorId(tutor.getId());
+        course.setName("Test Course");
+        course.setSubject(1);
+        course.setLevel(1);
+        course.setDescription("Course for feedback testing");
+        course.setPrice(500);
+        course.setActive(true);
+        course = courseRepository.save(course);
+
+        // Create an order so bookings.order_id NOT NULL constraint is satisfied
+        Order order = new Order();
+        order.setUserId(student.getId());
+        order.setCourseId(course.getId());
+        order.setUnitPrice(500);
+        order.setDiscountPrice(500);
+        order.setLessonCount(1);
+        order.setLessonUsed(0);
+        order.setStatus(1);
+        order = orderRepo.save(order);
+
+        // Create a booking so fk_feedback_lesson constraint is satisfied
+        Bookings booking = new Bookings();
+        booking.setOrderId(order.getId());
+        booking.setTutorId(tutor.getId());
+        booking.setStudentId(student.getId());
+        booking.setDate(Date.valueOf("2025-01-01"));
+        booking.setHour((byte) 10);
+        booking.setStatus((byte) 1);
+        booking = bookingRepository.save(booking);
+        savedBookingId = booking.getId();
+
         LessonFeedback feedback = new LessonFeedback();
-        feedback.setBookingId(1L);
+        feedback.setBookingId(savedBookingId);
         feedback.setRating((byte) 4);
         feedback.setComment("Initial feedback");
         savedFeedback = lessonFeedbackRepository.save(feedback);
@@ -104,7 +174,7 @@ public class LessonFeedbackControllerTest {
     @Test
     void post_validRequest_shouldReturn201() throws Exception {
         Map<String, Object> body = Map.of(
-                "bookingId", 1,
+                "bookingId", savedBookingId,
                 "rating", 5,
                 "comment", "Great lesson"
         );
@@ -134,7 +204,7 @@ public class LessonFeedbackControllerTest {
     @Test
     void post_missingRating_shouldReturn400() throws Exception {
         Map<String, Object> body = Map.of(
-                "bookingId", 1,
+                "bookingId", savedBookingId,
                 "comment", "Good lesson"
         );
 
@@ -147,7 +217,7 @@ public class LessonFeedbackControllerTest {
     @Test
     void post_ratingBelowMin_shouldReturn400() throws Exception {
         Map<String, Object> body = Map.of(
-                "bookingId", 1,
+                "bookingId", savedBookingId,
                 "rating", 0,
                 "comment", "Bad rating"
         );
@@ -161,7 +231,7 @@ public class LessonFeedbackControllerTest {
     @Test
     void post_ratingAboveMax_shouldReturn400() throws Exception {
         Map<String, Object> body = Map.of(
-                "bookingId", 1,
+                "bookingId", savedBookingId,
                 "rating", 6,
                 "comment", "Over max rating"
         );
