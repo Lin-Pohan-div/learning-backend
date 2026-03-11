@@ -10,7 +10,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TutorSchedule {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -19,8 +18,8 @@ public class TutorSchedule {
     private Long tutorId;
 
     @Column(nullable = false)
-    private Byte weekday;
+    private Integer weekday;//1-7
 
     @Column(nullable = false)
-    private Byte hour;
+    private Integer hour;//9-21(開放時段)
 }

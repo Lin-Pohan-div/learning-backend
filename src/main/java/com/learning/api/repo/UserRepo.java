@@ -1,7 +1,9 @@
 package com.learning.api.repo;
 
-import com.learning.api.entity.User;
+
+import com.learning.api.entity.*;
 import org.springframework.data.jpa.repository.JpaRepository;
+
 import java.util.Optional;
 
 public interface UserRepo extends JpaRepository<User, Long> {

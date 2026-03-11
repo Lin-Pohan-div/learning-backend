@@ -1,18 +1,17 @@
 package com.learning.api.entity;
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+
 
 @Entity
 @Table(name = "users")
 @Getter
 @Setter
 public class User {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,11 +28,18 @@ public class User {
     private LocalDate birthday;
 
     @Column(nullable = false)
-    private Integer role;
+    private Integer role; //1:student/2:teacher/3admin
+
+
+
+    @Column(nullable=false)
+    private Integer wallet;
 
     @Column(name = "created_at", insertable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
     
-    @OneToOne(mappedBy = "user")
-    private Tutor tutor;
+    @Column(name = "updated_at", insertable = false, updatable = true)
+    private Instant updatedAt;
+    
+
 }

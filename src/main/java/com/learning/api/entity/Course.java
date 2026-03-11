@@ -15,7 +15,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Course {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,10 +26,7 @@ public class Course {
     private String name;
 
     @Column(nullable = false)
-    private Integer subject;
-
-    @Column(nullable = false)
-    private Integer level;
+    private Integer subject; //11低年級 12中年級 13高年級  21GEPT 22YLE 23國中先修 31其他 (開頭 1: 年級課程  2檢定與升學 3其他)
 
     @Column(length = 1000)
     private String description;
@@ -39,5 +35,5 @@ public class Course {
     private Integer price;
 
     @Column(name = "is_active", nullable = false)
-    private boolean isActive;
+    private boolean active;
 }

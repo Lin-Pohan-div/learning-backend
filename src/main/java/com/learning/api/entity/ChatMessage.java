@@ -4,27 +4,27 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Timestamp;
+
+import java.time.Instant;
 
 @Entity
 @Table(name = "chat_messages")
 @Getter
 @Setter
 public class ChatMessage {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "booking_id", nullable = false)
-    private Long bookingId;
+    @Column(name = "order_id", nullable = false)
+    private Long orderId;
 
     @Column(nullable = false)
-    private Byte role;
+    private Integer role; //1Student 2tutor
 
     @Column(nullable = false, length = 1000)
     private String message;
 
     @Column(name = "created_at", insertable = false, updatable = false)
-    private Timestamp createdAt;
+    private Instant createdAt;
 }

@@ -4,27 +4,33 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Timestamp;
-
 @Entity
 @Table(name = "orders")
 @Getter
 @Setter
 public class Order {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "merchant_trade_no", nullable = true, unique = true, length = 100)
-    private String merchantTradeNo;
-
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column(name = "total_amount", nullable = false)
-    private Integer totalAmount;
+    @Column(name = "course_id", nullable = false)
+    private Long courseId;
 
-    @Column(name = "created_at")
-    private Timestamp createdAt;
+    @Column(name = "unit_price", nullable = false)
+    private Integer unitPrice;
+
+    @Column(name = "discount_price", nullable = false)
+    private Integer discountPrice;
+
+    @Column(name = "lesson_count", nullable = false)
+    private Integer lessonCount;
+
+    @Column(name = "lesson_used", nullable = false)
+    private Integer lessonUsed;
+    
+    @Column(name = "status", nullable = false)
+    private Integer status; //1 pending 2deal 3complete
 }
