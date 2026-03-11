@@ -37,6 +37,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/reviews/**").permitAll()
                         //lesson-feedbacks
                         .requestMatchers("/api/lesson-feedbacks/**").permitAll()
+                        // WebSocket (SockJS handshake + STOMP)
+                        .requestMatchers("/ws/**").permitAll()
                         
                         
                         .anyRequest().authenticated()
