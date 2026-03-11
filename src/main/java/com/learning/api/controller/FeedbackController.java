@@ -9,10 +9,9 @@ import com.learning.api.entity.LessonFeedback;
 import com.learning.api.service.LessonFeedbackService;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 @RestController
-@RequestMapping("/api/Feedbacks")
+@RequestMapping("/api/feedbacks")
 @RequiredArgsConstructor
 public class FeedbackController {
 
@@ -38,46 +37,18 @@ public class FeedbackController {
     @GetMapping("/lesson/{bookingId}/average-rating")
     public ResponseEntity<Map<String, Object>> getAverageRating(@PathVariable Long bookingId) {
         Double avg = lessonFeedbackService.getAverageRating(bookingId);
-        return ResponseEntity.ok(Map.of(
-                "bookingId", bookingId,
-                "averageRating", avg != null ? avg : 0.0
-        ));
+        return ResponseEntity.ok(Map.of("bookingId", bookingId, "averageRating", avg));
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody FeedbackRequest request) {
-        try {
-            if (request.getBookingId() == null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(new ErrorResponse("驗證失敗: bookingId 不能為空"));
-            }
-            if (request.getRating() == null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(new ErrorResponse("驗證失敗: rating 不能為空"));
-            }
-
-            LessonFeedback feedback = new LessonFeedback();
-            feedback.setBookingId(request.getBookingId());
-            feedback.setRating(request.getRating());
-            feedback.setComment(request.getComment());
-
-            LessonFeedback saved = lessonFeedbackService.save(feedback);
-            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ErrorResponse("錯誤: " + e.getMessage()));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse("驗證失敗: " + e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponse("伺服器錯誤: " + e.getMessage()));
-        }
+    public ResponseEntity<LessonFeedback> create(@RequestBody FeedbackRequest request) {
+        LessonFeedback feedback = toEntity(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(lessonFeedbackService.save(feedback));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<LessonFeedback> update(@PathVariable Long id, @RequestBody LessonFeedback feedback) {
-        return lessonFeedbackService.update(id, feedback)
+    public ResponseEntity<LessonFeedback> update(@PathVariable Long id, @RequestBody FeedbackRequest request) {
+        return lessonFeedbackService.update(id, toEntity(request))
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -89,21 +60,25 @@ public class FeedbackController {
                 : ResponseEntity.notFound().build();
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse("伺服器錯誤: " + e.getMessage()));
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, String>> handleValidation(IllegalArgumentException e) {
+        return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
     }
 
-    public static class ErrorResponse {
-        public String message;
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, String>> handleException(Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("message", "伺服器錯誤: " + e.getMessage()));
+    }
 
-        public ErrorResponse(String message) {
-            this.message = message;
-        }
-
-        public String getMessage() {
-            return message;
-        }
+    private LessonFeedback toEntity(FeedbackRequest request) {
+        LessonFeedback feedback = new LessonFeedback();
+        feedback.setBookingId(request.getBookingId());
+        feedback.setFocusScore(request.getFocusScore());
+        feedback.setComprehensionScore(request.getComprehensionScore());
+        feedback.setConfidenceScore(request.getConfidenceScore());
+        feedback.setRating(request.getRating());
+        feedback.setComment(request.getComment());
+        return feedback;
     }
 }

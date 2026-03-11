@@ -1,7 +1,5 @@
 package com.learning.api.entity;
 
-import java.time.Instant;
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,6 +32,6 @@ public class Reviews {
     @Column(nullable = true, length = 1000)
     private String comment;
 
-    @Column(nullable = true,  insertable = false, updatable = false)
-    private Instant updated_at;
+/*     @Column(nullable = true,  insertable = false, updatable = false)
+    private Instant updatedAt; */
 }

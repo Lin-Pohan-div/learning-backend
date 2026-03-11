@@ -13,8 +13,8 @@ public class LessonFeedbackService {
 
     private final LessonFeedbackRepository lessonFeedbackRepository;
 
-    private static final int MIN_RATING = 1;
-    private static final int MAX_RATING = 5;
+    private static final int MIN_SCORE = 1;
+    private static final int MAX_SCORE = 5;
     private static final int MAX_COMMENT_LENGTH = 1000;
 
     public List<LessonFeedback> findAll() {
@@ -42,6 +42,9 @@ public class LessonFeedbackService {
     public Optional<LessonFeedback> update(Long id, LessonFeedback updated) {
         return lessonFeedbackRepository.findById(id).map(existing -> {
             validate(updated);
+            existing.setFocusScore(updated.getFocusScore());
+            existing.setComprehensionScore(updated.getComprehensionScore());
+            existing.setConfidenceScore(updated.getConfidenceScore());
             existing.setRating(updated.getRating());
             existing.setComment(updated.getComment());
             return lessonFeedbackRepository.save(existing);
@@ -57,14 +60,21 @@ public class LessonFeedbackService {
     }
 
     private void validate(LessonFeedback feedback) {
-        if (feedback.getRating() == null) {
-            throw new IllegalArgumentException("評分不能為空");
-        }
-        if (feedback.getRating() < MIN_RATING || feedback.getRating() > MAX_RATING) {
-            throw new IllegalArgumentException("評分必須在 " + MIN_RATING + " 到 " + MAX_RATING + " 之間");
-        }
+        validateScore("專注度", feedback.getFocusScore());
+        validateScore("理解度", feedback.getComprehensionScore());
+        validateScore("自信度", feedback.getConfidenceScore());
+        validateScore("評分", feedback.getRating());
         if (feedback.getComment() != null && feedback.getComment().length() > MAX_COMMENT_LENGTH) {
             throw new IllegalArgumentException("評論不能超過 " + MAX_COMMENT_LENGTH + " 個字元");
+        }
+    }
+
+    private void validateScore(String fieldName, Integer score) {
+        if (score == null) {
+            throw new IllegalArgumentException(fieldName + "不能為空");
+        }
+        if (score < MIN_SCORE || score > MAX_SCORE) {
+            throw new IllegalArgumentException(fieldName + "必須在 " + MIN_SCORE + " 到 " + MAX_SCORE + " 之間");
         }
     }
 }

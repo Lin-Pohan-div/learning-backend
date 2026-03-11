@@ -88,7 +88,7 @@ class ChatMessageControllerTest {
 
         ChatMessage msg = new ChatMessage();
         msg.setOrderId(testBooking.getId());
-        msg.setRole((byte) 1);
+        msg.setRole((Integer) 1);
         msg.setMessage("Initial message");
         savedMessage = chatMessageRepository.save(msg);
     }
@@ -118,7 +118,7 @@ class ChatMessageControllerTest {
     void getByBookingId_messagesOrderedByCreatedAtAsc() throws Exception {
         ChatMessage msg2 = new ChatMessage();
         msg2.setOrderId(testBooking.getId());
-        msg2.setRole((byte) 2);
+        msg2.setRole((Integer) 2);
         msg2.setMessage("Second message");
         chatMessageRepository.save(msg2);
 

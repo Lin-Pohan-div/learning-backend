@@ -20,7 +20,7 @@ public class ChatMessageService {
         return chatMessageRepository.findByBookingIdOrderByCreatedAtAsc(bookingId);
     }
 
-    public ChatMessage save(Long bookingId, Byte role, String message) {
+    public ChatMessage save(Long bookingId, Integer role, String message) {
         if (bookingId == null || bookingId <= 0) {
             throw new IllegalArgumentException("Booking ID 不能為空");
         }

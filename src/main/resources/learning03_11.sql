@@ -78,6 +78,9 @@ CREATE TABLE `courses` (
 CREATE TABLE `lesson_feedback` (
   `id` bigint(20) NOT NULL,
   `booking_id` bigint(20) NOT NULL,
+  `focus_score` int NOT NULL,
+  `comprehension_score` int NOT NULL,
+  `confidence_score` int NOT NULL,
   `rating` tinyint(4) NOT NULL COMMENT '1~5分',
   `comment` varchar(1000) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
