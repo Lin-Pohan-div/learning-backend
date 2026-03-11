@@ -29,7 +29,7 @@ public class TutorScheduleService {
 
         // 3. 防呆檢查：是不是已經排過這個時間了？
         boolean isExist = scheduleRepo.existsByTutorIdAndWeekdayAndHour(
-                schedule.getTutorId(), schedule.getWeekday(), schedule.getHour()
+                schedule.getTutorId(), schedule.getWeekday().byteValue(), schedule.getHour().byteValue()
         );
         if (isExist) {
             return "排班失敗：您在這個時段已經排過班囉！";

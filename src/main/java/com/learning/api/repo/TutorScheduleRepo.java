@@ -10,5 +10,5 @@ public interface TutorScheduleRepo extends JpaRepository<TutorSchedule, Long> {
     List<TutorSchedule> findByTutorId(Long tutorId);
 
     // 檢查該老師在「星期幾的幾點」是不是已經排過班了 (防呆機制)
-    boolean existsByTutorIdAndWeekdayAndHour(Long tutorId, Integer weekday, Integer hour);
+    boolean existsByTutorIdAndWeekdayAndHour(Long tutorId, Byte weekday, Byte hour);
 }

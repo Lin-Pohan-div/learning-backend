@@ -2,16 +2,7 @@ package com.learning.api.service;
 
 <<<<<<< HEAD
 import com.learning.api.entity.User;
-import com.learning.api.repo.UserRepo;
-=======
-<<<<<<<< HEAD:src/main/java/com/learning/api/service/MemberService.java
-import com.learning.api.entity.User;
-import com.learning.api.repo.MemberRepo;
-========
-import com.learning.api.entity.*;
-import com.learning.api.repo.*;
->>>>>>>> 82bba7905f5bf54ed159ef8cef8f85569dbfe782:src/main/java/com/learning/api/service/UserService.java
->>>>>>> 82bba7905f5bf54ed159ef8cef8f85569dbfe782
+import com.learning.api.repo.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
@@ -20,7 +11,7 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     @Autowired
-    private UserRepo userRepo;
+    private UserRepository userRepo;
 
 <<<<<<< HEAD
     // 註冊邏輯
@@ -78,7 +69,7 @@ public class UserService {
             user.setRole(1); // 如果前端沒傳，預設給 1 (學生)
         }
         if (user.getWallet() == null) {
-            user.setWallet(0); // 預設錢包為 0
+            user.setWallet(0L); // 預設錢包為 0
         }
         // 管理員身份由 role 判斷（role=0 為管理員，role=1 為學生，role=2 為老師）
 

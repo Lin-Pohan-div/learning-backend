@@ -32,7 +32,7 @@ public class User {
     private Integer role;
 
     @Column(nullable = false)
-    private Integer wallet;
+    private Long wallet;
 
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;

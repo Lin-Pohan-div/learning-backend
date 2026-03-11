@@ -15,7 +15,7 @@ import com.learning.api.entity.Order;
 import com.learning.api.repo.BookingRepository;
 import com.learning.api.repo.CourseRepository;
 import com.learning.api.repo.LessonFeedbackRepository;
-import com.learning.api.repo.OrderRepo;
+import com.learning.api.repo.OrderRepository;
 import com.learning.api.repo.UserRepository;
 
 import jakarta.transaction.Transactional;
@@ -43,7 +43,7 @@ public class LessonFeedbackControllerTest {
     private CourseRepository courseRepository;
 
     @Autowired
-    private OrderRepo orderRepo;
+    private OrderRepository orderRepo;
 
     @Autowired
     private UserRepository userRepository;
@@ -70,7 +70,7 @@ public class LessonFeedbackControllerTest {
         tutor.setEmail("tutor_feedback@example.com");
         tutor.setPassword("hashedpassword");
         tutor.setRole(2);
-        tutor.setWallet(0);
+        tutor.setWallet(0L);
         tutor = userRepository.save(tutor);
 
         com.learning.api.entity.User student = new com.learning.api.entity.User();
@@ -78,7 +78,7 @@ public class LessonFeedbackControllerTest {
         student.setEmail("student_feedback@example.com");
         student.setPassword("hashedpassword");
         student.setRole(1);
-        student.setWallet(0);
+        student.setWallet(0L);
         student = userRepository.save(student);
 
         // Create a course so orders.course_id FK constraint is satisfied

@@ -4,7 +4,7 @@ import com.learning.api.dto.TutorProfileDTO;
 import com.learning.api.entity.Tutor;
 import com.learning.api.entity.User;
 import com.learning.api.repo.TutorRepository;
-import com.learning.api.repo.UserRepo;
+import com.learning.api.repo.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class TutorProfileService {
 
     @Autowired
-    private UserRepo userRepo;
+    private UserRepository userRepo;
 
     @Autowired
     private TutorRepository tutorRepo;

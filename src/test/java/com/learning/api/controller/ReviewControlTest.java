@@ -59,7 +59,7 @@ class ReviewControlTest {
         testUser.setEmail("testuser@example.com");
         testUser.setPassword("hashedpassword");
         testUser.setRole(1);
-        testUser.setWallet(0);
+        testUser.setWallet(0L);
         testUser = userRepository.save(testUser);
         savedUserId = testUser.getId();
 
@@ -69,7 +69,7 @@ class ReviewControlTest {
         tutorUser.setEmail("testtutor@example.com");
         tutorUser.setPassword("hashedpassword");
         tutorUser.setRole(2);
-        tutorUser.setWallet(0);
+        tutorUser.setWallet(0L);
         tutorUser = userRepository.save(tutorUser);
 
         // create a course so fk_reviews_course constraint is satisfied
