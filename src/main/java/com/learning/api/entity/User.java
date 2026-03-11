@@ -29,9 +29,6 @@ public class User {
     @Column(nullable = false)
     private Integer role;
 
-    @Column(name = "is_admin", nullable = false)
-    private Byte isAdmin;
-
     @Column(nullable = false)
     private Long wallet;
 

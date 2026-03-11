@@ -43,9 +43,6 @@ public class UserService {
         if (user.getWallet() == null) {
             user.setWallet(0L); // 預設錢包為 0
         }
-        if (user.getIsAdmin() == null) {
-            user.setIsAdmin((byte) 0); // 預設不是管理員
-        }
 
         user.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
 

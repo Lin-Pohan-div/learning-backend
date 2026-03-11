@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主機： localhost:3306
--- 產生時間： 2026-03-09 16:53:52
+-- 產生時間： 2026-03-11 00:58:29
 -- 伺服器版本： 5.7.24
 -- PHP 版本： 8.3.1
 
@@ -109,7 +109,9 @@ CREATE TABLE `reviews` (
   `id` bigint(20) NOT NULL,
   `user_id` bigint(20) NOT NULL,
   `course_id` bigint(20) NOT NULL,
-  `rating` tinyint(4) NOT NULL COMMENT '1~5分',
+  `focus_score` tinyint(4) NOT NULL,
+  `comprehension_score` int(11) NOT NULL,
+  `confidence_score` int(11) NOT NULL,
   `comment` varchar(1000) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -121,8 +123,12 @@ CREATE TABLE `reviews` (
 
 CREATE TABLE `tutors` (
   `id` bigint(20) NOT NULL,
+  `title` varchar(50) DEFAULT NULL,
   `intro` varchar(1000) DEFAULT NULL,
-  `certificate` varchar(500) DEFAULT NULL,
+  `certificate_1` varchar(500) DEFAULT NULL,
+  `certificate_name_1` varchar(40) NOT NULL,
+  `certificate_2` varchar(500) NOT NULL,
+  `certificate_name_2` int(11) NOT NULL,
   `video_url_1` varchar(500) DEFAULT NULL,
   `video_url_2` varchar(500) DEFAULT NULL,
   `bank_code` varchar(10) DEFAULT NULL,
@@ -154,10 +160,10 @@ CREATE TABLE `users` (
   `email` varchar(255) NOT NULL,
   `password` varchar(64) NOT NULL,
   `birthday` date DEFAULT NULL,
-  `role` tinyint(4) NOT NULL COMMENT '1=學生 2=老師',
-  `is_admin` tinyint(4) NOT NULL DEFAULT '0' COMMENT '0=否 1=平台管理員',
+  `role` tinyint(4) NOT NULL COMMENT '1=學生 2=老師 3=管理者',
   `wallet` bigint(20) NOT NULL DEFAULT '0' COMMENT '錢包餘額(快取)',
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -171,7 +177,7 @@ CREATE TABLE `wallet_logs` (
   `user_id` bigint(20) NOT NULL,
   `transaction_type` tinyint(4) NOT NULL COMMENT '1=儲值 2=購課 3=授課收入 4=退款 5=提現 6=平台贈點',
   `amount` bigint(20) NOT NULL COMMENT '金額(+入帳 -扣款)',
-  `related_type` tinyint(4) DEFAULT NULL COMMENT '1=booking 2=lesson 3=bank',
+  `related_type` tinyint(4) DEFAULT NULL COMMENT '1=order 2=booking 3=bank',
   `related_id` bigint(20) DEFAULT NULL,
   `merchant_trade_no` varchar(100) DEFAULT NULL COMMENT '金流交易編號',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
