@@ -77,7 +77,6 @@ public class CourseService {
         course.setTutorId(courseReq.getTutorId());
         course.setName(courseReq.getName().trim());
         course.setSubject(courseReq.getSubject());
-        course.setLevel(courseReq.getLevel());
         course.setDescription(courseReq.getDescription());
         course.setPrice(courseReq.getPrice());
         course.setActive(courseReq.getActive());

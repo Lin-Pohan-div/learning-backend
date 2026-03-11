@@ -1,6 +1,5 @@
 package com.learning.api.entity;
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
