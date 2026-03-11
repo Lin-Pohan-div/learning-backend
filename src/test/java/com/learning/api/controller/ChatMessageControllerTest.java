@@ -222,6 +222,106 @@ class ChatMessageControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    // ===================== POST - 媒體訊息 =====================
+
+    @Test
+    void post_stickerMessage_shouldReturn201() throws Exception {
+        Map<String, Object> body = Map.of(
+                "bookingId", testBooking.getId(),
+                "role", 1,
+                "messageType", 2,
+                "mediaUrl", "https://example.com/stickers/001.png"
+        );
+
+        mockMvc.perform(post("/api/chatMessage")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(body)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.messageType").value(2))
+                .andExpect(jsonPath("$.mediaUrl").value("https://example.com/stickers/001.png"));
+    }
+
+    @Test
+    void post_voiceMessage_shouldReturn201() throws Exception {
+        Map<String, Object> body = Map.of(
+                "bookingId", testBooking.getId(),
+                "role", 1,
+                "messageType", 3,
+                "mediaUrl", "https://example.com/audio/001.mp3"
+        );
+
+        mockMvc.perform(post("/api/chatMessage")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(body)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.messageType").value(3))
+                .andExpect(jsonPath("$.mediaUrl").value("https://example.com/audio/001.mp3"));
+    }
+
+    @Test
+    void post_imageMessage_shouldReturn201() throws Exception {
+        Map<String, Object> body = Map.of(
+                "bookingId", testBooking.getId(),
+                "role", 2,
+                "messageType", 4,
+                "mediaUrl", "https://example.com/images/001.jpg"
+        );
+
+        mockMvc.perform(post("/api/chatMessage")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(body)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.messageType").value(4))
+                .andExpect(jsonPath("$.mediaUrl").value("https://example.com/images/001.jpg"));
+    }
+
+    @Test
+    void post_videoMessage_shouldReturn201() throws Exception {
+        Map<String, Object> body = Map.of(
+                "bookingId", testBooking.getId(),
+                "role", 2,
+                "messageType", 5,
+                "mediaUrl", "https://example.com/videos/001.mp4"
+        );
+
+        mockMvc.perform(post("/api/chatMessage")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(body)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.messageType").value(5))
+                .andExpect(jsonPath("$.mediaUrl").value("https://example.com/videos/001.mp4"));
+    }
+
+    @Test
+    void post_stickerWithoutMediaUrl_shouldReturn400() throws Exception {
+        Map<String, Object> body = Map.of(
+                "bookingId", testBooking.getId(),
+                "role", 1,
+                "messageType", 2
+        );
+
+        mockMvc.perform(post("/api/chatMessage")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(body)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(containsString("貼圖")));
+    }
+
+    @Test
+    void post_invalidMessageType_shouldReturn400() throws Exception {
+        Map<String, Object> body = Map.of(
+                "bookingId", testBooking.getId(),
+                "role", 1,
+                "messageType", 99,
+                "mediaUrl", "https://example.com/something"
+        );
+
+        mockMvc.perform(post("/api/chatMessage")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(body)))
+                .andExpect(status().isBadRequest());
+    }
+
     // ===================== PUT =====================
 
     @Test

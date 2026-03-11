@@ -21,8 +21,14 @@ public class ChatMessage {
     @Column(nullable = false)
     private Integer role; //1Student 2tutor
 
-    @Column(nullable = false, length = 1000)
+    @Column(name = "message_type", nullable = false)
+    private Integer messageType = 1; // 1=text, 2=sticker
+
+    @Column(length = 1000)
     private String message;
+
+    @Column(name = "media_url", length = 500)
+    private String mediaUrl;
 
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;

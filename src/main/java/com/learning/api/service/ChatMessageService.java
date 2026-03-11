@@ -3,6 +3,7 @@ package com.learning.api.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.learning.api.entity.ChatMessage;
+import com.learning.api.enums.MessageType;
 import com.learning.api.repo.ChatMessageRepository;
 import com.learning.api.repo.OrderRepository;
 import java.util.List;
@@ -20,7 +21,7 @@ public class ChatMessageService {
         return chatMessageRepository.findByBookingIdOrderByCreatedAtAsc(bookingId);
     }
 
-    public ChatMessage save(Long bookingId, Integer role, String message) {
+    public ChatMessage save(Long bookingId, Integer role, Integer messageTypeValue, String message, String mediaUrl) {
         if (bookingId == null || bookingId <= 0) {
             throw new IllegalArgumentException("Booking ID 不能為空");
         }
@@ -28,10 +29,18 @@ public class ChatMessageService {
         orderRepo.findById(bookingId)
             .orElseThrow(() -> new NoSuchElementException("Booking ID: " + bookingId + " 不存在"));
 
+        MessageType type = MessageType.fromValue(messageTypeValue != null ? messageTypeValue : MessageType.TEXT.getValue());
+
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setOrderId(bookingId);
         chatMessage.setRole(role);
-        chatMessage.setMessage(message);
+        chatMessage.setMessageType(type.getValue());
+
+        if (type.isMedia()) {
+            chatMessage.setMediaUrl(mediaUrl);
+        } else {
+            chatMessage.setMessage(message);
+        }
 
         return chatMessageRepository.save(chatMessage);
     }
