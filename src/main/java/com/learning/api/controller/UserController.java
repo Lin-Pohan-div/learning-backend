@@ -12,13 +12,13 @@ import java.util.Map;
 @ApiController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-public class MemberController {
+public class UserController {
 
-    private final UserService memberService;
+    private final UserService userService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
-        if (!memberService.register(user)) {
+        if (!userService.register(user)) {
             return ResponseEntity.status(400).body(Map.of("message", "註冊失敗"));
         }
         return ResponseEntity.ok(Map.of("message", "歡迎"));
@@ -26,7 +26,7 @@ public class MemberController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User member) {
-        if (!memberService.login(member.getEmail(), member.getPassword())) {
+        if (!userService.login(member.getEmail(), member.getPassword())) {
             return ResponseEntity.status(401).body(Map.of("message", "帳號或密碼錯誤"));
         }
         return ResponseEntity.ok(Map.of("message", "歡迎"));
