@@ -157,10 +157,50 @@
     .msg-row.self  .bubble { background: #1a73e8; color: #fff; border-bottom-right-radius: 4px; }
     .msg-row.other .bubble { background: #fff; color: #202124; border-bottom-left-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
-    .bubble.media { background: #f1f3f4; color: #333; font-size: 12px; font-style: italic; }
-    .msg-row.self .bubble.media { background: rgba(255,255,255,0.2); color: #fff; }
+    /* 媒體氣泡：無背景、縮小 padding，讓元素直接呈現 */
+    .bubble.media {
+      background: transparent !important;
+      padding: 4px;
+      box-shadow: none;
+    }
 
     .msg-time { font-size: 10px; color: #aaa; padding: 0 4px; }
+
+    /* ── 媒體元素 ── */
+
+    /* 貼圖：固定小尺寸 */
+    .sticker-img {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+      display: block;
+    }
+
+    /* 圖片：限制大小，點擊可放大 */
+    .chat-img {
+      max-width: 220px;
+      max-height: 180px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: block;
+      object-fit: cover;
+      transition: opacity 0.2s;
+    }
+    .chat-img:hover { opacity: 0.9; }
+
+    /* 語音播放器 */
+    .chat-audio {
+      width: 220px;
+      height: 40px;
+      display: block;
+    }
+
+    /* 影片播放器 */
+    .chat-video {
+      max-width: 240px;
+      border-radius: 10px;
+      display: block;
+    }
 
     /* 系統訊息 */
     .sys-msg {
@@ -543,36 +583,105 @@ function sendEvent(p, type) {
 }
 
 // ─────────────────────────────────────────────
-// 渲染聊天氣泡
+// 依 messageType 建立對應媒體元素
+// ─────────────────────────────────────────────
+function createMediaElement(msg) {
+  const url = msg.mediaUrl || '';
+  let el;
+
+  switch (msg.messageType) {
+    case 2: // STICKER — 固定小尺寸圖片
+      el = document.createElement('img');
+      el.className = 'sticker-img';
+      el.alt = '貼圖';
+      el.src = url;
+      break;
+
+    case 3: // VOICE — 內建音訊播放器
+      el = document.createElement('audio');
+      el.className = 'chat-audio';
+      el.controls = true;
+      el.src = url;
+      break;
+
+    case 4: // IMAGE — 可點擊原圖
+      el = document.createElement('img');
+      el.className = 'chat-img';
+      el.alt = '圖片';
+      el.title = '點擊查看原圖';
+      el.src = url;
+      el.addEventListener('click', () => window.open(url, '_blank'));
+      break;
+
+    case 5: // VIDEO — 內建影片播放器
+      el = document.createElement('video');
+      el.className = 'chat-video';
+      el.controls = true;
+      el.src = url;
+      break;
+
+    default:
+      return null;
+  }
+  return el;
+}
+
+// ─────────────────────────────────────────────
+// 渲染聊天氣泡（使用 DOM 操作，避免 XSS）
 // ─────────────────────────────────────────────
 function renderMessage(panel, msg) {
   const box      = document.getElementById('msgs' + panel);
   const selfRole = ROLE[panel];
   const isSelf   = msg.role === selfRole;
+  const isMedia  = MEDIA_TYPES.has(msg.messageType);
 
+  // 最外層 row
   const row = document.createElement('div');
   row.className = `msg-row ${isSelf ? 'self' : 'other'}`;
 
-  const avatarColor = msg.role === 1 ? 'avatar-student' : 'avatar-tutor';
-  const avatarChar  = msg.role === 1 ? 'S' : 'T';
-  const senderName  = ROLE_NAME[msg.role] || `role=${msg.role}`;
+  // 頭像
+  const msgAvatar = document.createElement('div');
+  msgAvatar.className = `msg-avatar ${msg.role === 1 ? 'avatar-student' : 'avatar-tutor'}`;
+  msgAvatar.textContent = msg.role === 1 ? 'S' : 'T';
 
-  const isMedia    = MEDIA_TYPES.has(msg.messageType);
-  const bubbleText = isMedia
-    ? `[${TYPE_NAME[msg.messageType] || msg.messageType}] ${msg.mediaUrl || ''}`
-    : (msg.message || '');
+  // 內容欄
+  const msgContent = document.createElement('div');
+  msgContent.className = 'msg-content';
 
-  const time = msg.createdAt
+  // 發送者名稱
+  const senderSpan = document.createElement('span');
+  senderSpan.className = 'msg-sender';
+  senderSpan.textContent = ROLE_NAME[msg.role] || `role=${msg.role}`;
+
+  // 氣泡
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble' + (isMedia ? ' media' : '');
+
+  if (isMedia) {
+    const mediaEl = createMediaElement(msg);
+    if (mediaEl) {
+      bubble.appendChild(mediaEl);
+    } else {
+      bubble.textContent = `[${TYPE_NAME[msg.messageType] || msg.messageType}] ${msg.mediaUrl || ''}`;
+    }
+  } else {
+    bubble.textContent = msg.message || '';
+  }
+
+  // 時間戳
+  const timeSpan = document.createElement('span');
+  timeSpan.className = 'msg-time';
+  const timeStr = msg.createdAt
     ? new Date(msg.createdAt).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false })
     : new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false });
+  timeSpan.textContent = timeStr + (msg.id ? ` · #${msg.id}` : '');
 
-  row.innerHTML = `
-    <div class="msg-avatar ${avatarColor}">${avatarChar}</div>
-    <div class="msg-content">
-      <span class="msg-sender">${senderName}</span>
-      <div class="bubble${isMedia ? ' media' : ''}">${escHtml(bubbleText)}</div>
-      <span class="msg-time">${time}${msg.id ? ` · #${msg.id}` : ''}</span>
-    </div>`;
+  // 組裝
+  msgContent.appendChild(senderSpan);
+  msgContent.appendChild(bubble);
+  msgContent.appendChild(timeSpan);
+  row.appendChild(msgAvatar);
+  row.appendChild(msgContent);
 
   // 移除初始佔位提示
   const hint = box.querySelector('.sys-msg');
@@ -624,12 +733,6 @@ function setPill(p, online) {
   pill.className   = 'status-pill' + (online ? ' online' : '');
 }
 
-function escHtml(s) {
-  return String(s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-}
 </script>
 </body>
 </html>
