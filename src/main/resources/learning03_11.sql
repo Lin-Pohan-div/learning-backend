@@ -48,7 +48,9 @@ CREATE TABLE `chat_messages` (
   `id` bigint(20) NOT NULL,
   `order_id` bigint(20) NOT NULL,
   `role` tinyint(4) NOT NULL COMMENT '1=學生 2=老師',
-  `message` varchar(1000) NOT NULL,
+  `message_type` tinyint(4) NOT NULL DEFAULT '1' COMMENT '1=text 2=sticker 3=voice 4=image 5=video',
+  `message` varchar(1000) DEFAULT NULL,
+  `media_url` varchar(500) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

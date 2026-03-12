@@ -24,8 +24,10 @@ public class ChatMessage {
     @Column(name = "message_type", nullable = false)
     private Integer messageType = 1; // 1=text, 2=sticker
 
-    @Column(length = 1000)
-    private String message;
+    // allow null in JPA mapping but some existing schema may still mark this NOT NULL
+    // we provide a default empty string to avoid persistence errors when media only
+    @Column(length = 1000, nullable = true)
+    private String message = "";
 
     @Column(name = "media_url", length = 500)
     private String mediaUrl;

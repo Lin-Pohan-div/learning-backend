@@ -38,6 +38,7 @@ public class ChatMessageService {
 
         if (type.isMedia()) {
             chatMessage.setMediaUrl(mediaUrl);
+            chatMessage.setMessage("");
         } else {
             chatMessage.setMessage(message);
         }
