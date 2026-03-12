@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class CourseService {
     @Autowired
-    private MemberRepo userRepo;
+    private UserRepository userRepo;
 
     @Autowired
     private CourseRepo courseRepo;

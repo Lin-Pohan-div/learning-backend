@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 public class BookingService {
 
     @Autowired
-    private MemberRepo memberRepo;
+    private UserRepository userRepo;
 
     @Autowired
     private CourseRepository courseRepo;
@@ -30,7 +30,7 @@ public class BookingService {
         if (bookingReq.getLessonCount() <= 0) return false;
 
         // member existsById
-        if(!memberRepo.existsById(bookingReq.getUserId())) return false;
+        if(!userRepo.existsById(bookingReq.getUserId())) return false;
 
         // course findById
         Course course = courseRepo.findById(bookingReq.getCourseId()).orElse(null);
