@@ -184,16 +184,16 @@
 ## 資料流程圖
 
 ```
-客戶端 A                 伺服器                  客戶端 B
-   │                       │                        │
-   │── /app/signal/{id} ──>│                        │
+客戶端 A                 伺服器                          客戶端 B
+   │                       │                              │
+   │── /app/signal/{id} ──>│                              │
    │                       │── /topic/room/{id}/signal ──>│
-   │                       │                        │
-   │── /app/chat/{id} ───>│                        │
+   │                       │                              │
+   │── /app/chat/{id}  ───>│                              │
    │                       │── ChatMessageService.save() ──> DB
    │                       │── /topic/room/{id}/chat ────>│
-   │                       │                        │
-   │── /app/event/{id} ──>│                        │
+   │                       │                              │
+   │── /app/event/{id}  ──>│                              │
    │                       │── /topic/room/{id}/events ──>│
 ```
 
