@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import com.learning.api.entity.Reviews;
 import com.learning.api.repo.ReviewRepository;
-import com.learning.api.repo.CourseRepository;
+import com.learning.api.repo.CourseRepo;
 import com.learning.api.repo.UserRepository;
 
 import java.util.Map;
@@ -32,7 +32,7 @@ class ReviewControlTest {
     private ReviewRepository reviewRepository;
 
     @Autowired
-    private CourseRepository courseRepository;
+    private CourseRepo courseRepo;
 
     @Autowired
     private UserRepository userRepository;
@@ -81,7 +81,7 @@ class ReviewControlTest {
         testCourse.setDescription("Course for testing");
         testCourse.setPrice(500);
         testCourse.setActive(true);
-        testCourse = courseRepository.save(testCourse);
+        testCourse = courseRepo.save(testCourse);
         savedCourseId = testCourse.getId();
 
         com.learning.api.entity.Course testCourse2 = new com.learning.api.entity.Course();
@@ -92,7 +92,7 @@ class ReviewControlTest {
         testCourse2.setDescription("Second course for POST testing");
         testCourse2.setPrice(600);
         testCourse2.setActive(true);
-        testCourse2 = courseRepository.save(testCourse2);
+        testCourse2 = courseRepo.save(testCourse2);
         savedCourseId2 = testCourse2.getId();
 
         reviewRepository.deleteAll();

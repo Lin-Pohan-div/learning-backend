@@ -1,7 +1,7 @@
 package com.learning.api.service;
 
 import com.learning.api.entity.Course;
-import com.learning.api.repo.CourseRepository;
+import com.learning.api.repo.CourseRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 public class TeacherCourseService {
 
     @Autowired
-    private CourseRepository courseRepo;
+    private CourseRepo courseRepo;
 
     // 老師新增課程的商業邏輯
     public boolean addCourse(Course course) {

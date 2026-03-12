@@ -14,7 +14,7 @@ import com.learning.api.entity.Order;
 import com.learning.api.entity.ChatMessage;
 import com.learning.api.repo.OrderRepository;
 import com.learning.api.repo.ChatMessageRepository;
-import com.learning.api.repo.CourseRepository;
+import com.learning.api.repo.CourseRepo;
 import com.learning.api.repo.UserRepository;
 
 import java.util.Map;
@@ -37,7 +37,7 @@ class ChatMessageControllerTest {
     private ChatMessageRepository chatMessageRepository;
 
     @Autowired
-    private CourseRepository courseRepository;
+    private CourseRepo courseRepo;
 
     @Autowired
     private UserRepository userRepository;
@@ -74,7 +74,7 @@ class ChatMessageControllerTest {
         testCourse.setDescription("Course for testing");
         testCourse.setPrice(500);
         testCourse.setActive(true);
-        testCourse = courseRepository.save(testCourse);
+        testCourse = courseRepo.save(testCourse);
 
         testBooking = new Order();
         testBooking.setUserId(testUser.getId());

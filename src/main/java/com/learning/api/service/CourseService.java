@@ -2,14 +2,15 @@ package com.learning.api.service;
 
 import com.learning.api.dto.*;
 import com.learning.api.entity.*;
-import com.learning.api.repo.*;
+import com.learning.api.repo.UserRepository;
+import com.learning.api.repo.CourseRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CourseService {
     @Autowired
-    private MemberRepo userRepo;
+    private UserRepository userRepo;
 
     @Autowired
     private CourseRepo courseRepo;

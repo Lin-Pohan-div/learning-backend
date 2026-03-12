@@ -13,7 +13,7 @@ import com.learning.api.entity.Bookings;
 import com.learning.api.entity.LessonFeedback;
 import com.learning.api.entity.Order;
 import com.learning.api.repo.BookingRepository;
-import com.learning.api.repo.CourseRepository;
+import com.learning.api.repo.CourseRepo;
 import com.learning.api.repo.LessonFeedbackRepository;
 import com.learning.api.repo.OrderRepository;
 import com.learning.api.repo.UserRepository;
@@ -42,7 +42,7 @@ public class LessonFeedbackControllerTest {
     private BookingRepository bookingRepository;
 
     @Autowired
-    private CourseRepository courseRepository;
+    private CourseRepo courseRepo;
 
     @Autowired
     private OrderRepository orderRepo;
@@ -89,7 +89,7 @@ public class LessonFeedbackControllerTest {
         course.setDescription("Course for feedback testing");
         course.setPrice(500);
         course.setActive(true);
-        course = courseRepository.save(course);
+        course = courseRepo.save(course);
 
         Order order = new Order();
         order.setUserId(student.getId());
