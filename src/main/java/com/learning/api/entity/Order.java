@@ -30,6 +30,9 @@ public class Order {
 
     @Column(name = "lesson_used", nullable = false)
     private Integer lessonUsed;
+
+    @Column(name = "is_experienced")
+    private Boolean isExperienced; //是否為體驗課 1為體驗課 預設 null
     
     @Column(name = "status", nullable = false)
     private Integer status; //1 pending 2deal 3complete
