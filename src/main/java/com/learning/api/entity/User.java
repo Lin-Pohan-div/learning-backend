@@ -22,7 +22,7 @@ public class User {
     @Column(nullable = false, unique = true, length = 255)
     private String email;
 
-    @Column(nullable = false, length = 64)
+    @Column(nullable = false, length = 255)
     private String password;
 
     private LocalDate birthday;
@@ -30,16 +30,12 @@ public class User {
     @Column(nullable = false)
     private Integer role; //1:student/2:teacher/3admin
 
-
-
     @Column(nullable=false)
-    private Integer wallet;
+    private Integer wallet=0;
 
     @Column(name = "created_at", insertable = false, updatable = false)
     private Instant createdAt;
     
-    @Column(name = "updated_at", insertable = false, updatable = true)
+    @Column(name = "updated_at", insertable = false, updatable = false)
     private Instant updatedAt;
-    
-
 }
