@@ -1,14 +1,15 @@
 package com.learning.api.controller;
 
+import com.learning.api.annotation.ApiController;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-@RestController
+@ApiController
 @RequestMapping("/api")
 public class TestController {
+
     @GetMapping("/TestController")
-    public String test(){
+    public String test() {
         return "OK";
     }
 

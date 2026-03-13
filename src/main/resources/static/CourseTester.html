@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>課程 API 測試工具</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── 頂部設定列 ── */
+    .topbar {
+      background: #1a73e8;
+      color: #fff;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .topbar h1 { font-size: 16px; font-weight: 700; white-space: nowrap; }
+    .topbar label { font-size: 13px; white-space: nowrap; opacity: 0.85; }
+    .topbar input {
+      padding: 5px 10px;
+      border-radius: 6px;
+      border: none;
+      font-size: 13px;
+      width: 220px;
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+    }
+    .topbar input::placeholder { color: rgba(255,255,255,0.6); }
+    .topbar input:focus { outline: 2px solid rgba(255,255,255,0.6); background: rgba(255,255,255,0.25); }
+    .topbar-hint { font-size: 12px; opacity: 0.7; margin-left: auto; }
+
+    /* ── 主體佈局 ── */
+    .layout {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      flex: 1;
+    }
+
+    /* ── 卡片 ── */
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 16px;
+    }
+    .card.full-width { grid-column: 1 / -1; }
+
+    .card h2 {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1a73e8;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e8f0fe;
+    }
+
+    /* ── 表單元素 ── */
+    .form-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .form-row label {
+      font-size: 12px;
+      color: #555;
+      min-width: 80px;
+    }
+    input[type="number"], input[type="text"], select {
+      padding: 6px 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 13px;
+      flex: 1;
+      min-width: 0;
+    }
+    input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+    .checkbox-label { font-size: 12px; color: #555; cursor: pointer; }
+
+    /* ── 按鈕 ── */
+    .btn {
+      padding: 8px 16px;
+      background: #1a73e8;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      margin-top: 4px;
+      width: 100%;
+    }
+    .btn:hover { background: #1557b0; }
+    .btn-danger { background: #ea4335; }
+    .btn-danger:hover { background: #c5221f; }
+
+    /* ── 回應區 ── */
+    .response-area {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      font-family: 'Consolas', monospace;
+      font-size: 12px;
+      padding: 10px;
+      border-radius: 6px;
+      white-space: pre-wrap;
+      min-height: 56px;
+      max-height: 200px;
+      overflow-y: auto;
+      margin-top: 10px;
+    }
+    .response-area.ok   { color: #a8d8a8; }
+    .response-area.err  { color: #f48771; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>📚 課程 API 測試工具</h1>
+  <label for="serverUrl">伺服器 URL</label>
+  <input id="serverUrl" type="text" value="http://localhost:8080" placeholder="http://localhost:8080" />
+  <span class="topbar-hint">測試 /api/courses 端點</span>
+</div>
+
+<div class="layout">
+
+  <!-- Card 1: GET 全部課程 -->
+  <div class="card">
+    <h2>GET / 取得所有課程</h2>
+    <button class="btn" onclick="getAll()">取得全部課程</button>
+    <pre class="response-area" id="res-getAll">— 尚未發送請求 —</pre>
+  </div>
+
+  <!-- Card 2: GET 單筆課程 -->
+  <div class="card">
+    <h2>GET /{id} 取得單筆課程</h2>
+    <div class="form-row">
+      <label for="getById-id">課程 ID</label>
+      <input id="getById-id" type="number" value="1" min="1" />
+    </div>
+    <button class="btn" onclick="getById()">查詢</button>
+    <pre class="response-area" id="res-getById">— 尚未發送請求 —</pre>
+  </div>
+
+  <!-- Card 3: GET 老師課程 -->
+  <div class="card">
+    <h2>GET /tutor/{id} 老師的課程</h2>
+    <div class="form-row">
+      <label for="getByTutor-id">老師 ID</label>
+      <input id="getByTutor-id" type="number" value="1" min="1" />
+    </div>
+    <div class="form-row">
+      <input type="checkbox" id="activeOnly" />
+      <label class="checkbox-label" for="activeOnly">僅上架課程（/active）</label>
+    </div>
+    <button class="btn" onclick="getByTutor()">查詢</button>
+    <pre class="response-area" id="res-getByTutor">— 尚未發送請求 —</pre>
+  </div>
+
+  <!-- Card 4: POST 建立課程 -->
+  <div class="card">
+    <h2>POST / 建立新課程</h2>
+    <div class="form-row">
+      <label for="post-tutorId">老師 ID</label>
+      <input id="post-tutorId" type="number" placeholder="必填" />
+    </div>
+    <div class="form-row">
+      <label for="post-name">課程名稱</label>
+      <input id="post-name" type="text" placeholder="必填" />
+    </div>
+    <div class="form-row">
+      <label for="post-subject">科目代碼</label>
+      <select id="post-subject">
+        <option value="11">11 低年級</option>
+        <option value="12">12 中年級</option>
+        <option value="13">13 高年級</option>
+        <option value="21">21 GEPT</option>
+        <option value="22">22 YLE</option>
+        <option value="23">23 國中先修</option>
+        <option value="31">31 其他</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label for="post-price">定價</label>
+      <input id="post-price" type="number" placeholder="必填，需 > 0" />
+    </div>
+    <div class="form-row">
+      <label for="post-active">上架狀態</label>
+      <select id="post-active">
+        <option value="true">上架（true）</option>
+        <option value="false">下架（false）</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label for="post-level">難易度</label>
+      <input id="post-level" type="number" placeholder="選填，1–5" min="1" max="5" />
+    </div>
+    <div class="form-row">
+      <label for="post-description">描述</label>
+      <input id="post-description" type="text" placeholder="選填" />
+    </div>
+    <button class="btn" onclick="createCourse()">建立課程</button>
+    <pre class="response-area" id="res-post">— 尚未發送請求 —</pre>
+  </div>
+
+  <!-- Card 5: PUT 更新課程 -->
+  <div class="card">
+    <h2>PUT /{id} 更新課程</h2>
+    <div class="form-row">
+      <label for="put-id">課程 ID</label>
+      <input id="put-id" type="number" placeholder="必填" />
+    </div>
+    <div class="form-row">
+      <label for="put-name">課程名稱</label>
+      <input id="put-name" type="text" placeholder="必填" />
+    </div>
+    <div class="form-row">
+      <label for="put-subject">科目代碼</label>
+      <select id="put-subject">
+        <option value="11">11 低年級</option>
+        <option value="12">12 中年級</option>
+        <option value="13">13 高年級</option>
+        <option value="21">21 GEPT</option>
+        <option value="22">22 YLE</option>
+        <option value="23">23 國中先修</option>
+        <option value="31">31 其他</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label for="put-price">定價</label>
+      <input id="put-price" type="number" placeholder="必填，需 > 0" />
+    </div>
+    <div class="form-row">
+      <label for="put-active">上架狀態</label>
+      <select id="put-active">
+        <option value="true">上架（true）</option>
+        <option value="false">下架（false）</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label for="put-description">描述</label>
+      <input id="put-description" type="text" placeholder="選填" />
+    </div>
+    <button class="btn" onclick="updateCourse()">更新課程</button>
+    <pre class="response-area" id="res-put">— 尚未發送請求 —</pre>
+  </div>
+
+  <!-- Card 6: DELETE 刪除課程 -->
+  <div class="card">
+    <h2>DELETE /{id} 刪除課程</h2>
+    <div class="form-row">
+      <label for="delete-id">課程 ID</label>
+      <input id="delete-id" type="number" placeholder="必填" />
+    </div>
+    <button class="btn btn-danger" onclick="deleteCourse()">刪除課程</button>
+    <pre class="response-area" id="res-delete">— 尚未發送請求 —</pre>
+  </div>
+
+  <!-- Card 7: 最後請求詳情（全寬） -->
+  <div class="card full-width">
+    <h2>最後請求詳情</h2>
+    <pre class="response-area" id="res-last" style="max-height:160px;">— 尚未發送請求 —</pre>
+  </div>
+
+</div>
+
+<script>
+  function getServerUrl() {
+    return document.getElementById('serverUrl').value.replace(/\/+$/, '');
+  }
+
+  function showResponse(areaId, status, data) {
+    const el = document.getElementById(areaId);
+    el.textContent = `HTTP ${status}\n${JSON.stringify(data, null, 2)}`;
+    el.className = 'response-area ' + (status >= 400 ? 'err' : 'ok');
+  }
+
+  function showLastRequest(method, url, reqBody, status, resBody) {
+    const el = document.getElementById('res-last');
+    el.textContent = [
+      `${method} ${url}`,
+      reqBody ? `請求主體:\n${JSON.stringify(reqBody, null, 2)}` : '',
+      `\nHTTP ${status}`,
+      `回應:\n${JSON.stringify(resBody, null, 2)}`
+    ].filter(Boolean).join('\n');
+    el.className = 'response-area ' + (status >= 400 ? 'err' : 'ok');
+  }
+
+  async function apiFetch(method, path, body, areaId) {
+    const url = getServerUrl() + path;
+    const opts = { method, headers: { 'Content-Type': 'application/json' } };
+    if (body) opts.body = JSON.stringify(body);
+
+    const el = document.getElementById(areaId);
+    el.className = 'response-area';
+    el.textContent = '傳送中…';
+
+    try {
+      const res = await fetch(url, opts);
+      const text = await res.text();
+      let parsed;
+      try { parsed = JSON.parse(text); } catch { parsed = text; }
+      showResponse(areaId, res.status, parsed);
+      showLastRequest(method, url, body, res.status, parsed);
+    } catch (e) {
+      el.textContent = '連線錯誤: ' + e.message;
+      el.className = 'response-area err';
+    }
+  }
+
+  // GET 全部
+  async function getAll() {
+    await apiFetch('GET', '/api/courses', null, 'res-getAll');
+  }
+
+  // GET 單筆
+  async function getById() {
+    const id = document.getElementById('getById-id').value;
+    if (!id) { alert('請填入課程 ID'); return; }
+    await apiFetch('GET', `/api/courses/${id}`, null, 'res-getById');
+  }
+
+  // GET 老師課程
+  async function getByTutor() {
+    const id = document.getElementById('getByTutor-id').value;
+    if (!id) { alert('請填入老師 ID'); return; }
+    const activeOnly = document.getElementById('activeOnly').checked;
+    const path = activeOnly ? `/api/courses/tutor/${id}/active` : `/api/courses/tutor/${id}`;
+    await apiFetch('GET', path, null, 'res-getByTutor');
+  }
+
+  // POST 建立
+  async function createCourse() {
+    const tutorId = document.getElementById('post-tutorId').value;
+    const name    = document.getElementById('post-name').value.trim();
+    const subject = parseInt(document.getElementById('post-subject').value);
+    const price   = parseInt(document.getElementById('post-price').value);
+    const active  = document.getElementById('post-active').value === 'true';
+    const level   = document.getElementById('post-level').value;
+    const desc    = document.getElementById('post-description').value.trim();
+
+    const body = {};
+    if (tutorId) body.tutorId = parseInt(tutorId);
+    body.name    = name;
+    body.subject = subject;
+    if (!isNaN(price)) body.price = price;
+    body.active  = active;
+    if (level)   body.level = parseInt(level);
+    if (desc)    body.description = desc;
+
+    await apiFetch('POST', '/api/courses', body, 'res-post');
+  }
+
+  // PUT 更新
+  async function updateCourse() {
+    const id      = document.getElementById('put-id').value;
+    if (!id) { alert('請填入課程 ID'); return; }
+    const name    = document.getElementById('put-name').value.trim();
+    const subject = parseInt(document.getElementById('put-subject').value);
+    const price   = parseInt(document.getElementById('put-price').value);
+    const active  = document.getElementById('put-active').value === 'true';
+    const desc    = document.getElementById('put-description').value.trim();
+
+    const body = { name, subject, active };
+    if (!isNaN(price)) body.price = price;
+    if (desc)    body.description = desc;
+
+    await apiFetch('PUT', `/api/courses/${id}`, body, 'res-put');
+  }
+
+  // DELETE 刪除
+  async function deleteCourse() {
+    const id = document.getElementById('delete-id').value;
+    if (!id) { alert('請填入課程 ID'); return; }
+    if (!confirm(`確定要刪除課程 ID ${id}？`)) return;
+    await apiFetch('DELETE', `/api/courses/${id}`, null, 'res-delete');
+  }
+</script>
+</body>
+</html>

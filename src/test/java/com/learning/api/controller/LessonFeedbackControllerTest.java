@@ -85,7 +85,7 @@ public class LessonFeedbackControllerTest {
         course.setTutorId(tutor.getId());
         course.setName("Test Course");
         course.setSubject(1);
-        course.setLevel(1);
+        /* course.setLevel(1); */
         course.setDescription("Course for feedback testing");
         course.setPrice(500);
         course.setActive(true);

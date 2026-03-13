@@ -420,20 +420,52 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
       });
-      const data = await res.json();
-      log('PUT', res.status, data);
-    } catch(e) { logErr('PUT', e); }
+      const text = await res.text();
+      let parsed;
+      try { parsed = JSON.parse(text); } catch { parsed = text; }
+      showResponse(areaId, res.status, parsed);
+    } catch (e) {
+      el.textContent = '連線錯誤: ' + e.message;
+      el.className = 'response-area err';
+    }
   }
 
-  async function doDelete() {
-    const id = getTutorId();
-    if (!id) { alert('請輸入 tutorId'); return; }
-    if (!confirm(`確定要刪除 tutorId=${id} 的個人檔案嗎？`)) return;
-    try {
-      const res = await fetch(`${BASE}/${id}`, { method: 'DELETE' });
-      const data = await res.json();
-      log('DELETE', res.status, data);
-    } catch(e) { logErr('DELETE', e); }
+  // 主表單送出
+  async function updateProfile() {
+    const tutorIdVal = document.getElementById('tutorId').value;
+    const body = {};
+    if (tutorIdVal) body.tutorId = parseInt(tutorIdVal);
+
+    const name = document.getElementById('name').value.trim();
+    if (name) body.name = name;
+
+    const intro = document.getElementById('intro').value.trim();
+    if (intro) body.intro = intro;
+
+    const cert = document.getElementById('certificate').value.trim();
+    if (cert) body.certificate = cert;
+
+    const video = document.getElementById('video').value.trim();
+    if (video) body.video = video;
+
+    await apiFetch(body, 'res-put');
+  }
+
+  // 情境 1: 缺少 tutorId
+  async function testMissingId() {
+    await apiFetch({}, 'res-missing-id');
+  }
+
+  // 情境 2: 不存在的老師
+  async function testNotFound() {
+    await apiFetch({ tutorId: 999999 }, 'res-not-found');
+  }
+
+  // 情境 3: 只更新介紹（用主表單的 tutorId）
+  async function testIntroOnly() {
+    const tutorIdVal = document.getElementById('tutorId').value;
+    if (!tutorIdVal) { alert('請在上方表單填入老師 ID'); return; }
+    await apiFetch({ tutorId: parseInt(tutorIdVal), intro: '測試介紹（自動填入）' }, 'res-intro-only');
   }
 </script>
 </body>

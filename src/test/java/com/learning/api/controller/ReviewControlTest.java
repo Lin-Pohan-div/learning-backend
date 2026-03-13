@@ -77,7 +77,7 @@ class ReviewControlTest {
         testCourse.setTutorId(tutorUser.getId());
         testCourse.setName("Test Course");
         testCourse.setSubject(1);
-        testCourse.setLevel(1);
+        /* testCourse.setLevel(1); */
         testCourse.setDescription("Course for testing");
         testCourse.setPrice(500);
         testCourse.setActive(true);
@@ -88,7 +88,7 @@ class ReviewControlTest {
         testCourse2.setTutorId(tutorUser.getId());
         testCourse2.setName("Test Course 2");
         testCourse2.setSubject(1);
-        testCourse2.setLevel(1);
+        /* testCourse2.setLevel(1); */
         testCourse2.setDescription("Second course for POST testing");
         testCourse2.setPrice(600);
         testCourse2.setActive(true);

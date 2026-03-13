@@ -16,7 +16,7 @@ public class TeacherCourseService {
         // 1. 防呆檢查：有沒有漏填必填欄位
         if (course.getTutorId() == null ||
                 course.getSubject() == null ||
-                course.getLevel() == null ||
+                /* course.getLevel() == null || */
                 course.getPrice() == null) {
             System.out.println("❌ 開課失敗：有必填欄位沒有填寫！");
             return false;

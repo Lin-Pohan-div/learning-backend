@@ -17,4 +17,9 @@ public interface LessonFeedbackRepository extends JpaRepository<LessonFeedback, 
 
     @Query("SELECT AVG(f.rating) FROM LessonFeedback f WHERE f.bookingId = :bookingId")
     Double findAverageRatingByBookingId(@Param("bookingId") Long bookingId);
+
+    List<LessonFeedback> findByBookingIdIn(List<Long> bookingIds);
+
+    @Query("SELECT AVG(f.rating) FROM LessonFeedback f WHERE f.bookingId IN :bookingIds")
+    Double findAverageRatingByBookingIdIn(@Param("bookingIds") List<Long> bookingIds);
 }

@@ -1,22 +1,23 @@
 package com.learning.api.controller;
 
+import com.learning.api.annotation.ApiController;
 import com.learning.api.dto.TutorProfileDTO;
 import com.learning.api.entity.Tutor;
 import com.learning.api.service.TutorProfileService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-@CrossOrigin(origins = "*")
-@RestController
+@ApiController
 @RequestMapping("/api/teacher/profile")
+@RequiredArgsConstructor
 public class TutorProfileController {
 
-    @Autowired
-    private TutorProfileService profileService;
+    private final TutorProfileService profileService;
 
+<<<<<<< HEAD
     // [GET] 取得老師個人檔案
     @GetMapping("/{tutorId}")
     public ResponseEntity<?> getProfile(@PathVariable Long tutorId) {
@@ -30,8 +31,13 @@ public class TutorProfileController {
     // [POST] 建立老師個人檔案（初次設定）
     @PostMapping
     public ResponseEntity<?> createProfile(@RequestBody TutorProfileDTO dto) {
+=======
+    // [PUT] 更新老師個人檔案
+    @PutMapping
+    public ResponseEntity<?> updateProfile(@RequestBody TutorProfileDTO dto) {
+>>>>>>> chattest
         if (dto.getTutorId() == null) {
-            return ResponseEntity.status(400).body(Map.of("msg", "必須提供老師 ID"));
+            return ResponseEntity.status(400).body(Map.of("message", "必須提供老師 ID"));
         }
 
         String result = profileService.createProfile(dto);

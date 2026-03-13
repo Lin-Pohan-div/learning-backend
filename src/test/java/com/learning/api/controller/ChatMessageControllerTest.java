@@ -70,7 +70,7 @@ class ChatMessageControllerTest {
         testCourse.setTutorId(testUser.getId());
         testCourse.setName("Test Course");
         testCourse.setSubject(1);
-        testCourse.setLevel(1);
+        /* testCourse.setLevel(1); */
         testCourse.setDescription("Course for testing");
         testCourse.setPrice(500);
         testCourse.setActive(true);

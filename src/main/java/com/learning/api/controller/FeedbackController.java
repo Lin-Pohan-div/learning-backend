@@ -1,16 +1,18 @@
 package com.learning.api.controller;
 
+import com.learning.api.annotation.ApiController;
+import com.learning.api.dto.FeedbackRequest;
+import com.learning.api.entity.LessonFeedback;
+import com.learning.api.service.LessonFeedbackService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.learning.api.dto.FeedbackRequest;
-import com.learning.api.entity.LessonFeedback;
-import com.learning.api.service.LessonFeedbackService;
+
 import java.util.List;
 import java.util.Map;
 
-@RestController
+@ApiController
 @RequestMapping("/api/feedbacks")
 @RequiredArgsConstructor
 public class FeedbackController {
@@ -42,8 +44,7 @@ public class FeedbackController {
 
     @PostMapping
     public ResponseEntity<LessonFeedback> create(@RequestBody FeedbackRequest request) {
-        LessonFeedback feedback = toEntity(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(lessonFeedbackService.save(feedback));
+        return ResponseEntity.status(HttpStatus.CREATED).body(lessonFeedbackService.save(toEntity(request)));
     }
 
     @PutMapping("/{id}")
@@ -58,17 +59,6 @@ public class FeedbackController {
         return lessonFeedbackService.deleteById(id)
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.notFound().build();
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, String>> handleValidation(IllegalArgumentException e) {
-        return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, String>> handleException(Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("message", "伺服器錯誤: " + e.getMessage()));
     }
 
     private LessonFeedback toEntity(FeedbackRequest request) {

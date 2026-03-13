@@ -27,8 +27,8 @@ public class Course {
     @Column(name = "subject", nullable = false)
     private Integer subject; // 11低年級 12中年級 13高年級 21GEPT 22YLE 23國中先修 31其他 (開頭 1: 年級課程 2檢定與升學 3其他)
     
-    @Column(name = "level",nullable = false)
-    private Integer level;
+/*     @Column(name = "level")
+    private Integer level; */
     
     @Column(length = 1000)
     private String description;
