@@ -42,7 +42,6 @@ public class ChatMessageController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Map<String, String> body) {
-<<<<<<< HEAD
         try {
             String message = body.get("message");
            /*  if (message == null || message.trim().isEmpty()) {
@@ -59,14 +58,6 @@ public class ChatMessageController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponse("伺服器錯誤: " + e.getMessage()));
         }
-=======
-        String message = body.get("message");
-        if (message == null || message.trim().isEmpty()) throw new IllegalArgumentException("消息內容不能為空");
-
-        return chatMessageService.update(id, message)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
->>>>>>> 057704559886e802faa1eb5122deeb7c5f261e7a
     }
 
     @DeleteMapping("/{id}")
