@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Date;
-
+import java.time.LocalDate;
 
 
 @Entity
@@ -26,7 +26,7 @@ public class Booking {
     private Long studentId;
 
     @Column(nullable = false)
-    private Date date;
+    private LocalDate date;
 
     @Column(nullable = false)
     private Integer hour;

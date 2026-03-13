@@ -4,5 +4,5 @@ import com.learning.api.entity.Course;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CourseRepo extends JpaRepository<Course, Long> {
-    boolean existsByIdTutorId(Long tutorId);
+    boolean existsByTutorId(Long tutorId);
 }

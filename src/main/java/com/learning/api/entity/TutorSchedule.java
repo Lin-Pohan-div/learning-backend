@@ -9,6 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TutorSchedule {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -17,8 +18,13 @@ public class TutorSchedule {
     private Long tutorId;
 
     @Column(nullable = false)
-    private Integer weekday;//1-7
+    private Integer weekday; // 1-7 (星期一到星期日)
 
     @Column(nullable = false)
-    private Integer hour;//9-21(開放時段)
+    private Integer hour; // 9-21 (開放時段)
+
+    // 老師的開放課表設定
+    // 狀態：'available' (開放常態預約), 'inactive' (老師暫停開放此時段)
+    @Column(nullable = false, length = 20)
+    private String status = "available";
 }
