@@ -1,6 +1,7 @@
 package com.learning.api.controller;
 
 import com.learning.api.dto.EmailBookingDTO;
+import com.learning.api.dto.FeedbackEmailDTO;
 import com.learning.api.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,5 +27,13 @@ public class TestEmailController {
         emailService.sendBookingEmail(dto);
 
         return "Booking email 處理完成";
+    }
+    
+    @PostMapping("/send-feedback")
+    public String sendFeedbackEmail(@RequestBody FeedbackEmailDTO dto) {
+
+        emailService.sendFeedbackEmail(dto);
+
+        return "Feedback email 處理完成";
     }
 }
