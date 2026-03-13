@@ -61,10 +61,10 @@ public class ChatMessageController {
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Map<String, String> body) {
         try {
             String message = body.get("message");
-            if (message == null || message.trim().isEmpty()) {
+           /*  if (message == null || message.trim().isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ErrorResponse("驗證失敗: 消息內容不能為空"));
-            }
+            } */
             return chatMessageService.update(id, message)
                     .map(ResponseEntity::ok)
                     .orElse(ResponseEntity.notFound().build());
