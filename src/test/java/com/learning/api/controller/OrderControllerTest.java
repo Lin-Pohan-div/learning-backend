@@ -82,7 +82,7 @@ class OrderControllerTest {
         activeCourse.setTutorId(user.getId());
         activeCourse.setName("Active Course");
         activeCourse.setSubject(11);
-        activeCourse.setLevel(1);
+        /* activeCourse.setLevel(1); */
         activeCourse.setPrice(500);
         activeCourse.setActive(true);
         activeCourse = courseRepo.save(activeCourse);
@@ -92,7 +92,7 @@ class OrderControllerTest {
         inactiveCourse.setTutorId(user.getId());
         inactiveCourse.setName("Inactive Course");
         inactiveCourse.setSubject(11);
-        inactiveCourse.setLevel(1);
+        /* inactiveCourse.setLevel(1); */
         inactiveCourse.setPrice(500);
         inactiveCourse.setActive(false);
         inactiveCourse = courseRepo.save(inactiveCourse);

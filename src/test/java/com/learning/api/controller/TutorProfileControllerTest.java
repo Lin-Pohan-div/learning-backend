@@ -289,10 +289,6 @@ class TutorProfileControllerTest {
         body.put("bankCode", "822");
         body.put("bankAccount", "123456789");
         return body;
-                .andExpect(status().isOk());
-
-        String updatedName = userRepository.findById(savedTutorId).orElseThrow().getName();
-        assertThat(updatedName).isEqualTo("New Name");
     }
 
     @Test

@@ -11,12 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-<<<<<<< HEAD
 import java.util.Optional;
 import java.util.Set;
-=======
 import java.util.stream.Collectors;
->>>>>>> 8192b919c2562565f031421a6f99a8b9395b67f2
 
 @Service
 public class CourseService {
@@ -26,12 +23,6 @@ public class CourseService {
     @Autowired
     private CourseRepo courseRepo;
 
-<<<<<<< HEAD
-    private static final Set<Integer> VALID_SUBJECTS = Set.of(11, 12, 13, 21, 22, 23, 31);
-
-    // POST 建立課程
-    public boolean sendCourses(CourseReq courseReq) {
-=======
     @Autowired
     private OrderRepository orderRepo;
 
@@ -41,9 +32,10 @@ public class CourseService {
     @Autowired
     private LessonFeedbackRepository feedbackRepo;
 
-    // bookingReq.getUserId() -> 這是前端送 id
-    public boolean sendCourses(CourseReq courseReq){
->>>>>>> 8192b919c2562565f031421a6f99a8b9395b67f2
+    private static final Set<Integer> VALID_SUBJECTS = Set.of(11, 12, 13, 21, 22, 23, 31);
+
+    // POST 建立課程
+    public boolean sendCourses(CourseReq courseReq) {
 
         if (courseReq == null) {
             System.out.println("courseReq is null");
@@ -122,7 +114,7 @@ public class CourseService {
         resp.setTutorId(course.getTutorId());
         resp.setName(course.getName());
         resp.setSubject(course.getSubject());
-        resp.setLevel(course.getLevel());
+        /* resp.setLevel(course.getLevel()); */
         resp.setDescription(course.getDescription());
         resp.setPrice(course.getPrice());
         resp.setActive(course.getActive());
@@ -132,8 +124,6 @@ public class CourseService {
                 .collect(Collectors.toList()));
         return resp;
     }
-
-    private Course buildCourses(CourseReq courseReq){
 
     // GET 單筆課程
     public Optional<Course> findById(Long id) {

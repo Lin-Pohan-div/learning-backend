@@ -1,17 +1,12 @@
 package com.learning.api.controller;
 
-<<<<<<< HEAD
-import com.learning.api.dto.*;
-import com.learning.api.entity.Course;
-import com.learning.api.service.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-=======
 import com.learning.api.annotation.ApiController;
 import com.learning.api.dto.CourseReq;
+import com.learning.api.dto.CourseResp;
+import com.learning.api.entity.Course;
 import com.learning.api.service.CourseService;
 import lombok.RequiredArgsConstructor;
->>>>>>> 057704559886e802faa1eb5122deeb7c5f261e7a
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,18 +30,6 @@ public class CourseController {
         CourseResp resp = courseService.getCourseById(id);
         if (resp == null) return ResponseEntity.status(404).body(Map.of("msg", "課程不存在"));
         return ResponseEntity.ok(resp);
-    }
-
-    @PostMapping
-    public ResponseEntity<?> sendCourses(@RequestBody CourseReq courseReq){
-        if (!courseService.sendCourses(courseReq)) return ResponseEntity.status(400).body(Map.of("msg", "建立失敗"));
-
-    // GET 單筆課程
-    @GetMapping("/{id}")
-    public ResponseEntity<Course> getById(@PathVariable Long id) {
-        return courseService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
     }
 
     // GET 老師所有課程（不分上下架）

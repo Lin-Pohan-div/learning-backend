@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByUserId(Long userId);
+    List<Order> findByCourseId(Long courseId);
     @Query("SELECT COALESCE(SUM(o.lessonCount - o.lessonUsed), 0) FROM Order o " +
        "WHERE o.userId = :userId AND o.courseId = :courseId AND o.status = 2")
     int sumRemainingLessons(@Param("userId") Long userId, @Param("courseId") Long courseId);

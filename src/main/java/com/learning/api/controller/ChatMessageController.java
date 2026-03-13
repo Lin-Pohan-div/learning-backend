@@ -53,10 +53,10 @@ public class ChatMessageController {
                     .orElse(ResponseEntity.notFound().build());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse("驗證失敗: " + e.getMessage()));
+                .body(Map.of("message", "驗證失敗: " + e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse("伺服器錯誤: " + e.getMessage()));
+                .body(Map.of("message", "伺服器錯誤: " + e.getMessage()));
         }
     }
 
