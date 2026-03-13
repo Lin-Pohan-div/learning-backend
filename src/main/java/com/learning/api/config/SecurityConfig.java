@@ -24,6 +24,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 測試 正式上線要刪
                         // .requestMatchers("/api/TestController").permitAll()
+                	    .requestMatchers("/test-email/**").permitAll()
 
                         .requestMatchers("/api/auth/**").permitAll()
                         // teacher
