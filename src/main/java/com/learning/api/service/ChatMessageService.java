@@ -47,9 +47,9 @@ public class ChatMessageService {
 
     public Optional<ChatMessage> update(Long id, String message) {
         return chatMessageRepository.findById(id).map(existing -> {
-            if (message == null || message.trim().isEmpty()) {
+/*             if (message == null || message.trim().isEmpty()) {
                 throw new IllegalArgumentException("消息內容不能為空");
-            }
+            } */
             existing.setMessage(message);
             return chatMessageRepository.save(existing);
         });
