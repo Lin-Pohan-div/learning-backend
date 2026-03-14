@@ -12,9 +12,9 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import com.learning.api.config.MailConfig;
-import com.learning.api.dto.EmailBookingDTO;
-import com.learning.api.dto.EmailBookingTimeDTO;
-import com.learning.api.dto.FeedbackEmailDTO;
+import com.learning.api.dto.booking.EmailBookingDTO;
+import com.learning.api.dto.booking.EmailBookingTimeDTO;
+import com.learning.api.dto.feedback.FeedbackEmailDTO;
 
 import jakarta.mail.internet.MimeMessage;
 

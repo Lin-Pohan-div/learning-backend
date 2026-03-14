@@ -1,12 +1,13 @@
 package com.learning.api.service;
 
 
+import com.learning.api.dto.booking.BookingReq;
 import com.learning.api.entity.Course;
 import com.learning.api.entity.Order;
 import com.learning.api.repo.CourseRepo;
 import com.learning.api.repo.OrderRepository;
 import com.learning.api.repo.UserRepository;
-import com.learning.api.dto.BookingReq;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

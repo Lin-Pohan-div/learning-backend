@@ -1,7 +1,7 @@
 package com.learning.api.controller;
 
 import com.learning.api.annotation.ApiController;
-import com.learning.api.dto.TutorProfileDTO;
+import com.learning.api.dto.tutor.TutorProfileDTO;
 import com.learning.api.entity.Tutor;
 import com.learning.api.service.TutorProfileService;
 import lombok.RequiredArgsConstructor;

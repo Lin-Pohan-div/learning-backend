@@ -1,9 +1,9 @@
 package com.learning.api.controller;
 
 import com.learning.api.annotation.ApiController;
-import com.learning.api.dto.CourseReq;
-import com.learning.api.dto.CourseResp;
 import com.learning.api.dto.ErrorResponse;
+import com.learning.api.dto.course.CourseReq;
+import com.learning.api.dto.course.CourseResp;
 import com.learning.api.entity.Course;
 import com.learning.api.service.CourseService;
 import lombok.RequiredArgsConstructor;

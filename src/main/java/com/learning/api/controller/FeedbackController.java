@@ -1,6 +1,6 @@
 package com.learning.api.controller;
 
-import com.learning.api.dto.FeedbackRequest;
+import com.learning.api.dto.feedback.FeedbackRequest;
 import com.learning.api.entity.LessonFeedback;
 import com.learning.api.service.LessonFeedbackService;
 import lombok.RequiredArgsConstructor;

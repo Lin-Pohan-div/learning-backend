@@ -1,7 +1,7 @@
 package com.learning.api.controller;
 
 import com.learning.api.annotation.ApiController;
-import com.learning.api.dto.BookingReq;
+import com.learning.api.dto.booking.BookingReq;
 import com.learning.api.service.BookingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -1,6 +1,6 @@
 package com.learning.api.controller;
 
-import com.learning.api.dto.TutorReq;
+import com.learning.api.dto.tutor.TutorReq;
 import com.learning.api.entity.Tutor;
 import com.learning.api.service.TutorService;
 import org.springframework.beans.factory.annotation.Autowired;

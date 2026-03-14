@@ -1,6 +1,6 @@
 package com.learning.api.service;
 
-import com.learning.api.dto.TutorProfileDTO;
+import com.learning.api.dto.tutor.TutorProfileDTO;
 import com.learning.api.entity.Tutor;
 import com.learning.api.entity.User;
 import com.learning.api.repo.TutorRepository;
