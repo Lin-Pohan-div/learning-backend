@@ -1,8 +1,8 @@
 package com.learning.api.controller;
 
 import com.learning.api.dto.FeedbackRequest;
-import com.learning.api.entity.Feedback;
-import com.learning.api.service.FeedbackService;
+import com.learning.api.entity.LessonFeedback;
+import com.learning.api.service.LessonFeedbackService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,22 +15,22 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class FeedbackController {
 
-    private final FeedbackService lessonFeedbackService;
+    private final LessonFeedbackService lessonFeedbackService;
 
     @GetMapping
-    public List<Feedback> getAll() {
+    public List<LessonFeedback> getAll() {
         return lessonFeedbackService.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Feedback> getById(@PathVariable Long id) {
+    public ResponseEntity<LessonFeedback> getById(@PathVariable Long id) {
         return lessonFeedbackService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/lesson/{bookingId}")
-    public List<Feedback> getByBookingId(@PathVariable Long bookingId) {
+    public List<LessonFeedback> getByBookingId(@PathVariable Long bookingId) {
         return lessonFeedbackService.findByBookingId(bookingId);
     }
 
@@ -41,13 +41,12 @@ public class FeedbackController {
     }
 
     @PostMapping
-    public ResponseEntity<Feedback> create(@RequestBody FeedbackRequest request) {
-        Feedback feedback = toEntity(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(lessonFeedbackService.save(feedback));
+    public ResponseEntity<LessonFeedback> create(@RequestBody FeedbackRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(lessonFeedbackService.save(toEntity(request)));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Feedback> update(@PathVariable Long id, @RequestBody FeedbackRequest request) {
+    public ResponseEntity<LessonFeedback> update(@PathVariable Long id, @RequestBody FeedbackRequest request) {
         return lessonFeedbackService.update(id, toEntity(request))
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -60,19 +59,8 @@ public class FeedbackController {
                 : ResponseEntity.notFound().build();
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, String>> handleValidation(IllegalArgumentException e) {
-        return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, String>> handleException(Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("message", "伺服器錯誤: " + e.getMessage()));
-    }
-
-    private Feedback toEntity(FeedbackRequest request) {
-        Feedback feedback = new Feedback();
+    private LessonFeedback toEntity(FeedbackRequest request) {
+        LessonFeedback feedback = new LessonFeedback();
         feedback.setBookingId(request.getBookingId());
         feedback.setFocusScore(request.getFocusScore());
         feedback.setComprehensionScore(request.getComprehensionScore());

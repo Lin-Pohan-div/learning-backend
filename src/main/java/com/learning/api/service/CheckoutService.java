@@ -14,7 +14,7 @@ public class CheckoutService {
     @Autowired private UserRepository userRepo;
     @Autowired private CourseRepo courseRepo;
     @Autowired private OrderRepository orderRepo;
-    @Autowired private BookingRepo bookingRepo;
+    @Autowired private BookingRepository bookingRepo;
     @Autowired private TutorScheduleRepo scheduleRepo;
 
     @Transactional

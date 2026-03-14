@@ -37,25 +37,16 @@ public class CourseService {
     // POST 建立課程
     public boolean sendCourses(CourseReq courseReq) {
 
-        if (courseReq == null) {
-            System.out.println("courseReq is null");
-            return false;
-        }
+        if (courseReq == null) return false;
 
         // check null
         if (courseReq.getTutorId() == null || courseReq.getName() == null ||
             courseReq.getSubject() == null || courseReq.getPrice() == null ||
             courseReq.getActive() == null) return false;
 
-        if (courseReq.getName().trim().isEmpty()) {
-            System.out.println("name is empty");
-            return false;
-        }
+        if (courseReq.getName().trim().isEmpty()) return false;
 
-        if (courseReq.getPrice() <= 0) {
-            System.out.println("price is wrong");
-            return false;
-        }
+        if (courseReq.getPrice() <= 0) return false;
 
         // subject: 11低年級 12中年級 13高年級 21GEPT 22YLE 23國中先修 31其他
         if (!VALID_SUBJECTS.contains(courseReq.getSubject())) return false;
@@ -65,14 +56,7 @@ public class CourseService {
 
         // 確認老師存在且 role == 2
         User tutor = userRepo.findById(courseReq.getTutorId()).orElse(null);
-        if (tutor == null) {
-            System.out.println("tutor is null");
-            return false;
-        }
-        if (tutor.getRole() != 2) {
-            System.out.println("user isn't tutor");
-            return false;
-        }
+        if (tutor == null || tutor.getRole() != 2) return false;
 
         courseRepo.save(buildCourses(courseReq));
         return true;

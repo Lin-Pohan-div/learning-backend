@@ -3,6 +3,7 @@ package com.learning.api.controller;
 import com.learning.api.annotation.ApiController;
 import com.learning.api.dto.CourseReq;
 import com.learning.api.dto.CourseResp;
+import com.learning.api.dto.ErrorResponse;
 import com.learning.api.entity.Course;
 import com.learning.api.service.CourseService;
 import lombok.RequiredArgsConstructor;
@@ -72,21 +73,4 @@ public class CourseController {
                 : ResponseEntity.notFound().build();
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse("伺服器錯誤: " + e.getMessage()));
-    }
-
-    public static class ErrorResponse {
-        public String message;
-
-        public ErrorResponse(String message) {
-            this.message = message;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-    }
 }

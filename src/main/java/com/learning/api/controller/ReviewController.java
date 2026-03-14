@@ -1,12 +1,13 @@
 package com.learning.api.controller;
 
+import com.learning.api.dto.ErrorResponse;
+import com.learning.api.dto.ReviewRequest;
+import com.learning.api.entity.Reviews;
+import com.learning.api.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.learning.api.dto.ReviewRequest;
-import com.learning.api.entity.Reviews;
-import com.learning.api.service.ReviewService;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -97,21 +98,4 @@ public class ReviewController {
                 : ResponseEntity.notFound().build();
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(new ErrorResponse("伺服器錯誤: " + e.getMessage()));
-    }
-
-    public static class ErrorResponse {
-        public String message;
-
-        public ErrorResponse(String message) {
-            this.message = message;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-    }
 }

@@ -1,6 +1,7 @@
 package com.learning.api.controller;
 
 import com.learning.api.dto.ChatMessageRequest;
+import com.learning.api.dto.ErrorResponse;
 import com.learning.api.entity.ChatMessage;
 import com.learning.api.enums.MessageType;
 import com.learning.api.service.ChatMessageService;
@@ -117,15 +118,4 @@ public class ChatMessageController {
         };
     }
 
-    public static class ErrorResponse {
-        public String message;
-
-        public ErrorResponse(String message) {
-            this.message = message;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-    }
 }
