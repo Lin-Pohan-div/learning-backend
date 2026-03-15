@@ -49,6 +49,9 @@ public class SecurityConfig {
                         // WebSocket (SockJS handshake + STOMP)
                         .requestMatchers("/ws/**").permitAll()
 
+                        // 上傳檔案靜態資源
+                        .requestMatchers("/uploads/**").permitAll()
+
                         // 靜態頁面 / 測試用
                         .requestMatchers("/*.html").permitAll()
                         .requestMatchers("/favicon.ico").permitAll()
