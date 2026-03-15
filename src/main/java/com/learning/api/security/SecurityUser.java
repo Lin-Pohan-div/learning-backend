@@ -1,8 +1,9 @@
 package com.learning.api.security;
 
+
 import com.learning.api.entity.*;
-import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -16,10 +17,27 @@ public class SecurityUser implements UserDetails {
         this.user = user;
     }
 
+    // role = Authorities
     @Override
-    public String getUsername() {
-        return user.getName();
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+
+        String role = "";
+
+        if (user.getRole() == 1){
+            role = "ROLE_STUDENT";
+        }else if(user.getRole() == 2){
+            role = "ROLE_TUTOR";
+        }else if(user.getRole() == 3){
+            role = "ROLE_ADMIN";
+        }
+
+        return List.of(new SimpleGrantedAuthority(role));
     }
+
+    public User getUser() {
+        return user;
+    }
+
 
     @Override
     public String getPassword() {
@@ -27,7 +45,27 @@ public class SecurityUser implements UserDetails {
     }
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+    public String getUsername() {
+        return user.getEmail();
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }
