@@ -32,23 +32,23 @@ INSERT INTO `tutors`
 VALUES
   (4, '2025-07-12',
    '英文 & 程式雙棲家教',
-   'https://cdn.example.com/avatars/jason.jpg',
+   'https://drive.google.com/file/d/1DXU3uHxuMw2IvxwI6i0Sp5FLRMziZeq_/view?usp=drive_link',
    '擁有 8 年教學經驗，專精 TOEIC 與 Python 程式設計，學生平均進步 150 分。',
    '國立臺灣大學資訊工程學系',
-   'https://cdn.example.com/certs/jason_toeic.pdf', 'TOEIC 金色證書',
-   'https://cdn.example.com/certs/jason_python.pdf', 1001,
-   'https://cdn.example.com/videos/jason_intro.mp4',
-   'https://cdn.example.com/videos/jason_demo.mp4',
+   'https://drive.google.com/file/d/1GyM8OkWUQ_s_LZe07njf7P03NiDcFnBG/view?usp=drive_link', 'TOEIC 金色證書',
+   'https://drive.google.com/file/d/1-yT3YxcuMpdF4xML_hPUxT5W4F-7aNWp/view?usp=drive_link', 1001,
+   'https://www.youtube.com/watch?v=JqfpOX76a-k',
+   'https://www.youtube.com/watch?v=647wycnUx04&list=PLQn99bzkJv9w41g62mZGxqh-09wMzkX5t',
    '004', '12345678901234'),
 
   (5, '2025-07-18',
    '全美語英文家教',
-   'https://cdn.example.com/avatars/sophie.jpg',
+   'https://drive.google.com/file/d/1Vu5PPw9Q5QyT9oM7eHMoh4khCvIehELL/view?usp=drive_link',
    '旅居美國 10 年，提供純英語沉浸式教學，擅長口說與寫作提升。',
    'University of Washington 英語文學碩士',
-   'https://cdn.example.com/certs/sophie_tefl.pdf', 'TEFL 國際認證',
-   'https://cdn.example.com/certs/sophie_ielts.pdf', 1002,
-   'https://cdn.example.com/videos/sophie_intro.mp4',
+   'https://drive.google.com/file/d/1GyM8OkWUQ_s_LZe07njf7P03NiDcFnBG/view?usp=drive_link', 'TEFL 國際認證',
+   'https://drive.google.com/file/d/1-yT3YxcuMpdF4xML_hPUxT5W4F-7aNWp/view?usp=drive_link', 1002,
+   'https://drive.google.com/file/d/11vlhLQ0hjYCt7lZ3AsFVJLQUYQf757EF/view?usp=drive_link',
    NULL,
    '013', '98765432109876');
 
@@ -182,16 +182,16 @@ VALUES
   (1, 1, 1, '張老師您好，請問第一堂課需要準備什麼？',            '2025-08-28 15:00:00', 1, NULL),
   (2, 1, 2, '您好！準備一本筆記本即可，教材我會在課前寄給您。',  '2025-08-28 15:10:00', 1, NULL),
   (3, 1, 1, '好的謝謝老師！',                                     '2025-08-28 15:12:00', 1, NULL),
-  (4, 1, 2, '這是本週的課前練習題，請先做看看 :)',                '2025-09-01 20:00:00', 1, 'https://cdn.example.com/materials/toeic_hw1.pdf'),
-  (5, 1, 1, '老師我做完了，附上我的答案！',                       '2025-09-01 22:30:00', 1, 'https://cdn.example.com/materials/ming_hw1.pdf'),
+  (4, 1, 2, '這是本週的課前練習題，請先做看看 :)',                '2025-09-01 20:00:00', 1, 'https://drive.google.com/file/d/1s7jhFkLaUWVpxymXdOCOCSCoQMrn_aRh/view?usp=drive_link'),
+  (5, 1, 1, '老師我做完了，附上我的答案！',                       '2025-09-01 22:30:00', 1, 'https://drive.google.com/file/d/1s7jhFkLaUWVpxymXdOCOCSCoQMrn_aRh/view?usp=drive_link'),
   -- order 2 (王小明 ↔ 張文華 Python)
   (6, 2, 1, '老師，我對 list comprehension 還是不太懂。',         '2025-09-06 11:00:00', 1, NULL),
-  (7, 2, 2, '沒問題，我整理了一份範例文件，你參考看看！',         '2025-09-06 11:30:00', 1, 'https://cdn.example.com/materials/list_comp.pdf'),
+  (7, 2, 2, '沒問題，我整理了一份範例文件，你參考看看！',         '2025-09-06 11:30:00', 1, 'https://drive.google.com/file/d/1sv0r312GKteSJqBKchr1xNJpiGqXXccr/view?usp=drive_link'),
   -- order 3 (李美玲 ↔ 林淑芬)
   (8,  3, 1, 'Hi Sophie, I am so excited for the first class!',    '2025-08-10 10:00:00', 1, NULL),
   (9,  3, 2, 'Hi! Me too! See you tomorrow at 9 AM. 😊',           '2025-08-10 10:15:00', 1, NULL),
   (10, 3, 1, 'Thank you for today's class! It was amazing.',        '2025-08-11 10:50:00', 1, NULL),
-  (11, 3, 2, 'You did great! Here is a recording of today's session.', '2025-08-11 11:00:00', 1, 'https://cdn.example.com/recordings/order3_class1.mp4'),
+  (11, 3, 2, 'You did great! Here is a recording of today's session.', '2025-08-11 11:00:00', 1, 'https://drive.google.com/file/d/1vOG-KTVS5HzO9hfo2QkL5ztEMUigS3L4/view?usp=drive_link'),
   -- order 5 (陳大雄 ↔ 林淑芬)
   (12, 5, 1, '老師好，我英文口說不太好，希望可以多練習。',        '2025-09-07 16:00:00', 1, NULL),
   (13, 5, 2, '沒問題！我們會從基礎對話開始慢慢建立信心。',        '2025-09-07 16:20:00', 1, NULL);

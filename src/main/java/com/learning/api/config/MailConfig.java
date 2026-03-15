@@ -8,7 +8,7 @@ import lombok.Getter;
 @Getter
 public class MailConfig {
 
-    @Value("${spring.mail.username}")
+    @Value("${spring.mail.username:}")
     private String from;
 
 }

@@ -27,6 +27,37 @@
 1. 啟動 MySQL
 2. 修改 `application.properties` 資料庫以及帳密（ 此檔案 **絕對禁止** 推送上 GitHub )
 
+### Mail 設定
+若要啟用寄信功能，請提供以下環境變數。後端目前在 `application.properties` 中已預留對應設定，未提供時不會阻止 API 啟動，但測試寄信功能不會啟用。
+
+`.env` 對照範例：
+
+```env
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=your-account@gmail.com
+MAIL_PASSWORD=your-app-password
+MAIL_SMTP_AUTH=true
+MAIL_SMTP_STARTTLS_ENABLE=true
+MAIL_SMTP_CONNECTION_TIMEOUT=5000
+MAIL_SMTP_TIMEOUT=5000
+MAIL_SMTP_WRITE_TIMEOUT=5000
+```
+
+對應到後端設定：
+
+* `MAIL_HOST` -> `spring.mail.host`
+* `MAIL_PORT` -> `spring.mail.port`
+* `MAIL_USERNAME` -> `spring.mail.username`
+* `MAIL_PASSWORD` -> `spring.mail.password`
+* `MAIL_SMTP_AUTH` -> `spring.mail.properties.mail.smtp.auth`
+* `MAIL_SMTP_STARTTLS_ENABLE` -> `spring.mail.properties.mail.smtp.starttls.enable`
+* `MAIL_SMTP_CONNECTION_TIMEOUT` -> `spring.mail.properties.mail.smtp.connectiontimeout`
+* `MAIL_SMTP_TIMEOUT` -> `spring.mail.properties.mail.smtp.timeout`
+* `MAIL_SMTP_WRITE_TIMEOUT` -> `spring.mail.properties.mail.smtp.writetimeout`
+
+注意：Spring Boot 預設不會自動載入 `.env` 檔。你需要用 IDE Run Configuration、PowerShell 環境變數、系統環境變數，或其他啟動工具先把這些值載入環境，再啟動後端。
+
 ---
 
 ### Git 開發流程（ 請務必遵守 ）

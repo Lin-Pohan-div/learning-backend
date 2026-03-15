@@ -4,11 +4,14 @@ import com.learning.api.dto.booking.EmailBookingDTO;
 import com.learning.api.dto.feedback.FeedbackEmailDTO;
 import com.learning.api.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.mail.javamail.JavaMailSender;
 /* import org.springframework.security.access.prepost.PreAuthorize; */
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/test-email")
+@ConditionalOnBean(JavaMailSender.class)
 public class TestEmailController {
 
     @Autowired

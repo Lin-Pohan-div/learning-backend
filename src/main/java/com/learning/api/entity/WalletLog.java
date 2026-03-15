@@ -42,7 +42,7 @@ public class WalletLog {
      * 2 lesson
      * 3 bank
      */
-    @Column(name = "related_type",  nullable = false )
+    @Column(name = "related_type")
     private Integer relatedType;
 
     @Column(name = "related_id")

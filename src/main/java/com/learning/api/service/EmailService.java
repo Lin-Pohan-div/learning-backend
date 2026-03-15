@@ -6,6 +6,7 @@ import java.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -19,6 +20,7 @@ import com.learning.api.dto.feedback.FeedbackEmailDTO;
 import jakarta.mail.internet.MimeMessage;
 
 @Service
+@ConditionalOnBean(JavaMailSender.class)
 public class EmailService {
     private static final Logger log =
             LoggerFactory.getLogger(EmailService.class);
