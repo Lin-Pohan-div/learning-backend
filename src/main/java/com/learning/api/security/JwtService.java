@@ -36,7 +36,7 @@ public class JwtService {
                 // who
                 .subject(user.getEmail())
                 .claim("userId", user.getId())
-                .claim("role", user.getRole())
+                .claim("role", user.getRole().name())
 
                 // token 發放 / 過期時間
                 .issuedAt(now)
@@ -57,6 +57,11 @@ public class JwtService {
     // 對 email
     public String email(String token) {
         return parseToken(token).getSubject();
+    }
+
+    // role
+    public String role(String token){
+        return parseToken(token).get("role", String.class);
     }
 
     // exp>now

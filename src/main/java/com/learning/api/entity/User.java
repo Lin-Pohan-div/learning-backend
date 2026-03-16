@@ -1,5 +1,5 @@
 package com.learning.api.entity;
-
+import com.learning.api.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,8 +29,9 @@ public class User {
 
     private LocalDate birthday;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Integer role; //1:student/2:teacher/3admin
+    private UserRole role; //1:student/2:teacher/3admin
 
     @Column(nullable=false)
     private Long wallet=0L;
