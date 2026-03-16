@@ -24,6 +24,23 @@ public class BookingService {
         req.setCourseId(bookingReq.getCourseId());
         req.setLessonCount(bookingReq.getLessonCount());
 
-        return orderService.createOrder(req);
+        // lessonCount > 0
+        if (bookingReq.getLessonCount() <= 0) return false;
+
+        // member existsById
+        if(!memberRepo.existsById(bookingReq.getUserId())) return false;
+
+        // course findById
+        Course course = courseRepo.findById(bookingReq.getCourseId()).orElse(null);
+        if (course == null) return false;
+
+        // check courseId isActive
+//        if (!course.isActive()) return false;
+
+        // buildBooking
+        Booking booking = buildBooking(bookingReq, course);
+        bookingRepo.save(booking);
+
+        return true;
     }
 }
