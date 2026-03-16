@@ -27,6 +27,6 @@ public class TutorSchedule {
 
     // 老師的開放課表設定
     // 狀態：'available' (開放常態預約), 'inactive' (老師暫停開放此時段)
-    @Column(nullable = false, length = 20)
+    @Column(name = "is_available", nullable = false, length = 20)
     private String status = "available";
 }

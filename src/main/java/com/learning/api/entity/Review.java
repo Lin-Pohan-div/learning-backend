@@ -1,5 +1,4 @@
 package com.learning.api.entity;
-import java.sql.Timestamp;
 import java.time.Instant;
 
 import jakarta.persistence.*;

@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-/* import com.learning.api.dto.ChatMessageRequest;
+import com.learning.api.dto.ChatMessageRequest;
 import com.learning.api.entity.ChatMessage;
 import com.learning.api.enums.MessageType;
 import com.learning.api.service.ChatMessageService;
@@ -136,4 +136,4 @@ public class ChatMessageController {
             return message;
         }
     }
-} */
+}

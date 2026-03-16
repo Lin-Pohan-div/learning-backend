@@ -11,10 +11,10 @@ import com.learning.api.dto.RoomEvent;
 import com.learning.api.dto.SignalingMessage;
 import com.learning.api.entity.ChatMessage;
 import com.learning.api.enums.MessageType;
-/* import com.learning.api.service.ChatMessageService; */
+import com.learning.api.service.ChatMessageService; 
 
 
-/* @Controller
+@Controller
 @RequiredArgsConstructor
 public class VideoRoomController {
 
@@ -51,4 +51,3 @@ public class VideoRoomController {
             "/topic/room/" + bookingId + "/events", event);
     }
 }
- */

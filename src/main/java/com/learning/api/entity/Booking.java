@@ -1,11 +1,10 @@
 package com.learning.api.entity;
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Date;
-import java.time.LocalDate;
+
+import java.time.Instant;
 
 
 @Entity
@@ -27,7 +26,7 @@ public class Booking {
     private Long studentId;
 
     @Column(nullable = false)
-    private LocalDate date;
+    private Instant date;
 
     @Column(nullable = false)
     private Integer hour;
