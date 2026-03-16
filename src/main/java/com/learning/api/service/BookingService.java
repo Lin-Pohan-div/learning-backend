@@ -54,17 +54,17 @@ public class BookingService {
 
         // set & save
         booking.setOrderId(null);
-        booking.setCourseId(bookingReq.getCourseId());
+//        booking.setCourseId(bookingReq.getCourseId());
 
         // price unitPrice discountPrice
         Integer originalPrice = course.getPrice();
         Integer discount = afterDiscPrice(originalPrice, bookingReq.getLessonCount());
 
-        booking.setUnitPrice(originalPrice);
-        booking.setDiscountPrice(discount);
+//        booking.setUnitPrice(originalPrice);
+//        booking.setDiscountPrice(discount);
 
         // lessonCount
-        booking.setLessonCount(bookingReq.getLessonCount());
+//        booking.setLessonCount(bookingReq.getLessonCount());
         // status first send -> 1
         booking.setStatus(1);
 

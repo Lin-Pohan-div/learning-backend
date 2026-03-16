@@ -12,6 +12,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,9 +29,7 @@ public class User {
     private LocalDate birthday;
 
     @Column(nullable = false)
-    private Integer role; //1:student/2:teacher/3admin
-
-
+    private Integer role; // 1: 學生, 2: 老師, 3:admin
 
     @Column(nullable=false)
     private Integer wallet;
@@ -40,6 +39,4 @@ public class User {
     
     @Column(name = "updated_at", insertable = false, updatable = true)
     private Instant updatedAt;
-    
-
 }
