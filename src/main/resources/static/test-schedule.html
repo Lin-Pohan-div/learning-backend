@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>老師常態排班測試 (純前端)</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: #f0f2f5; color: #333; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h2 { color: #2563eb; border-bottom: 2px solid #bfdbfe; padding-bottom: 10px; margin-top: 0; }
+        .control-panel { margin-bottom: 20px; padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
+        input[type="number"] { padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; width: 60px; text-align: center; }
+        button { padding: 8px 16px; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #1d4ed8; }
+
+        .calendar-grid { display: grid; grid-template-columns: 60px repeat(7, 1fr); gap: 5px; margin-top: 20px; }
+        .header-cell { background: #334155; color: white; font-weight: bold; text-align: center; padding: 10px; border-radius: 4px; }
+        .time-label { background: #e2e8f0; font-weight: bold; text-align: center; padding: 10px 0; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+
+        .slot { border: 2px solid #cbd5e1; border-radius: 6px; padding: 10px; text-align: center; cursor: pointer; transition: 0.2s; background: white; color: #94a3b8; font-size: 14px; user-select: none; }
+        .slot:hover { border-color: #60a5fa; transform: scale(1.05); }
+
+        /* 狀態顏色 */
+        .status-available { background: #dcfce7; border-color: #22c55e; color: #166534; font-weight: bold; }
+
+        #logArea { margin-top: 20px; padding: 10px; background: #1e293b; color: #4ade80; border-radius: 6px; font-family: monospace; height: 100px; overflow-y: auto; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🗓️ 老師「常態營業時間」設定測試</h2>
+
+    <div class="control-panel">
+        <label>測試的老師 ID: <input type="number" id="tutorId" value="2"></label>
+        <button onclick="loadSchedule()">重新載入課表</button>
+        <span style="margin-left: 15px; font-size: 14px; color: #64748b;">💡 點擊下方格子即可切換「開放 (綠色)」與「關閉 (白色)」</span>
+    </div>
+
+    <div class="calendar-grid" id="calendar">
+        <!-- JS 會在這裡動態產生格子 -->
+    </div>
+
+    <div id="logArea">等待操作...</div>
+</div>
+
+<script>
+    const days = ['一', '二', '三', '四', '五', '六', '日'];
+    const startHour = 9;
+    const endHour = 21;
+
+    // 寫入 Log 視窗
+    function log(msg) {
+        const logArea = document.getElementById('logArea');
+        logArea.innerHTML = `<div>> ${msg}</div>` + logArea.innerHTML;
+    }
+
+    // 1. 初始化畫出空的課表網格
+    function initGrid() {
+        const cal = document.getElementById('calendar');
+        cal.innerHTML = '<div class="header-cell">時間</div>';
+
+        // 畫星期標頭
+        days.forEach(d => {
+            cal.innerHTML += `<div class="header-cell">星期${d}</div>`;
+        });
+
+        // 畫時間列與格子
+        for (let h = startHour; h <= endHour; h++) {
+            cal.innerHTML += `<div class="time-label">${h}:00</div>`;
+            for (let d = 1; d <= 7; d++) {
+                // 預設全部都是 inactive (未開放)
+                cal.innerHTML += `
+                    <div class="slot" id="slot-${d}-${h}" onclick="toggleSlot(${d}, ${h})">
+                        休息
+                    </div>`;
+            }
+        }
+    }
+
+    // 2. 呼叫 GET API 取得資料庫目前的設定
+    async function loadSchedule() {
+        const tutorId = document.getElementById('tutorId').value;
+        log(`正在取得老師 ${tutorId} 的課表...`);
+        initGrid(); // 先把畫面洗乾淨
+
+        try {
+            // 因為網頁放在 static，所以直接用相對路徑呼叫 API
+            const res = await fetch(`/api/teacher/schedules/${tutorId}`);
+            if (!res.ok) throw new Error(`HTTP 錯誤 ${res.status}`);
+
+            const data = await res.json();
+            log(`✅ 成功載入 ${data.length} 筆已開放的時段！`);
+
+            // 將資料庫回傳的 available 時段塗成綠色
+            data.forEach(item => {
+                if (item.status === 'available') {
+                    const el = document.getElementById(`slot-${item.weekday}-${item.hour}`);
+                    if (el) {
+                        el.className = 'slot status-available';
+                        el.innerText = '開放中';
+                        el.dataset.status = 'available'; // 綁定狀態到 DOM 元素上
+                    }
+                }
+            });
+        } catch (error) {
+            log(`❌ 載入失敗: ${error.message} (請確認後端已啟動並重建資料庫)`);
+        }
+    }
+
+    // 3. 呼叫 POST API 切換狀態
+    async function toggleSlot(weekday, hour) {
+        const tutorId = document.getElementById('tutorId').value;
+        const el = document.getElementById(`slot-${weekday}-${hour}`);
+
+        // 判斷當前狀態，決定要變成什麼 (如果現在是開放，就要變成關閉)
+        const currentStatus = el.dataset.status || 'inactive';
+        const targetStatus = currentStatus === 'available' ? 'inactive' : 'available';
+
+        const requestBody = {
+            tutorId: parseInt(tutorId),
+            weekday: weekday,
+            hour: hour,
+            targetStatus: targetStatus
+        };
+
+        log(`⏳ 傳送切換請求：星期${weekday} ${hour}:00 設為 ${targetStatus}...`);
+
+        try {
+            const res = await fetch('/api/teacher/schedules/toggle', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestBody)
+            });
+
+            const result = await res.json();
+
+            if (res.ok) {
+                log(`✅ 儲存成功！`);
+                // 儲存成功後，重撈一次資料刷新畫面
+                loadSchedule();
+            } else {
+                log(`❌ 儲存失敗: ${result.msg}`);
+                alert('操作失敗：' + result.msg);
+            }
+        } catch (error) {
+            log(`❌ 請求發生例外錯誤: ${error.message}`);
+        }
+    }
+
+    // 網頁載入時先初始化一次網格
+    initGrid();
+</script>
+
+</body>
+</html>

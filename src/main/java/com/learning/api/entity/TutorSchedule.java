@@ -1,7 +1,6 @@
 package com.learning.api.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,8 +20,13 @@ public class TutorSchedule {
     private Tutor tutor; // 關聯 Tutor（不直接關聯 User）
 
     @Column(nullable = false)
-    private Integer weekday; // 1: 星期一 … 7: 星期日
+    private Integer weekday; // 1-7 (星期一到星期日)
 
     @Column(nullable = false)
-    private Integer hour; // 上課時段，9–21
+    private Integer hour; // 9-21 (開放時段)
+
+    // 老師的開放課表設定
+    // 狀態：'available' (開放常態預約), 'inactive' (老師暫停開放此時段)
+    @Column(nullable = false, length = 20)
+    private String status = "available";
 }
