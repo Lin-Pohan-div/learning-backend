@@ -13,13 +13,13 @@ import java.util.List;
 @Service
 public class CheckoutService {
 
-    @Autowired private UserRepo userRepo;           // 需建立
+/*     @Autowired private UserRepo userRepo;           // 需建立
     @Autowired private CourseRepo courseRepo;       // 需建立
     @Autowired private OrderRepo orderRepo;
     @Autowired private BookingRepo bookingRepo;
-    @Autowired private TutorScheduleRepo scheduleRepo;
+    @Autowired private TutorScheduleRepo scheduleRepo; */
 
-    @Transactional
+    /* @Transactional
     public String processPurchase(CheckoutReq req) {
         // 1. 取得學生資訊與課程單價
         User student = userRepo.findById(req.getStudentId()).orElseThrow();
@@ -76,5 +76,5 @@ public class CheckoutService {
         }
 
         return "success";
-    }
+    } */
 }

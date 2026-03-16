@@ -26,6 +26,6 @@ public interface CourseRepo extends JpaRepository<Course, Long> , JpaSpecificati
     List<Course> findByTutor_Id(Long tutorId);
 
 
-public interface CourseRepo extends JpaRepository<Course, Long> {
-    boolean existsByTutorId(Long tutorId);
+/* public interface CourseRepo extends JpaRepository<Course, Long> {
+    boolean existsByTutorId(Long tutorId); */
 }

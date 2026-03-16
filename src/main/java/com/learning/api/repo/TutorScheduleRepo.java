@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import com.learning.api.entity.TutorSchedule;
 
 
-@Repository
+/* @Repository
 public interface TutorScheduleRepo extends JpaRepository<TutorSchedule, Long> {
     // 透過 Spring Data 的命名慣例自動生成查詢：找特定老師、按星期排序、再按小時排序
     List<TutorSchedule> findByTutorIdOrderByWeekdayAscHourAsc(Long tutorId);
@@ -28,4 +28,4 @@ public interface TutorScheduleRepo extends JpaRepository<TutorSchedule, Long> {
 
     // 精準尋找老師在「星期幾的幾點」的紀錄 (用來檢查要 Update 還是 Insert)
     Optional<TutorSchedule> findByTutorIdAndWeekdayAndHour(Long tutorId, Integer weekday, Integer hour);
-}
+} */

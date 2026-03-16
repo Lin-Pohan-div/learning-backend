@@ -31,24 +31,24 @@ public class TutorController {
      * 以 API 形式取得老師個人檔案資料
      * @param id 老師的 ID
      */
-    @GetMapping("/{id}")
+    /* @GetMapping("/{id}")
     public ResponseEntity<?> getTutorProfile(
             @PathVariable Long id, 
-            @RequestParam(required = false) Long courseId) {
+            @RequestParam(required = false) Long courseId) { */
         
         // 1. 取得老師核心資料
-        Tutor tutor = tutorService.findTutorById(id);
+        /* Tutor tutor = tutorService.findTutorById(id);
         
         if (tutor == null) {
             return ResponseEntity.notFound().build();
-        }
+        } */
 
-        // 2. 取得老師的課表與課程列表
+       /*  // 2. 取得老師的課表與課程列表
         List<TutorSchedule> schedules = tutorService.findSchedulesByTutorId(id);
-        List<Course> courses = tutorService.findCoursesByTutorId(id);
+        List<Course> courses = tutorService.findCoursesByTutorId(id); */
         
         // 3. 處理課程與評價邏輯
-        Course selectedCourse = null;
+       /*  Course selectedCourse = null;
         if (courseId != null) {
             selectedCourse = tutorService.findCourseById(courseId);
         } else if (!courses.isEmpty()) {
@@ -57,16 +57,16 @@ public class TutorController {
 
         List<Review> reviews = (selectedCourse != null) ? 
                                tutorService.findReviewsByCourseId(selectedCourse.getId()) : 
-                               new ArrayList<>();
+                               new ArrayList<>(); */
 
         // 4. 計算平均評分
-        double avgRating = reviews.stream()
+       /*  double avgRating = reviews.stream()
                                   .mapToInt(Review::getRating)
                                   .average()
-                                  .orElse(0.0);
+                                  .orElse(0.0); */
 
         // 5. 將結果封裝進 DTO (TutorProfileDTO)
-        TutorProfileDTO dto = new TutorProfileDTO();
+        /* TutorProfileDTO dto = new TutorProfileDTO();
         dto.setName(tutor.getUser().getName()); // 假設 Tutor 關聯 User
         dto.setHeadline(tutor.getTitle());
         dto.setAvatar(tutor.getAvatar());
@@ -80,6 +80,6 @@ public class TutorController {
         dto.setReviews(reviews);
         dto.setAverageRating(Double.parseDouble(String.format("%.1f", avgRating)));
 
-        return ResponseEntity.ok(dto);
+        return ResponseEntity.ok(dto); */
     }
-}
+/* } */
