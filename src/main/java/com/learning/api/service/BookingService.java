@@ -6,9 +6,9 @@ import com.learning.api.entity.Bookings;
 import com.learning.api.entity.Course;
 import com.learning.api.repo.BookingRepository;
 import com.learning.api.repo.CourseRepo;
-import com.learning.api.repo.MemberRepo;
+import com.learning.api.repo.UserRepository;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,15 +16,11 @@ import org.springframework.stereotype.Service;
  * 實際建立訂單的邏輯（含折扣計算）委派給 OrderService，避免重複實作。
  */
 @Service
+@RequiredArgsConstructor
 public class BookingService {
-    @Autowired
-    private MemberRepo memberRepo;
-
-    @Autowired
-    private CourseRepo courseRepo;
-
-    @Autowired
-    private BookingRepository bookingRepo;
+    private final UserRepository userRepository;
+    private final CourseRepo courseRepo;
+    private final BookingRepository bookingRepo;
 
     // bookingReq.getUserId() 僅供開發測試使用，正式版改由登入資訊取得
     public boolean sendBooking(BookingReq bookingReq) {
@@ -39,7 +35,7 @@ public class BookingService {
         if (bookingReq.getLessonCount() <= 0) return false;
 
         // member existsById
-        if(!memberRepo.existsById(bookingReq.getUserId())) return false;
+        if(!userRepository.existsById(bookingReq.getUserId())) return false;
 
         // course findById
         Course course = courseRepo.findById(bookingReq.getCourseId()).orElse(null);

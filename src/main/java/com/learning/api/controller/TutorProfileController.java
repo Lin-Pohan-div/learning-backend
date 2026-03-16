@@ -1,9 +1,9 @@
 package com.learning.api.controller;
 
 import com.learning.api.annotation.ApiController;
-import com.learning.api.dto.tutor.TutorProfileDTO;
+import com.learning.api.dto.tutor.TutorUpdateReq;
 import com.learning.api.entity.Tutor;
-import com.learning.api.service.TutorProfileService;
+import com.learning.api.service.TutorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,12 +15,12 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class TutorProfileController {
 
-    private final TutorProfileService profileService;
+    private final TutorService tutorService;
 
     // [GET] 取得老師個人檔案
     @GetMapping("/{tutorId}")
     public ResponseEntity<?> getProfile(@PathVariable Long tutorId) {
-        Tutor tutor = profileService.getProfile(tutorId);
+        Tutor tutor = tutorService.getTutor(tutorId);
         if (tutor == null) {
             return ResponseEntity.status(404).body(Map.of("msg", "找不到該名老師的個人檔案"));
         }
@@ -29,12 +29,12 @@ public class TutorProfileController {
 
     // [POST] 建立老師個人檔案（初次設定）
     @PostMapping
-    public ResponseEntity<?> createProfile(@RequestBody TutorProfileDTO dto) {
+    public ResponseEntity<?> createProfile(@RequestBody TutorUpdateReq dto) {
         if (dto.getTutorId() == null) {
-            return ResponseEntity.status(400).body(Map.of("message", "必須提供老師 ID"));
+            return ResponseEntity.status(400).body(Map.of("msg", "必須提供老師 ID"));
         }
 
-        String result = profileService.createProfile(dto);
+        String result = tutorService.createProfile(dto);
 
         if (result.equals("success")) {
             return ResponseEntity.status(201).body(Map.of("msg", "個人檔案建立成功！"));
@@ -47,12 +47,12 @@ public class TutorProfileController {
 
     // [PUT] 更新老師個人檔案
     @PutMapping
-    public ResponseEntity<?> updateProfile(@RequestBody TutorProfileDTO dto) {
+    public ResponseEntity<?> updateProfile(@RequestBody TutorUpdateReq dto) {
         if (dto.getTutorId() == null) {
             return ResponseEntity.status(400).body(Map.of("msg", "必須提供老師 ID"));
         }
 
-        String result = profileService.updateProfile(dto);
+        String result = tutorService.updateProfile(dto);
 
         if (!result.equals("success")) {
             return ResponseEntity.status(404).body(Map.of("msg", result));
@@ -64,7 +64,7 @@ public class TutorProfileController {
     // [DELETE] 刪除老師個人檔案
     @DeleteMapping("/{tutorId}")
     public ResponseEntity<?> deleteProfile(@PathVariable Long tutorId) {
-        String result = profileService.deleteProfile(tutorId);
+        String result = tutorService.deleteProfile(tutorId);
 
         if (!result.equals("success")) {
             return ResponseEntity.status(404).body(Map.of("msg", result));

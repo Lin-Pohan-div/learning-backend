@@ -3,7 +3,7 @@ package com.learning.api.dto.tutor;
 import lombok.Data;
 
 @Data
-public class TutorProfileDTO {
+public class TutorUpdateReq {
     private Long tutorId;          // 老師的 ID（對應 users.id）
 
     // 更新到 users 表

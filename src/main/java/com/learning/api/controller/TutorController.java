@@ -3,9 +3,8 @@ package com.learning.api.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,12 +19,11 @@ import com.learning.api.entity.TutorSchedule;
 import com.learning.api.service.TutorService;
 
 @RestController
-@RequestMapping("api/tutor")
-@CrossOrigin(origins = "http://localhost:5173") // 允許前端開發環境跨域
+@RequestMapping("/api/tutor")
+@RequiredArgsConstructor
 public class TutorController {
 
-    @Autowired
-    private TutorService tutorService;
+    private final TutorService tutorService;
 
     /**
      * 以 API 形式取得老師個人檔案資料

@@ -3,22 +3,19 @@ package com.learning.api.controller;
 import com.learning.api.dto.auth.*;
 import com.learning.api.service.*;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-@CrossOrigin(origins = "http://localhost:5173") // 部署好網域再換
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
-    @Autowired
-    private MemberService memberService;
-
-    @Autowired
-    private AuthService authService;
+    private final MemberService memberService;
+    private final AuthService authService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterReq registerReq){

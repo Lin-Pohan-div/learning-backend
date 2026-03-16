@@ -2,17 +2,17 @@ package com.learning.api.controller;
 
 import com.learning.api.dto.CheckoutReq;
 import com.learning.api.service.CheckoutService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/shop")
-@CrossOrigin(origins = "*")
+@RequiredArgsConstructor
 public class CheckoutController {
 
-    @Autowired private CheckoutService checkoutService;
+    private final CheckoutService checkoutService;
 
     @PostMapping("/purchase")
     public ResponseEntity<?> purchase(@RequestBody CheckoutReq req) {

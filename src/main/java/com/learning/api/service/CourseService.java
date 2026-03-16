@@ -10,28 +10,23 @@ import com.learning.api.repo.CourseRepo;
 import com.learning.api.repo.OrderRepository;
 import com.learning.api.repo.BookingRepository;
 import com.learning.api.repo.LessonFeedbackRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class CourseService {
-    @Autowired
-    private UserRepository userRepo;
-
-    @Autowired
-    private CourseRepo courseRepo;
-
-    @Autowired
-    private OrderRepository orderRepo;
-
-    @Autowired
-    private BookingRepository bookingRepo;
-
-    @Autowired
-    private LessonFeedbackRepository feedbackRepo;
+    private final UserRepository userRepo;
+    private final CourseRepo courseRepo;
+    private final OrderRepository orderRepo;
+    private final BookingRepository bookingRepo;
+    private final LessonFeedbackRepository feedbackRepo;
 
     private static final Set<Integer> VALID_SUBJECTS = Set.of(11, 12, 13, 21, 22, 23, 31);
 
@@ -140,6 +135,11 @@ public class CourseService {
                 : feedbackRepo.findAverageRatingByBookingIdIn(bookingIds);
 
         return buildCourseResp(course, feedbacks, avgRating);
+    }
+
+    // GET 課程搜尋（分頁 + 篩選）
+    public Page<Course> searchCourses(Specification<Course> spec, Pageable pageable) {
+        return courseRepo.findAll(spec, pageable);
     }
 
     // GET 單筆課程（回傳 entity）

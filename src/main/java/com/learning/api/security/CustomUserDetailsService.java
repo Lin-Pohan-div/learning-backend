@@ -2,24 +2,22 @@ package com.learning.api.security;
 
 
 import com.learning.api.entity.User;
-import com.learning.api.repo.MemberRepo;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.learning.api.repo.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-
-
 @Service
+@RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    @Autowired
-    private MemberRepo memberRepo;
+    private final UserRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = memberRepo.findByEmail(username).orElse(null);
+        User user = userRepository.findByEmail(username).orElse(null);
         if (user == null) throw new UsernameNotFoundException("沒有找到");
 
         return new SecurityUser(user);

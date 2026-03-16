@@ -35,6 +35,9 @@ public class LessonFeedbackService {
     }
 
     public LessonFeedback save(LessonFeedback feedback) {
+        if (lessonFeedbackRepository.existsByBookingId(feedback.getBookingId())) {
+            throw new IllegalArgumentException("這堂課已經填寫過回饋囉！");
+        }
         validate(feedback);
         return lessonFeedbackRepository.save(feedback);
     }

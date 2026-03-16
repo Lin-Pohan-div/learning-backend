@@ -19,8 +19,8 @@ public class BookingController {
     @PostMapping
     public ResponseEntity<?> sendBooking(@RequestBody BookingReq bookingReq) {
         if (!bookingService.sendBooking(bookingReq)) {
-            return ResponseEntity.status(400).body(Map.of("message", "建立失敗"));
+            return ResponseEntity.status(400).body(Map.of("msg", "建立失敗"));
         }
-        return ResponseEntity.ok(Map.of("message", "建立成功"));
+        return ResponseEntity.ok(Map.of("msg", "建立成功"));
     }
 }

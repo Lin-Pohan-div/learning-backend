@@ -22,9 +22,9 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<?> createOrder(@Valid @RequestBody OrderDto.Req req) {
         if (!orderService.createOrder(req)) {
-            return ResponseEntity.status(400).body(Map.of("message", "建立訂單失敗"));
+            return ResponseEntity.status(400).body(Map.of("msg", "建立訂單失敗"));
         }
-        return ResponseEntity.ok(Map.of("message", "訂單建立成功"));
+        return ResponseEntity.ok(Map.of("msg", "訂單建立成功"));
     }
 
     // 修改訂單 (lessonCount / lessonUsed)
@@ -34,9 +34,9 @@ public class OrderController {
             @Valid @RequestBody OrderDto.UpdateReq req) {
 
         if (!orderService.updateOrder(id, req)) {
-            return ResponseEntity.status(400).body(Map.of("message", "訂單更新失敗"));
+            return ResponseEntity.status(400).body(Map.of("msg", "訂單更新失敗"));
         }
-        return ResponseEntity.ok(Map.of("message", "訂單更新成功"));
+        return ResponseEntity.ok(Map.of("msg", "訂單更新成功"));
     }
 
     // 查詢單一訂單
@@ -44,7 +44,7 @@ public class OrderController {
     public ResponseEntity<?> getOrder(@PathVariable Long id) {
         OrderDto.Resp resp = orderService.getOrderById(id);
         if (resp == null) {
-            return ResponseEntity.status(404).body(Map.of("message", "訂單不存在"));
+            return ResponseEntity.status(404).body(Map.of("msg", "訂單不存在"));
         }
         return ResponseEntity.ok(resp);
     }
@@ -63,26 +63,26 @@ public class OrderController {
             @Valid @RequestBody OrderDto.StatusReq req) {
 
         if (!orderService.updateStatus(id, req)) {
-            return ResponseEntity.status(400).body(Map.of("message", "狀態更新失敗"));
+            return ResponseEntity.status(400).body(Map.of("msg", "狀態更新失敗"));
         }
-        return ResponseEntity.ok(Map.of("message", "狀態更新成功"));
+        return ResponseEntity.ok(Map.of("msg", "狀態更新成功"));
     }
 
     // 取消訂單 (僅限 pending 狀態)
     @DeleteMapping("/{id}")
     public ResponseEntity<?> cancelOrder(@PathVariable Long id) {
         if (!orderService.cancelOrder(id)) {
-            return ResponseEntity.status(400).body(Map.of("message", "取消失敗，僅 pending 訂單可取消"));
+            return ResponseEntity.status(400).body(Map.of("msg", "取消失敗，僅 pending 訂單可取消"));
         }
-        return ResponseEntity.ok(Map.of("message", "訂單已取消"));
+        return ResponseEntity.ok(Map.of("msg", "訂單已取消"));
     }
 
     // 支付訂單
     @PostMapping("/{id}/pay")
     public ResponseEntity<?> payOrder(@PathVariable Long id) {
         if (!orderService.payOrder(id)) {
-            return ResponseEntity.status(400).body(Map.of("message", "支付失敗"));
+            return ResponseEntity.status(400).body(Map.of("msg", "支付失敗"));
         }
-        return ResponseEntity.ok(Map.of("message", "支付成功"));
+        return ResponseEntity.ok(Map.of("msg", "支付成功"));
     }
 }

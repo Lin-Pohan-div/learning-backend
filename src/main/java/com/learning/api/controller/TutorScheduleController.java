@@ -3,21 +3,18 @@ package com.learning.api.controller;
 import com.learning.api.dto.ScheduleDTO;
 import com.learning.api.service.TutorScheduleService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
 
-@CrossOrigin(origins = "*") // 允許前端跨域請求
 @RestController
 @RequestMapping("/api/teacher/schedules")
 @RequiredArgsConstructor
 public class TutorScheduleController {
 
-    @Autowired
-    private TutorScheduleService scheduleService;
+    private final TutorScheduleService scheduleService;
 
     // 1. 老師點擊格子切換狀態 (開放/關閉)
     // 呼叫範例: POST /api/teacher/schedules/toggle

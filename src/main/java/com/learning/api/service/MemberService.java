@@ -4,25 +4,23 @@ import com.learning.api.dto.auth.*;
 import com.learning.api.dto.auth.LoginResp;
 import com.learning.api.dto.auth.LoginReq;
 import com.learning.api.entity.*;
-import com.learning.api.repo.*;
+import com.learning.api.repo.UserRepository;
 import com.learning.api.security.JwtService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class MemberService {
 
-    @Autowired
-    private MemberRepo memberRepo;
-
-    @Autowired
-    private JwtService jwtService;
+    private final UserRepository userRepository;
+    private final JwtService jwtService;
 
     public void register(RegisterReq registerReq) {
         String email = registerReq.getEmail().trim().toLowerCase();
 
-        if (memberRepo.existsByEmail(email)) throw new IllegalArgumentException("此 email 已被註冊");
+        if (userRepository.existsByEmail(email)) throw new IllegalArgumentException("此 email 已被註冊");
 
         // password
         String rawPassword = registerReq.getPassword();
@@ -30,14 +28,14 @@ public class MemberService {
         String hashPassword = BCrypt.hashpw(rawPassword, BCrypt.gensalt());
 
         User user = buildMember(registerReq, email, hashPassword);
-        memberRepo.save(user);
+        userRepository.save(user);
     }
 
     public LoginResp login(LoginReq loginReq) {
         String email    = loginReq.getEmail().trim().toLowerCase();
         String password = loginReq.getPassword().trim();
 
-        User user = memberRepo.findByEmail(email)
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("帳號或密碼錯誤"));
 
         if (!BCrypt.checkpw(password, user.getPassword()))
@@ -79,7 +77,7 @@ public class MemberService {
         //String rawPassword = loginReq.getPassword().trim();
         String rawPassword = loginReq.getPassword();
 
-        User user = memberRepo.findByEmail(rawEmail).orElse(null);
+        User user = userRepository.findByEmail(rawEmail).orElse(null);
 
         if (user == null) throw new IllegalArgumentException("你沒有註冊喔");
 
