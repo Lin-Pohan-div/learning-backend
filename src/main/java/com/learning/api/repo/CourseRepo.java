@@ -10,7 +10,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CourseRepo extends JpaRepository<Course, Long> , JpaSpecificationExecutor<Course>{
-    boolean existsByIdTutorId(Long tutorId);
+    boolean existsByTutorId(Long tutorId);
+    List<Course> findByTutorIdAndActive(Long tutorId, Boolean active);
     
     /**
      * 透過老師的 ID 尋找該名老師開設的所有課程

@@ -2,9 +2,9 @@ package com.learning.api.entity;
 
 import java.time.LocalDate;
 import java.util.List;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapsId;
@@ -21,12 +21,10 @@ import lombok.Setter;
 public class Tutor {
 
     @Id
-    private Long id;
+    private Long id; // 與 users.id 共享（@MapsId）
 
     @Column(name="apply_date")
     private LocalDate applyDate;
-    
-    private Long id; // 與 users.id 共享（@MapsId）
 
     @OneToOne
     @MapsId // 讓此 ID 同時作為外鍵指向 User 的 ID
@@ -39,12 +37,10 @@ public class Tutor {
     @Column(name = "avatar_url", length = 500)
     private String avatarUrl; //大頭照url
 
-    @Column(name = "intro",length = 1000)
-    private String intro;
     @Column(length = 500)
     private String avatar;
 
-    @Column(length = 1000)
+    @Column(name = "intro", length = 1000)
     private String intro; // 自我介紹
 
     @Column(name = "education", length = 100)
@@ -76,8 +72,7 @@ public class Tutor {
 
     @Column(name="status")
     private Integer status;//1 pending 2qualified 3停權
-    
-    //為了讓 CourseSpec 能順利從課程連動到課表
-    @OneToMany(mappedBy = "tutor")
+
+    @OneToMany(mappedBy = "tutor", fetch = FetchType.LAZY)
     private List<TutorSchedule> schedules;
 }

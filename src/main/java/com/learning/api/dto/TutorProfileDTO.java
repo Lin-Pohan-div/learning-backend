@@ -2,7 +2,7 @@ package com.learning.api.dto;
 
 import java.util.List;
 
-import com.learning.api.entity.Review;
+import com.learning.api.entity.Reviews;
 import com.learning.api.entity.TutorSchedule;
 
 import lombok.Getter;
@@ -18,6 +18,6 @@ public class TutorProfileDTO {
     private String certificate_name_1;
     private String videoUrl1;
     private List<TutorSchedule> schedules;
-    private List<Review> reviews;
+    private List<Reviews> reviews;
     private Double averageRating;
 }

@@ -51,7 +51,7 @@ public class CourseViewController {
         // 2. 將 Entity 轉換為 DTO
         Page<CourseSearchDTO> dtoPage = coursePage.map(course -> new CourseSearchDTO(
             course.getId(),
-            course.getTutor().getId(),             // tutorId，用於跳轉老師頁面
+            course.getTutorId(),                   // tutorId，用於跳轉老師頁面
             course.getTutor().getUser().getName(), // 從 Tutor -> User 拿姓名
             course.getTutor().getAvatar(),      // 拿頭像
             course.getTutor().getTitle(),       // 拿標題
