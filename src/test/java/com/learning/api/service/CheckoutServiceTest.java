@@ -23,10 +23,16 @@ class CheckoutServiceTest {
     @Autowired
     private CheckoutService checkoutService;
 
-    @Autowired private UserRepository userRepo;
-    @Autowired private CourseRepo courseRepo;
-    @Autowired private TutorScheduleRepo scheduleRepo;
-    @Autowired private BookingRepository bookingRepo;
+    @Autowired
+    private UserRepository userRepo;
+    @Autowired
+    private CourseRepo courseRepo;
+    @Autowired
+    private TutorScheduleRepo scheduleRepo;
+    @Autowired
+    private BookingRepository bookingRepo;
+    @Autowired
+    private OrderRepository orderRepo;
 
     private Long studentId;
     private Long poorStudentId;
@@ -81,6 +87,7 @@ class CheckoutServiceTest {
         schedule.setHour(TEST_HOUR);
         schedule.setStatus("available");
         scheduleRepo.save(schedule);
+
     }
 
     private CheckoutReq buildReq(Long studentId, Long courseId, LocalDate date, int hour) {
@@ -118,7 +125,18 @@ class CheckoutServiceTest {
 
     @Test
     void processPurchase_alreadyBooked_returnsErrorMessage() {
+        Order order = new Order();
+        order.setUserId(studentId);
+        order.setCourseId(courseId);
+        order.setUnitPrice(500);
+        order.setDiscountPrice(500);
+        order.setLessonCount(1);
+        order.setLessonUsed(0);
+        order.setStatus(2);
+        order = orderRepo.save(order);
+
         Bookings existing = new Bookings();
+        existing.setOrderId(order.getId());
         existing.setTutorId(tutorId);
         existing.setStudentId(studentId);
         existing.setDate(nextMonday);
