@@ -17,6 +17,7 @@ public class Course {
     @Column(name = "tutor_id", nullable = false)
     private Long tutorId;
 
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tutor_id", nullable = false, insertable = false, updatable = false)
     private Tutor tutor;
