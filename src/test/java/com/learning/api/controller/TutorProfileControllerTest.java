@@ -331,7 +331,7 @@ class TutorProfileControllerTest {
     void put_updatesExistingTutorRow_shouldOverwriteIntro() throws Exception {
         // 預先建立 tutors 列
         Tutor existing = new Tutor();
-        existing.setId(savedTutorId);
+        existing.setUser(userRepository.findById(savedTutorId).orElseThrow());
         existing.setIntro("Old intro");
         tutorRepository.save(existing);
 

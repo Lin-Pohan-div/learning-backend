@@ -34,6 +34,7 @@ public class TutorProfileService {
         if (tutorRepo.existsById(dto.getTutorId())) return "個人檔案已存在，請使用 PUT 更新";
 
         Tutor tutor = new Tutor();
+        tutor.setUser(user);
         applyDtoToTutor(dto, tutor);
         tutorRepo.save(tutor);
 
@@ -55,7 +56,7 @@ public class TutorProfileService {
         if (user == null) return "找不到該名老師";
 
         Tutor tutor = tutorRepo.findById(dto.getTutorId()).orElse(new Tutor());
-        tutor.setId(dto.getTutorId());
+        tutor.setUser(user);
         applyDtoToTutor(dto, tutor);
         tutorRepo.save(tutor);
 
@@ -79,7 +80,6 @@ public class TutorProfileService {
 
     // 共用：將 DTO 欄位套用至 Tutor entity
     private void applyDtoToTutor(TutorProfileDTO dto, Tutor tutor) {
-        tutor.setId(dto.getTutorId());
         tutor.setTitle(dto.getTitle());
         tutor.setAvatarUrl(dto.getAvatar());
         tutor.setIntro(dto.getIntro());

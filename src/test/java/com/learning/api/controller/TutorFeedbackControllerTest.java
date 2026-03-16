@@ -2,10 +2,14 @@ package com.learning.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.learning.api.entity.Bookings;
+import com.learning.api.entity.Course;
 import com.learning.api.entity.LessonFeedback;
+import com.learning.api.entity.Order;
 import com.learning.api.entity.User;
 import com.learning.api.repo.BookingRepository;
+import com.learning.api.repo.CourseRepo;
 import com.learning.api.repo.LessonFeedbackRepository;
+import com.learning.api.repo.OrderRepository;
 import com.learning.api.repo.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,6 +37,12 @@ class TutorFeedbackControllerTest {
 
     @Autowired
     private UserRepository userRepo;
+
+    @Autowired
+    private CourseRepo courseRepo;
+
+    @Autowired
+    private OrderRepository orderRepo;
 
     @Autowired
     private BookingRepository bookingRepo;
@@ -70,8 +80,28 @@ class TutorFeedbackControllerTest {
         student.setWallet(0L);
         student = userRepo.save(student);
 
+        // 建立課程與訂單（order_id 為 NOT NULL）
+        Course course = new Course();
+        course.setTutorId(tutor.getId());
+        course.setName("Feedback Test Course");
+        course.setSubject(11);
+        course.setPrice(500);
+        course.setActive(true);
+        course = courseRepo.save(course);
+
+        Order order = new Order();
+        order.setUserId(student.getId());
+        order.setCourseId(course.getId());
+        order.setUnitPrice(500);
+        order.setDiscountPrice(500);
+        order.setLessonCount(1);
+        order.setLessonUsed(1);
+        order.setStatus(2);
+        order = orderRepo.save(order);
+
         // 建立預約紀錄
         Bookings booking = new Bookings();
+        booking.setOrderId(order.getId());
         booking.setTutorId(tutor.getId());
         booking.setStudentId(student.getId());
         booking.setDate(LocalDate.now().minusDays(1));

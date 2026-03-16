@@ -32,7 +32,7 @@ public class TutorService {
         if (tutorRepo.existsById(req.getTutorId())) return false;
 
         Tutor tutor = new Tutor();
-        tutor.setId(req.getTutorId());
+        tutor.setUser(user);
         applyFields(tutor, req);
         tutorRepo.save(tutor);
         return true;

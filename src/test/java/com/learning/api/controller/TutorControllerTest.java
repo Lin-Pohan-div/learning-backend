@@ -60,7 +60,7 @@ class TutorControllerTest {
         tutorUserId = tutor.getId();
 
         Tutor tutorProfile = new Tutor();
-        tutorProfile.setId(tutorUserId);
+        tutorProfile.setUser(tutor);
         tutorProfile.setTitle("Math Teacher");
         tutorRepo.save(tutorProfile);
 
