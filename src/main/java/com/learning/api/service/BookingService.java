@@ -6,7 +6,7 @@ import com.learning.api.repo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service
+/* @Service
 public class BookingService {
 
     @Autowired
@@ -79,4 +79,4 @@ public class BookingService {
         // 0%
         return originalPrice;
     }
-}
+} */
