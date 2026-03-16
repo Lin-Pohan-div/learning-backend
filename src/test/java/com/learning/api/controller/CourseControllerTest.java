@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.learning.api.enums.UserRole;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,7 +55,7 @@ class CourseControllerTest {
         tutor.setName("Test Tutor");
         tutor.setEmail("coursetest.tutor@example.com");
         tutor.setPassword("hashedpassword");
-        tutor.setRole(2);
+        tutor.setRole(UserRole.TUTOR);
         tutor.setWallet(0L);
         tutor = userRepository.save(tutor);
         savedTutorId = tutor.getId();
@@ -64,7 +65,7 @@ class CourseControllerTest {
         student.setName("Test Student");
         student.setEmail("coursetest.student@example.com");
         student.setPassword("hashedpassword");
-        student.setRole(1);
+        student.setRole(UserRole.STUDENT);
         student.setWallet(0L);
         student = userRepository.save(student);
         savedStudentId = student.getId();

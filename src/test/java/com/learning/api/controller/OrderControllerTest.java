@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.learning.api.enums.UserRole;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -64,7 +65,7 @@ class OrderControllerTest {
         user.setName("Test Student");
         user.setEmail("student_order@example.com");
         user.setPassword("hashedpassword");
-        user.setRole(1);
+        user.setRole(UserRole.STUDENT);
         user.setWallet(0L);
         user = userRepository.save(user);
         testUserId = user.getId();
@@ -73,7 +74,7 @@ class OrderControllerTest {
         noOrderUser.setName("No Order Student");
         noOrderUser.setEmail("noorder_student@example.com");
         noOrderUser.setPassword("hashedpassword");
-        noOrderUser.setRole(1);
+        noOrderUser.setRole(UserRole.STUDENT);
         noOrderUser.setWallet(0L);
         noOrderUser = userRepository.save(noOrderUser);
         noOrderUserId = noOrderUser.getId();

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.learning.api.enums.UserRole;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -36,7 +37,7 @@ class TutorServiceTest {
         tutor.setName("Existing Tutor Svc");
         tutor.setEmail("tutorsvc.existing@example.com");
         tutor.setPassword("hashed");
-        tutor.setRole(2);
+        tutor.setRole(UserRole.TUTOR);
         tutor.setWallet(0L);
         tutor = userRepo.save(tutor);
         tutorUserId = tutor.getId();
@@ -50,7 +51,7 @@ class TutorServiceTest {
         newTutor.setName("New Tutor Svc");
         newTutor.setEmail("tutorsvc.new@example.com");
         newTutor.setPassword("hashed");
-        newTutor.setRole(2);
+        newTutor.setRole(UserRole.TUTOR);
         newTutor.setWallet(0L);
         newTutor = userRepo.save(newTutor);
         newTutorUserId = newTutor.getId();
@@ -59,7 +60,7 @@ class TutorServiceTest {
         student.setName("Student Svc");
         student.setEmail("tutorsvc.student@example.com");
         student.setPassword("hashed");
-        student.setRole(1);
+        student.setRole(UserRole.STUDENT);
         student.setWallet(0L);
         student = userRepo.save(student);
         studentUserId = student.getId();

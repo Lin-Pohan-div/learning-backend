@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.learning.api.enums.UserRole;
 import java.util.Map;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -54,7 +55,7 @@ class TutorControllerTest {
         tutor.setName("Existing Tutor");
         tutor.setEmail("existing.tutor@example.com");
         tutor.setPassword("hashed");
-        tutor.setRole(2);
+        tutor.setRole(UserRole.TUTOR);
         tutor.setWallet(0L);
         tutor = userRepo.save(tutor);
         tutorUserId = tutor.getId();
@@ -69,7 +70,7 @@ class TutorControllerTest {
         newTutor.setName("New Tutor");
         newTutor.setEmail("new.tutor@example.com");
         newTutor.setPassword("hashed");
-        newTutor.setRole(2);
+        newTutor.setRole(UserRole.TUTOR);
         newTutor.setWallet(0L);
         newTutor = userRepo.save(newTutor);
         newTutorUserId = newTutor.getId();
@@ -79,7 +80,7 @@ class TutorControllerTest {
         student.setName("Test Student");
         student.setEmail("tutor.ctrl.student@example.com");
         student.setPassword("hashed");
-        student.setRole(1);
+        student.setRole(UserRole.STUDENT);
         student.setWallet(0L);
         student = userRepo.save(student);
         studentUserId = student.getId();

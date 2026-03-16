@@ -2,6 +2,12 @@ package com.learning.api.service;
 
 import com.learning.api.dto.OrderDto;
 import com.learning.api.dto.booking.BookingReq;
+import com.learning.api.entity.Bookings;
+import com.learning.api.entity.Course;
+import com.learning.api.repo.BookingRepository;
+import com.learning.api.repo.CourseRepo;
+import com.learning.api.repo.MemberRepo;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,9 +17,14 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class BookingService {
+    @Autowired
+    private MemberRepo memberRepo;
 
     @Autowired
-    private OrderService orderService;
+    private CourseRepo courseRepo;
+
+    @Autowired
+    private BookingRepository bookingRepo;
 
     // bookingReq.getUserId() 僅供開發測試使用，正式版改由登入資訊取得
     public boolean sendBooking(BookingReq bookingReq) {
@@ -38,9 +49,19 @@ public class BookingService {
 //        if (!course.isActive()) return false;
 
         // buildBooking
-        Booking booking = buildBooking(bookingReq, course);
+        Bookings booking = buildBooking(bookingReq, course);
         bookingRepo.save(booking);
 
         return true;
+    }
+
+    private Bookings buildBooking(BookingReq req, Course course) {
+        Bookings booking = new Bookings();
+        booking.setTutorId(course.getTutorId());
+        booking.setStudentId(req.getUserId());
+        booking.setDate(req.getDate());
+        booking.setHour(req.getHour());
+        booking.setStatus((byte) 0);
+        return booking;
     }
 }

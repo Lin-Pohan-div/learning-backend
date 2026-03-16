@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.learning.api.enums.UserRole;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -35,7 +36,7 @@ class AuthServiceTest {
         user.setName("Auth Service User");
         user.setEmail(TEST_EMAIL);
         user.setPassword(passwordEncoder.encode(TEST_PASSWORD));
-        user.setRole(1);
+        user.setRole(UserRole.STUDENT);
         user.setWallet(0L);
         memberRepo.save(user);
     }

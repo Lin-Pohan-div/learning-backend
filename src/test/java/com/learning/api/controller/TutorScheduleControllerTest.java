@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.learning.api.enums.UserRole;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.*;
@@ -51,7 +52,7 @@ class TutorScheduleControllerTest {
         tutor.setName("Schedule Tutor");
         tutor.setEmail("schedule.tutor@example.com");
         tutor.setPassword("hashed");
-        tutor.setRole(2);
+        tutor.setRole(UserRole.TUTOR);
         tutor.setWallet(0L);
         tutor = userRepo.save(tutor);
         tutorId = tutor.getId();

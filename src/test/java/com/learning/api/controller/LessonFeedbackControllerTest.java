@@ -18,6 +18,7 @@ import com.learning.api.repo.LessonFeedbackRepository;
 import com.learning.api.repo.OrderRepository;
 import com.learning.api.repo.UserRepository;
 
+import com.learning.api.enums.UserRole;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.Map;
@@ -69,7 +70,7 @@ public class LessonFeedbackControllerTest {
         tutor.setName("Test Tutor");
         tutor.setEmail("tutor_feedback@example.com");
         tutor.setPassword("hashedpassword");
-        tutor.setRole(2);
+        tutor.setRole(UserRole.TUTOR);
         tutor.setWallet(0L);
         tutor = userRepository.save(tutor);
 
@@ -77,7 +78,7 @@ public class LessonFeedbackControllerTest {
         student.setName("Test Student");
         student.setEmail("student_feedback@example.com");
         student.setPassword("hashedpassword");
-        student.setRole(1);
+        student.setRole(UserRole.STUDENT);
         student.setWallet(0L);
         student = userRepository.save(student);
 

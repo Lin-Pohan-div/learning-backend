@@ -17,6 +17,7 @@ import com.learning.api.repo.ChatMessageRepository;
 import com.learning.api.repo.CourseRepo;
 import com.learning.api.repo.UserRepository;
 
+import com.learning.api.enums.UserRole;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.*;
@@ -61,7 +62,7 @@ class ChatMessageControllerTest {
         testUser.setName("Test Tutor");
         testUser.setEmail("testtutor@example.com");
         testUser.setPassword("hashedpassword");
-        testUser.setRole(2);
+        testUser.setRole(UserRole.TUTOR);
         testUser.setWallet(0L);
         testUser = userRepository.save(testUser);
 

@@ -25,5 +25,7 @@ public interface CourseRepo extends JpaRepository<Course, Long> , JpaSpecificati
     // 正確的：透過關聯的 Tutor entity 主鍵查詢
     List<Course> findByTutor_Id(Long tutorId);
 
+    List<Course> findByTutorIdAndActive(Long tutorId, Boolean active);
+
 
 }

@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.learning.api.enums.UserRole;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
@@ -68,7 +69,7 @@ class TutorFeedbackControllerTest {
         tutor.setName("Feedback Tutor");
         tutor.setEmail("feedback.tutor@example.com");
         tutor.setPassword("hashed");
-        tutor.setRole(2);
+        tutor.setRole(UserRole.TUTOR);
         tutor.setWallet(0L);
         tutor = userRepo.save(tutor);
 
@@ -76,7 +77,7 @@ class TutorFeedbackControllerTest {
         student.setName("Feedback Student");
         student.setEmail("feedback.student@example.com");
         student.setPassword("hashed");
-        student.setRole(1);
+        student.setRole(UserRole.STUDENT);
         student.setWallet(0L);
         student = userRepo.save(student);
 

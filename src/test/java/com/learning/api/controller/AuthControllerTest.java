@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.learning.api.enums.UserRole;
 import java.util.Map;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -56,7 +57,7 @@ class AuthControllerTest {
         user.setName("Auth Test User");
         user.setEmail(TEST_EMAIL);
         user.setPassword(passwordEncoder.encode(TEST_PASSWORD));
-        user.setRole(1);
+        user.setRole(UserRole.STUDENT);
         user.setWallet(0L);
         memberRepo.save(user);
     }

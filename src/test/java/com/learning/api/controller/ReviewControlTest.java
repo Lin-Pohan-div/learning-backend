@@ -15,6 +15,7 @@ import com.learning.api.repo.ReviewRepository;
 import com.learning.api.repo.CourseRepo;
 import com.learning.api.repo.UserRepository;
 
+import com.learning.api.enums.UserRole;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.*;
@@ -58,7 +59,7 @@ class ReviewControlTest {
         testUser.setName("Test User");
         testUser.setEmail("testuser@example.com");
         testUser.setPassword("hashedpassword");
-        testUser.setRole(1);
+        testUser.setRole(UserRole.STUDENT);
         testUser.setWallet(0L);
         testUser = userRepository.save(testUser);
         savedUserId = testUser.getId();
@@ -68,7 +69,7 @@ class ReviewControlTest {
         tutorUser.setName("Test Tutor");
         tutorUser.setEmail("testtutor@example.com");
         tutorUser.setPassword("hashedpassword");
-        tutorUser.setRole(2);
+        tutorUser.setRole(UserRole.TUTOR);
         tutorUser.setWallet(0L);
         tutorUser = userRepository.save(tutorUser);
 

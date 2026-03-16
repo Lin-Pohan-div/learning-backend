@@ -4,6 +4,7 @@ package com.learning.api.service;
 import com.learning.api.dto.course.CourseReq;
 import com.learning.api.dto.course.CourseResp;
 import com.learning.api.entity.*;
+import com.learning.api.enums.UserRole;
 import com.learning.api.repo.UserRepository;
 import com.learning.api.repo.CourseRepo;
 import com.learning.api.repo.OrderRepository;
@@ -52,7 +53,7 @@ public class CourseService {
         if (courseReq.getLevel() != null && (courseReq.getLevel() < 1 || courseReq.getLevel() > 5)) return false;
 
         User tutor = userRepo.findById(courseReq.getTutorId()).orElse(null);
-        if (tutor == null || tutor.getRole() != 2) return false;
+        if (tutor == null || tutor.getRole() != UserRole.TUTOR) return false;
 
         courseRepo.save(buildCourses(courseReq));
         return true;

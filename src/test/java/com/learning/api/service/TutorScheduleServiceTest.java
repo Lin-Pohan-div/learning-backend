@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import com.learning.api.enums.UserRole;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -36,7 +37,7 @@ class TutorScheduleServiceTest {
         tutor.setName("Schedule Svc Tutor");
         tutor.setEmail("schedulesvc.tutor@example.com");
         tutor.setPassword("hashed");
-        tutor.setRole(2);
+        tutor.setRole(UserRole.TUTOR);
         tutor.setWallet(0L);
         tutor = userRepo.save(tutor);
         tutorId = tutor.getId();

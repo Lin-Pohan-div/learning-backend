@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
+import com.learning.api.enums.UserRole;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -47,7 +48,7 @@ class CheckoutServiceTest {
         student.setName("Checkout Student");
         student.setEmail("checkoutsvc.student@example.com");
         student.setPassword("hashed");
-        student.setRole(1);
+        student.setRole(UserRole.STUDENT);
         student.setWallet(10000L);
         student = userRepo.save(student);
         studentId = student.getId();
@@ -56,7 +57,7 @@ class CheckoutServiceTest {
         poorStudent.setName("Poor Checkout Student");
         poorStudent.setEmail("checkoutsvc.poor@example.com");
         poorStudent.setPassword("hashed");
-        poorStudent.setRole(1);
+        poorStudent.setRole(UserRole.STUDENT);
         poorStudent.setWallet(0L);
         poorStudent = userRepo.save(poorStudent);
         poorStudentId = poorStudent.getId();
@@ -65,7 +66,7 @@ class CheckoutServiceTest {
         tutor.setName("Checkout Tutor");
         tutor.setEmail("checkoutsvc.tutor@example.com");
         tutor.setPassword("hashed");
-        tutor.setRole(2);
+        tutor.setRole(UserRole.TUTOR);
         tutor.setWallet(0L);
         tutor = userRepo.save(tutor);
         tutorId = tutor.getId();

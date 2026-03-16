@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.learning.api.enums.UserRole;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
@@ -62,7 +63,7 @@ class CheckoutControllerTest {
         student.setName("Rich Student");
         student.setEmail("rich.student@example.com");
         student.setPassword("hashed");
-        student.setRole(1);
+        student.setRole(UserRole.STUDENT);
         student.setWallet(10000L);
         student = userRepo.save(student);
         studentId = student.getId();
@@ -72,7 +73,7 @@ class CheckoutControllerTest {
         poorStudent.setName("Poor Student");
         poorStudent.setEmail("poor.student@example.com");
         poorStudent.setPassword("hashed");
-        poorStudent.setRole(1);
+        poorStudent.setRole(UserRole.STUDENT);
         poorStudent.setWallet(0L);
         poorStudent = userRepo.save(poorStudent);
         poorStudentId = poorStudent.getId();
@@ -82,7 +83,7 @@ class CheckoutControllerTest {
         tutor.setName("Test Tutor");
         tutor.setEmail("checkout.tutor@example.com");
         tutor.setPassword("hashed");
-        tutor.setRole(2);
+        tutor.setRole(UserRole.TUTOR);
         tutor.setWallet(0L);
         tutor = userRepo.save(tutor);
         Long tutorId = tutor.getId();
