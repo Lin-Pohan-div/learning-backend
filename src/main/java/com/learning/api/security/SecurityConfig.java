@@ -35,6 +35,14 @@ public class SecurityConfig {
                         auth -> auth
                                 // 不需要登入
                                 .requestMatchers("/api/auth/**").permitAll()
+
+                                // 只有老師身份可以登入
+                                .requestMatchers("/api/tutor/**").hasRole("TUTOR")
+
+                                .requestMatchers("/api/student/**").hasRole("STUDENT")
+
+                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
                                 // 以上沒有的都要登入
                                 .anyRequest().authenticated()
                 )

@@ -1,5 +1,8 @@
 package com.learning.api.dto.auth;
 
+import com.learning.api.enums.UserRole;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
@@ -22,7 +25,6 @@ public class RegisterReq {
     private LocalDate birthday;
 
     @NotNull
-    @Min(1)
-    @Max(2)
-    private Integer role; //1:student/2:teacher
+    @Enumerated(EnumType.STRING)
+    private UserRole role; //1:student/2:teacher
 }

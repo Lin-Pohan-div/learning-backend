@@ -2,6 +2,7 @@ package com.learning.api.security;
 
 
 import com.learning.api.entity.*;
+import com.learning.api.enums.UserRole;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,12 +24,14 @@ public class SecurityUser implements UserDetails {
 
         String role = "";
 
-        if (user.getRole() == 1){
+        if (user.getRole() == UserRole.STUDENT){
             role = "ROLE_STUDENT";
-        }else if(user.getRole() == 2){
+        }else if(user.getRole() == UserRole.TUTOR){
             role = "ROLE_TUTOR";
-        }else if(user.getRole() == 3){
+        }else if(user.getRole() == UserRole.ADMIN){
             role = "ROLE_ADMIN";
+        }else{
+            throw new IllegalArgumentException("未知角色: " + user.getRole());
         }
 
         return List.of(new SimpleGrantedAuthority(role));

@@ -56,11 +56,12 @@ public class JwtFilter extends OncePerRequestFilter {
 
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         }
-        filterChain.doFilter(request, response);
 
-        System.out.printf("authHeader = %d", authHeader);
-        System.out.printf("token = %d", token) ;
-        System.out.printf("email = %d", email);
-        System.out.printf("isTokenValid = %d", jwtService.isTokenValid(token, user));
+        System.out.printf("authHeader = %s", authHeader);
+        System.out.printf("token = %s", token) ;
+        System.out.printf("email = %s", email);
+        System.out.printf("isTokenValid = %s", jwtService.isTokenValid(token, user));
+
+        filterChain.doFilter(request, response);
     }
 }

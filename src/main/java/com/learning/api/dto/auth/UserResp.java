@@ -1,5 +1,6 @@
 package com.learning.api.dto.auth;
 
+import com.learning.api.enums.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -17,7 +18,7 @@ public class UserResp {
 
     private LocalDate birthday;
 
-    private Integer role;
+    private UserRole role;
 
     private Integer wallet;
 
