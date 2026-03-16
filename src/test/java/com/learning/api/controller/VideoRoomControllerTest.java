@@ -32,7 +32,7 @@ class VideoRoomControllerTest {
     @InjectMocks
     private VideoRoomController videoRoomController;
 
-    // ── 測試資料工廠 ──────────────────────────────────────────────────────────
+    
 
     private SignalingMessage makeSignal(String type, Integer senderRole) {
         SignalingMessage msg = new SignalingMessage();

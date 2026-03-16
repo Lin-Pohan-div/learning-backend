@@ -46,7 +46,7 @@ class AuthControllerTest {
                 .build();
     }
 
-    // ── 測試資料工廠 ──────────────────────────────────────────────────────────
+    
 
     private RegisterReq makeRegisterReq(String email, String password) {
         RegisterReq req = new RegisterReq();

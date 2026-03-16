@@ -38,7 +38,7 @@ class CheckoutControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(checkoutController).build();
     }
 
-    // ── 測試資料工廠 ──────────────────────────────────────────────────────────
+    
 
     private CheckoutReq makeReq(Long studentId, Long courseId) {
         CheckoutReq req = new CheckoutReq();

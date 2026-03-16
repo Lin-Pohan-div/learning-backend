@@ -36,7 +36,7 @@ class OrderControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(orderController).build();
     }
 
-    // ── 測試資料工廠 ──────────────────────────────────────────────────────────
+    
 
     private OrderDto.Req makeOrderReq(Long userId, Long courseId, Integer lessonCount) {
         OrderDto.Req req = new OrderDto.Req();

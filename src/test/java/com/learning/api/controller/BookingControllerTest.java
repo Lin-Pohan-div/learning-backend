@@ -37,7 +37,7 @@ class BookingControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(bookingController).build();
     }
 
-    // ── 測試資料工廠 ──────────────────────────────────────────────────────────
+    
 
     private BookingReq makeReq(Long userId, Long courseId, Integer lessonCount) {
         BookingReq req = new BookingReq();

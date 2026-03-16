@@ -29,7 +29,7 @@ class BookingServiceTest {
     @InjectMocks
     private BookingService bookingService;
 
-    // ── 測試資料工廠 ──────────────────────────────────────────────────────────
+    
 
     private Course makeCourse(Long id, Long tutorId) {
         Course course = new Course();

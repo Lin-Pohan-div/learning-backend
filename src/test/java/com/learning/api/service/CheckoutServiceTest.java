@@ -30,7 +30,7 @@ class CheckoutServiceTest {
     @InjectMocks
     private CheckoutService checkoutService;
 
-    // ── 測試資料工廠 ──────────────────────────────────────────────────────────
+    
 
     private User makeStudent(Long id, long wallet) {
         User user = new User();

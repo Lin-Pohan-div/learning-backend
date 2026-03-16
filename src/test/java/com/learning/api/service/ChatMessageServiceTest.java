@@ -28,7 +28,7 @@ class ChatMessageServiceTest {
     @InjectMocks
     private ChatMessageService chatMessageService;
 
-    // ── 測試資料工廠 ──────────────────────────────────────────────────────────
+    
 
     private ChatMessage makeMessage(Long id, Long orderId, int role, int type, String message) {
         ChatMessage msg = new ChatMessage();
