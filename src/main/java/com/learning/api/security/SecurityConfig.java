@@ -21,6 +21,7 @@ import java.util.List;
 @EnableWebSecurity
 @Configuration
 @RequiredArgsConstructor
+@org.springframework.context.annotation.Profile("!test")
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;

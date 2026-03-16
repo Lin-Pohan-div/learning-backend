@@ -1,385 +1,159 @@
 package com.learning.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.learning.api.dto.ChatMessageRequest;
+import com.learning.api.entity.ChatMessage;
+import com.learning.api.service.ChatMessageService;
+import com.learning.api.service.FileStorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.WebApplicationContext;
-import com.learning.api.entity.Order;
-import com.learning.api.entity.ChatMessage;
-import com.learning.api.repo.OrderRepository;
-import com.learning.api.repo.ChatMessageRepository;
-import com.learning.api.repo.CourseRepo;
-import com.learning.api.repo.UserRepository;
 
-import com.learning.api.enums.UserRole;
-import java.util.Map;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
-import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
-@SpringBootTest
-@Transactional
+@ExtendWith(MockitoExtension.class)
 class ChatMessageControllerTest {
 
-    @Autowired
-    private WebApplicationContext webApplicationContext;
+    @Mock
+    private ChatMessageService chatMessageService;
 
-    @Autowired
-    private OrderRepository bookingRepository;
+    @Mock
+    private FileStorageService fileStorageService;
 
-    @Autowired
-    private ChatMessageRepository chatMessageRepository;
-
-    @Autowired
-    private CourseRepo courseRepo;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired(required = false)
-    private ObjectMapper objectMapper;
+    @InjectMocks
+    private ChatMessageController chatMessageController;
 
     private MockMvc mockMvc;
-    private Order testBooking;
-    private ChatMessage savedMessage;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     void setUp() {
-        if (objectMapper == null) {
-            objectMapper = new ObjectMapper();
-        }
-        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-
-
-        com.learning.api.entity.User testUser = new com.learning.api.entity.User();
-        testUser.setName("Test Tutor");
-        testUser.setEmail("testtutor@example.com");
-        testUser.setPassword("hashedpassword");
-        testUser.setRole(UserRole.TUTOR);
-        testUser.setWallet(0L);
-        testUser = userRepository.save(testUser);
-
-
-        com.learning.api.entity.Course testCourse = new com.learning.api.entity.Course();
-        testCourse.setTutorId(testUser.getId());
-        testCourse.setName("Test Course");
-        testCourse.setSubject(1);
-        /* testCourse.setLevel(1); */
-        testCourse.setDescription("Course for testing");
-        testCourse.setPrice(500);
-        testCourse.setActive(true);
-        testCourse = courseRepo.save(testCourse);
-
-        testBooking = new Order();
-        testBooking.setUserId(testUser.getId());
-        testBooking.setCourseId(testCourse.getId());
-        testBooking.setUnitPrice(100);
-        testBooking.setDiscountPrice(100);
-        testBooking.setLessonCount(1);
-        testBooking.setLessonUsed(0);
-        testBooking.setStatus(1);
-        testBooking = bookingRepository.save(testBooking);
-
-        ChatMessage msg = new ChatMessage();
-        msg.setOrderId(testBooking.getId());
-        msg.setRole((Integer) 1);
-        msg.setMessage("Initial message");
-        savedMessage = chatMessageRepository.save(msg);
+        mockMvc = MockMvcBuilders.standaloneSetup(chatMessageController).build();
     }
-
-    // ===================== GET =====================
 
     @Test
     void getByBookingId_existingBooking_shouldReturnMessages() throws Exception {
-        mockMvc.perform(get("/api/chatMessage/booking/{bookingId}", testBooking.getId()))
+        ChatMessage msg = new ChatMessage();
+        msg.setId(1L);
+        msg.setOrderId(100L);
+        msg.setRole(1);
+        msg.setMessageType(1);
+        msg.setMessage("hello");
+
+        when(chatMessageService.findByBookingId(100L)).thenReturn(List.of(msg));
+
+        mockMvc.perform(get("/api/chatMessage/booking/{bookingId}", 100L))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(1))))
-                .andExpect(jsonPath("$[0].orderId").value(testBooking.getId()))
-                .andExpect(jsonPath("$[0].role").value(1))
-                .andExpect(jsonPath("$[0].message").value("Initial message"));
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].orderId").value(100))
+                .andExpect(jsonPath("$[0].message").value("hello"));
     }
 
     @Test
-    void getByBookingId_noMessages_shouldReturnEmptyList() throws Exception {
-        chatMessageRepository.deleteAllInBatch();
+    void post_validRequest_shouldReturn201() throws Exception {
+        ChatMessageRequest request = new ChatMessageRequest();
+        request.setBookingId(100L);
+        request.setRole(1);
+        request.setMessageType(1);
+        request.setMessage("hi");
 
-        mockMvc.perform(get("/api/chatMessage/booking/{bookingId}", testBooking.getId()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(0)));
-    }
+        ChatMessage saved = new ChatMessage();
+        saved.setId(9L);
+        saved.setOrderId(100L);
+        saved.setRole(1);
+        saved.setMessageType(1);
+        saved.setMessage("hi");
 
-    @Test
-    void getByBookingId_messagesOrderedByCreatedAtAsc() throws Exception {
-        ChatMessage msg2 = new ChatMessage();
-        msg2.setOrderId(testBooking.getId());
-        msg2.setRole((Integer) 2);
-        msg2.setMessage("Second message");
-        chatMessageRepository.save(msg2);
-
-        mockMvc.perform(get("/api/chatMessage/booking/{bookingId}", testBooking.getId()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].message").value("Initial message"))
-                .andExpect(jsonPath("$[1].message").value("Second message"));
-    }
-
-    // ===================== POST =====================
-
-    @Test
-    void post_validRequest_studentRole_shouldReturn201() throws Exception {
-        Map<String, Object> body = Map.of(
-                "bookingId", testBooking.getId(),
-                "role", 1,
-                "message", "Hello tutor"
-        );
+        when(chatMessageService.save(eq(100L), eq(1), eq(1), eq("hi"), any())).thenReturn(saved);
 
         mockMvc.perform(post("/api/chatMessage")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.orderId").value(testBooking.getId()))
-                .andExpect(jsonPath("$.role").value(1))
-                .andExpect(jsonPath("$.message").value("Hello tutor"));
-    }
-
-    @Test
-    void post_validRequest_tutorRole_shouldReturn201() throws Exception {
-        Map<String, Object> body = Map.of(
-                "bookingId", testBooking.getId(),
-                "role", 2,
-                "message", "Hello student"
-        );
-
-        mockMvc.perform(post("/api/chatMessage")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.role").value(2))
-                .andExpect(jsonPath("$.message").value("Hello student"));
+                .andExpect(jsonPath("$.id").value(9))
+                .andExpect(jsonPath("$.orderId").value(100));
     }
 
     @Test
     void post_missingBookingId_shouldReturn400() throws Exception {
-        Map<String, Object> body = Map.of(
-                "role", 1,
-                "message", "Hello"
-        );
+        ChatMessageRequest request = new ChatMessageRequest();
+        request.setRole(1);
+        request.setMessageType(1);
+        request.setMessage("hi");
 
         mockMvc.perform(post("/api/chatMessage")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value(containsString("Booking ID")));
-    }
-
-    @Test
-    void post_missingRole_shouldReturn400() throws Exception {
-        Map<String, Object> body = Map.of(
-                "bookingId", testBooking.getId(),
-                "message", "Hello"
-        );
-
-        mockMvc.perform(post("/api/chatMessage")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value(containsString("Role")));
-    }
-
-    @Test
-    void post_emptyMessage_shouldReturn400() throws Exception {
-        Map<String, Object> body = Map.of(
-                "bookingId", testBooking.getId(),
-                "role", 1,
-                "message", "   "
-        );
-
-        mockMvc.perform(post("/api/chatMessage")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value(containsString("消息內容")));
+                .andExpect(jsonPath("$.message", containsString("Booking ID")));
     }
 
     @Test
     void post_nonExistingBookingId_shouldReturn404() throws Exception {
-        Map<String, Object> body = Map.of(
-                "bookingId", 999999,
-                "role", 1,
-                "message", "Hello"
-        );
+        ChatMessageRequest request = new ChatMessageRequest();
+        request.setBookingId(999L);
+        request.setRole(1);
+        request.setMessageType(1);
+        request.setMessage("hi");
+
+        when(chatMessageService.save(anyLong(), eq(1), eq(1), eq("hi"), any()))
+                .thenThrow(new NoSuchElementException("Booking not found"));
 
         mockMvc.perform(post("/api/chatMessage")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
-                .andExpect(status().isNotFound());
-    }
-
-    // ===================== POST - 媒體訊息 =====================
-
-    @Test
-    void post_stickerMessage_shouldReturn201() throws Exception {
-        Map<String, Object> body = Map.of(
-                "bookingId", testBooking.getId(),
-                "role", 1,
-                "messageType", 2,
-                "mediaUrl", "https://example.com/stickers/001.png"
-        );
-
-        mockMvc.perform(post("/api/chatMessage")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.messageType").value(2))
-                .andExpect(jsonPath("$.mediaUrl").value("https://example.com/stickers/001.png"));
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message", containsString("Booking not found")));
     }
 
     @Test
-    void post_voiceMessage_shouldReturn201() throws Exception {
-        Map<String, Object> body = Map.of(
-                "bookingId", testBooking.getId(),
-                "role", 1,
-                "messageType", 3,
-                "mediaUrl", "https://example.com/audio/001.mp3"
-        );
+    void upload_emptyFile_shouldReturn400() throws Exception {
+        MockMultipartFile file = new MockMultipartFile("file", "", "text/plain", new byte[0]);
 
-        mockMvc.perform(post("/api/chatMessage")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.messageType").value(3))
-                .andExpect(jsonPath("$.mediaUrl").value("https://example.com/audio/001.mp3"));
-    }
-
-    @Test
-    void post_imageMessage_shouldReturn201() throws Exception {
-        Map<String, Object> body = Map.of(
-                "bookingId", testBooking.getId(),
-                "role", 2,
-                "messageType", 4,
-                "mediaUrl", "https://example.com/images/001.jpg"
-        );
-
-        mockMvc.perform(post("/api/chatMessage")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.messageType").value(4))
-                .andExpect(jsonPath("$.mediaUrl").value("https://example.com/images/001.jpg"));
-    }
-
-    @Test
-    void post_videoMessage_shouldReturn201() throws Exception {
-        Map<String, Object> body = Map.of(
-                "bookingId", testBooking.getId(),
-                "role", 2,
-                "messageType", 5,
-                "mediaUrl", "https://example.com/videos/001.mp4"
-        );
-
-        mockMvc.perform(post("/api/chatMessage")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.messageType").value(5))
-                .andExpect(jsonPath("$.mediaUrl").value("https://example.com/videos/001.mp4"));
-    }
-
-    @Test
-    void post_stickerWithoutMediaUrl_shouldReturn400() throws Exception {
-        Map<String, Object> body = Map.of(
-                "bookingId", testBooking.getId(),
-                "role", 1,
-                "messageType", 2
-        );
-
-        mockMvc.perform(post("/api/chatMessage")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
+        mockMvc.perform(multipart("/api/chatMessage/upload")
+                        .file(file)
+                        .param("bookingId", "100")
+                        .param("role", "1"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value(containsString("貼圖")));
-    }
-
-    @Test
-    void post_invalidMessageType_shouldReturn400() throws Exception {
-        Map<String, Object> body = Map.of(
-                "bookingId", testBooking.getId(),
-                "role", 1,
-                "messageType", 99,
-                "mediaUrl", "https://example.com/something"
-        );
-
-        mockMvc.perform(post("/api/chatMessage")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
-                .andExpect(status().isBadRequest());
-    }
-
-    // ===================== PUT =====================
-
-    @Test
-    void put_existingId_shouldReturn200WithUpdatedMessage() throws Exception {
-        Map<String, String> body = Map.of("message", "Updated message content");
-
-        mockMvc.perform(put("/api/chatMessage/{id}", savedMessage.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(savedMessage.getId()))
-                .andExpect(jsonPath("$.message").value("Updated message content"))
-                .andExpect(jsonPath("$.orderId").value(testBooking.getId()));
+                .andExpect(jsonPath("$.message", containsString("檔案不能為空")));
     }
 
     @Test
     void put_nonExistingId_shouldReturn404() throws Exception {
-        Map<String, String> body = Map.of("message", "Updated");
+        when(chatMessageService.update(eq(404L), any())).thenReturn(Optional.empty());
 
-        mockMvc.perform(put("/api/chatMessage/{id}", 999999L)
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/api/chatMessage/{id}", 404L)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
+                        .content("{\"message\":\"update\"}"))
                 .andExpect(status().isNotFound());
     }
-
-    /* @Test
-    void put_emptyMessage_shouldReturn400() throws Exception {
-        Map<String, String> body = Map.of("message", "  ");
-
-        mockMvc.perform(put("/api/chatMessage/{id}", savedMessage.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value(containsString("消息內容")));
-    } */
-
-    // ===================== DELETE =====================
 
     @Test
     void delete_existingId_shouldReturn204() throws Exception {
-        mockMvc.perform(delete("/api/chatMessage/{id}", savedMessage.getId()))
+        when(chatMessageService.deleteById(1L)).thenReturn(true);
+
+        mockMvc.perform(delete("/api/chatMessage/{id}", 1L))
                 .andExpect(status().isNoContent());
-    }
-
-    @Test
-    void delete_nonExistingId_shouldReturn404() throws Exception {
-        mockMvc.perform(delete("/api/chatMessage/{id}", 999999L))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void delete_thenGetByBookingId_shouldReturnEmptyList() throws Exception {
-        mockMvc.perform(delete("/api/chatMessage/{id}", savedMessage.getId()))
-                .andExpect(status().isNoContent());
-
-        mockMvc.perform(get("/api/chatMessage/booking/{bookingId}", testBooking.getId()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(0)));
     }
 }

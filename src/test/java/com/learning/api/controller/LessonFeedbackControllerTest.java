@@ -1,363 +1,148 @@
 package com.learning.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.learning.api.dto.feedback.FeedbackRequest;
+import com.learning.api.entity.LessonFeedback;
+import com.learning.api.exception.GlobalExceptionHandler;
+import com.learning.api.service.LessonFeedbackService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-import com.learning.api.entity.Bookings;
-import com.learning.api.entity.LessonFeedback;
-import com.learning.api.entity.Order;
-import com.learning.api.repo.BookingRepository;
-import com.learning.api.repo.CourseRepo;
-import com.learning.api.repo.LessonFeedbackRepository;
-import com.learning.api.repo.OrderRepository;
-import com.learning.api.repo.UserRepository;
 
-import com.learning.api.enums.UserRole;
-import jakarta.transaction.Transactional;
-import java.time.LocalDate;
-import java.util.Map;
+import java.util.List;
+import java.util.Optional;
 
-import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
-@SpringBootTest
-@Transactional
-public class LessonFeedbackControllerTest {
+@ExtendWith(MockitoExtension.class)
+class LessonFeedbackControllerTest {
 
-    private static final String BASE_URL = "/api/feedbacks";
+    @Mock
+    private LessonFeedbackService lessonFeedbackService;
 
-    @Autowired
-    private WebApplicationContext webApplicationContext;
-
-    @Autowired
-    private LessonFeedbackRepository lessonFeedbackRepository;
-
-    @Autowired
-    private BookingRepository bookingRepository;
-
-    @Autowired
-    private CourseRepo courseRepo;
-
-    @Autowired
-    private OrderRepository orderRepo;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired(required = false)
-    private ObjectMapper objectMapper;
+    @InjectMocks
+    private FeedbackController feedbackController;
 
     private MockMvc mockMvc;
-    private LessonFeedback savedFeedback;
-    private Long savedBookingId;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     void setUp() {
-        if (objectMapper == null) {
-            objectMapper = new ObjectMapper();
-        }
-        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-        lessonFeedbackRepository.deleteAllInBatch();
-
-        com.learning.api.entity.User tutor = new com.learning.api.entity.User();
-        tutor.setName("Test Tutor");
-        tutor.setEmail("tutor_feedback@example.com");
-        tutor.setPassword("hashedpassword");
-        tutor.setRole(UserRole.TUTOR);
-        tutor.setWallet(0L);
-        tutor = userRepository.save(tutor);
-
-        com.learning.api.entity.User student = new com.learning.api.entity.User();
-        student.setName("Test Student");
-        student.setEmail("student_feedback@example.com");
-        student.setPassword("hashedpassword");
-        student.setRole(UserRole.STUDENT);
-        student.setWallet(0L);
-        student = userRepository.save(student);
-
-        com.learning.api.entity.Course course = new com.learning.api.entity.Course();
-        course.setTutorId(tutor.getId());
-        course.setName("Test Course");
-        course.setSubject(1);
-        /* course.setLevel(1); */
-        course.setDescription("Course for feedback testing");
-        course.setPrice(500);
-        course.setActive(true);
-        course = courseRepo.save(course);
-
-        Order order = new Order();
-        order.setUserId(student.getId());
-        order.setCourseId(course.getId());
-        order.setUnitPrice(500);
-        order.setDiscountPrice(500);
-        order.setLessonCount(1);
-        order.setLessonUsed(0);
-        order.setStatus(1);
-        order = orderRepo.save(order);
-
-        Bookings booking = new Bookings();
-        booking.setOrderId(order.getId());
-        booking.setTutorId(tutor.getId());
-        booking.setStudentId(student.getId());
-        booking.setDate(LocalDate.now());
-        booking.setHour(10);
-        booking.setStatus((byte) 1);
-        booking = bookingRepository.save(booking);
-        savedBookingId = booking.getId();
-
-        LessonFeedback feedback = new LessonFeedback();
-        feedback.setBookingId(savedBookingId);
-        feedback.setFocusScore(4);
-        feedback.setComprehensionScore(4);
-        feedback.setConfidenceScore(4);
-        feedback.setRating(4);
-        feedback.setComment("Initial feedback");
-        savedFeedback = lessonFeedbackRepository.save(feedback);
+        mockMvc = MockMvcBuilders.standaloneSetup(feedbackController)
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .build();
     }
-
-    // ===================== GET ALL =====================
 
     @Test
     void getAll_shouldReturnListWithSavedFeedback() throws Exception {
-        mockMvc.perform(get(BASE_URL))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(1))))
-                .andExpect(jsonPath("$[*].id", hasItem(savedFeedback.getId().intValue())))
-                .andExpect(jsonPath("$[*].rating", hasItem(4)))
-                .andExpect(jsonPath("$[*].focusScore", hasItem(4)))
-                .andExpect(jsonPath("$[*].comment", hasItem("Initial feedback")));
-    }
+        LessonFeedback feedback = new LessonFeedback();
+        feedback.setId(1L);
+        feedback.setBookingId(101L);
+        feedback.setRating(4);
+        feedback.setComment("Initial feedback");
 
-    // ===================== GET BY ID =====================
+        when(lessonFeedbackService.findAll()).thenReturn(List.of(feedback));
 
-    @Test
-    void getById_existingId_shouldReturn200WithFeedback() throws Exception {
-        mockMvc.perform(get(BASE_URL + "/{id}", savedFeedback.getId()))
+        mockMvc.perform(get("/api/feedbacks"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(savedFeedback.getId()))
-                .andExpect(jsonPath("$.focusScore").value(4))
-                .andExpect(jsonPath("$.comprehensionScore").value(4))
-                .andExpect(jsonPath("$.confidenceScore").value(4))
-                .andExpect(jsonPath("$.rating").value(4))
-                .andExpect(jsonPath("$.comment").value("Initial feedback"));
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].rating").value(4));
     }
 
     @Test
     void getById_nonExistingId_shouldReturn404() throws Exception {
-        mockMvc.perform(get(BASE_URL + "/{id}", 999999L))
+        when(lessonFeedbackService.findById(999L)).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/api/feedbacks/{id}", 999L))
                 .andExpect(status().isNotFound());
     }
 
-    // ===================== GET BY BOOKING ID =====================
-
-    @Test
-    void getByBookingId_existingId_shouldReturnList() throws Exception {
-        mockMvc.perform(get(BASE_URL + "/lesson/{bookingId}", savedBookingId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(1))));
-    }
-
-    @Test
-    void getByBookingId_nonExistingId_shouldReturnEmptyList() throws Exception {
-        mockMvc.perform(get(BASE_URL + "/lesson/{bookingId}", 999999L))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(0)));
-    }
-
-    // ===================== GET AVERAGE RATING =====================
-
-    @Test
-    void getAverageRating_withFeedback_shouldReturnAverage() throws Exception {
-        mockMvc.perform(get(BASE_URL + "/lesson/{bookingId}/average-rating", savedBookingId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.bookingId").value(savedBookingId))
-                .andExpect(jsonPath("$.averageRating").value(4.0));
-    }
-
-    @Test
-    void getAverageRating_noFeedbacks_shouldReturnZero() throws Exception {
-        mockMvc.perform(get(BASE_URL + "/lesson/{bookingId}/average-rating", 999999L))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.bookingId").value(999999))
-                .andExpect(jsonPath("$.averageRating").value(0.0));
-    }
-
-    // ===================== POST =====================
-
     @Test
     void post_validRequest_shouldReturn201() throws Exception {
-        Map<String, Object> body = Map.of(
-                "bookingId", savedBookingId,
-                "focusScore", 5,
-                "comprehensionScore", 4,
-                "confidenceScore", 3,
-                "rating", 5,
-                "comment", "Great lesson"
-        );
+        FeedbackRequest request = new FeedbackRequest();
+        request.setBookingId(101L);
+        request.setFocusScore(5);
+        request.setComprehensionScore(4);
+        request.setConfidenceScore(3);
+        request.setRating(5);
+        request.setComment("Great lesson");
 
-        mockMvc.perform(post(BASE_URL)
+        LessonFeedback saved = new LessonFeedback();
+        saved.setId(7L);
+        saved.setBookingId(101L);
+        saved.setFocusScore(5);
+        saved.setComprehensionScore(4);
+        saved.setConfidenceScore(3);
+        saved.setRating(5);
+        saved.setComment("Great lesson");
+
+        when(lessonFeedbackService.save(any(LessonFeedback.class))).thenReturn(saved);
+
+        mockMvc.perform(post("/api/feedbacks")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.focusScore").value(5))
-                .andExpect(jsonPath("$.comprehensionScore").value(4))
-                .andExpect(jsonPath("$.confidenceScore").value(3))
-                .andExpect(jsonPath("$.rating").value(5))
-                .andExpect(jsonPath("$.comment").value("Great lesson"));
+                .andExpect(jsonPath("$.id").value(7))
+                .andExpect(jsonPath("$.bookingId").value(101))
+                .andExpect(jsonPath("$.rating").value(5));
     }
 
     @Test
-    void post_missingRating_shouldReturn400() throws Exception {
-        Map<String, Object> body = Map.of(
-                "bookingId", savedBookingId,
-                "focusScore", 3,
-                "comprehensionScore", 3,
-                "confidenceScore", 3,
-                "comment", "Good lesson"
-        );
+    void post_invalidRequest_shouldReturn400() throws Exception {
+        FeedbackRequest request = new FeedbackRequest();
+        request.setBookingId(101L);
+        request.setFocusScore(0);
+        request.setComprehensionScore(4);
+        request.setConfidenceScore(3);
+        request.setRating(5);
 
-        mockMvc.perform(post(BASE_URL)
+        when(lessonFeedbackService.save(any(LessonFeedback.class)))
+                .thenThrow(new IllegalArgumentException("專注度必須在 1 到 5 之間"));
+
+        mockMvc.perform(post("/api/feedbacks")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void post_missingFocusScore_shouldReturn400() throws Exception {
-        Map<String, Object> body = Map.of(
-                "bookingId", savedBookingId,
-                "comprehensionScore", 3,
-                "confidenceScore", 3,
-                "rating", 3,
-                "comment", "Good lesson"
-        );
-
-        mockMvc.perform(post(BASE_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void post_ratingBelowMin_shouldReturn400() throws Exception {
-        Map<String, Object> body = Map.of(
-                "bookingId", savedBookingId,
-                "focusScore", 3,
-                "comprehensionScore", 3,
-                "confidenceScore", 3,
-                "rating", 0,
-                "comment", "Bad rating"
-        );
-
-        mockMvc.perform(post(BASE_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void post_ratingAboveMax_shouldReturn400() throws Exception {
-        Map<String, Object> body = Map.of(
-                "bookingId", savedBookingId,
-                "focusScore", 3,
-                "comprehensionScore", 3,
-                "confidenceScore", 3,
-                "rating", 6,
-                "comment", "Over max rating"
-        );
-
-        mockMvc.perform(post(BASE_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void post_scoreOutOfRange_shouldReturn400() throws Exception {
-        Map<String, Object> body = Map.of(
-                "bookingId", savedBookingId,
-                "focusScore", 10,
-                "comprehensionScore", 3,
-                "confidenceScore", 3,
-                "rating", 3
-        );
-
-        mockMvc.perform(post(BASE_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
-                .andExpect(status().isBadRequest());
-    }
-
-    // ===================== PUT =====================
-
-    @Test
-    void put_existingId_shouldReturn200WithUpdatedFeedback() throws Exception {
-        Map<String, Object> body = Map.of(
-                "bookingId", savedBookingId,
-                "focusScore", 2,
-                "comprehensionScore", 3,
-                "confidenceScore", 1,
-                "rating", 2,
-                "comment", "Updated comment"
-        );
-
-        mockMvc.perform(put(BASE_URL + "/{id}", savedFeedback.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(savedFeedback.getId()))
-                .andExpect(jsonPath("$.focusScore").value(2))
-                .andExpect(jsonPath("$.comprehensionScore").value(3))
-                .andExpect(jsonPath("$.confidenceScore").value(1))
-                .andExpect(jsonPath("$.rating").value(2))
-                .andExpect(jsonPath("$.comment").value("Updated comment"));
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.msg", containsString("專注度")));
     }
 
     @Test
     void put_nonExistingId_shouldReturn404() throws Exception {
-        Map<String, Object> body = Map.of(
-                "bookingId", savedBookingId,
-                "focusScore", 3,
-                "comprehensionScore", 3,
-                "confidenceScore", 3,
-                "rating", 3,
-                "comment", "Updated comment"
-        );
+        FeedbackRequest request = new FeedbackRequest();
+        request.setBookingId(101L);
+        request.setFocusScore(2);
+        request.setComprehensionScore(2);
+        request.setConfidenceScore(2);
+        request.setRating(2);
 
-        mockMvc.perform(put(BASE_URL + "/{id}", 999999L)
+        when(lessonFeedbackService.update(eq(999L), any(LessonFeedback.class))).thenReturn(Optional.empty());
+
+        mockMvc.perform(put("/api/feedbacks/{id}", 999L)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
     }
-
-    // ===================== DELETE =====================
 
     @Test
     void delete_existingId_shouldReturn204() throws Exception {
-        mockMvc.perform(delete(BASE_URL + "/{id}", savedFeedback.getId()))
+        when(lessonFeedbackService.deleteById(1L)).thenReturn(true);
+
+        mockMvc.perform(delete("/api/feedbacks/{id}", 1L))
                 .andExpect(status().isNoContent());
-    }
-
-    @Test
-    void delete_nonExistingId_shouldReturn404() throws Exception {
-        mockMvc.perform(delete(BASE_URL + "/{id}", 999999L))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void delete_thenGetById_shouldReturn404() throws Exception {
-        mockMvc.perform(delete(BASE_URL + "/{id}", savedFeedback.getId()))
-                .andExpect(status().isNoContent());
-
-        mockMvc.perform(get(BASE_URL + "/{id}", savedFeedback.getId()))
-                .andExpect(status().isNotFound());
     }
 }

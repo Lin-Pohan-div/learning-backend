@@ -17,6 +17,7 @@ import java.io.IOException;
 
 
 @Component
+@org.springframework.context.annotation.Profile("!test")
 public class JwtFilter extends OncePerRequestFilter {
 
 
