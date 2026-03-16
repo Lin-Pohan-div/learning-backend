@@ -214,6 +214,8 @@ public class CourseService {
         course.setName(courseReq.getName().trim());
         course.setSubject(courseReq.getSubject());
         if (courseReq.getDescription() != null) course.setDescription(courseReq.getDescription());
+//        course.setLevel(courseReq.getLevel());
+        course.setDescription(courseReq.getDescription());
         course.setPrice(courseReq.getPrice());
         course.setActive(courseReq.getActive());
         return course;

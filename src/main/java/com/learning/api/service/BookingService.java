@@ -27,3 +27,35 @@ public class BookingService {
         return orderService.createOrder(req);
     }
 }
+
+    private Booking buildBooking(BookingReq bookingReq, Course course){
+        Booking booking = new Booking();
+
+        // set & save
+        booking.setOrderId(null);
+//        booking.setCourseId(bookingReq.getCourseId());
+
+        // price unitPrice discountPrice
+        Integer originalPrice = course.getPrice();
+        Integer discount = afterDiscPrice(originalPrice, bookingReq.getLessonCount());
+
+//        booking.setUnitPrice(originalPrice);
+//        booking.setDiscountPrice(discount);
+
+        // lessonCount
+//        booking.setLessonCount(bookingReq.getLessonCount());
+        // status first send -> 1
+        booking.setStatus(1);
+
+        return booking;
+    }
+
+    private Integer afterDiscPrice(Integer originalPrice, Integer lessonCount){
+        // 95% 10 堂
+        if (lessonCount >= 10) return ((int) (originalPrice*0.95));
+
+
+        // 0%
+        return originalPrice;
+    }
+}

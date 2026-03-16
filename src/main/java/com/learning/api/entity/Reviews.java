@@ -15,11 +15,12 @@ public class Reviews {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User student; // 撰寫評價的學生
 
     @Column(name = "course_id", nullable = false)
-    private Long courseId;
+    private Long courseId; // 對應的課程 ID
 
     @Column(name = "focus_score", nullable = false)
     private Integer focusScore;
@@ -29,9 +30,11 @@ public class Reviews {
 
     @Column(name = "confidence_score", nullable = false)
     private Integer confidenceScore;
+    @Column(nullable = false)
+    private Integer rating; // 評分 1–5 分
 
     @Column(nullable = true, length = 1000)
-    private String comment;
+    private String comment; // 評論內容
 
 /*     @Column(name = "updated_at", nullable = true,  insertable = false, updatable = false)
     private Instant updatedAt; */
