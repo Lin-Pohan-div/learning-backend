@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.learning.api.entity.ChatMessage;
 import com.learning.api.enums.MessageType;
+import com.learning.api.repo.BookingRepository;
 import com.learning.api.repo.ChatMessageRepository;
-import com.learning.api.repo.OrderRepository;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -15,7 +15,7 @@ import java.util.Optional;
 public class ChatMessageService {
 
     private final ChatMessageRepository chatMessageRepository;
-    private final OrderRepository orderRepo;
+    private final BookingRepository bookingRepo;
 
     public List<ChatMessage> findByBookingId(Long bookingId) {
         return chatMessageRepository.findByBookingIdOrderByCreatedAtAsc(bookingId);
@@ -26,7 +26,7 @@ public class ChatMessageService {
             throw new IllegalArgumentException("Booking ID 不能為空");
         }
 
-        orderRepo.findById(bookingId)
+        bookingRepo.findById(bookingId)
             .orElseThrow(() -> new NoSuchElementException("Booking ID: " + bookingId + " 不存在"));
 
         MessageType type = MessageType.fromValue(messageTypeValue != null ? messageTypeValue : MessageType.TEXT.getValue());

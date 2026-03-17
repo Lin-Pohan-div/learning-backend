@@ -1,5 +1,6 @@
 package com.learning.api.service;
 
+import com.learning.api.TestFactory;
 import com.learning.api.dto.OrderDto;
 import com.learning.api.entity.Course;
 import com.learning.api.entity.Order;
@@ -30,36 +31,15 @@ class OrderServiceTest {
     private OrderService orderService;
 
     private Course makeCourse(Long id, Long tutorId, int price, boolean active) {
-        Course course = new Course();
-        course.setId(id);
-        course.setTutorId(tutorId);
-        course.setName("Test Course");
-        course.setSubject(21);
-        course.setDescription("Test Description");
-        course.setPrice(price);
-        course.setActive(active);
-        return course;
+        return TestFactory.makeCourse(id, tutorId, price, active);
     }
 
     private OrderDto.Req makeOrderReq(Long userId, Long courseId, int lessonCount) {
-        OrderDto.Req req = new OrderDto.Req();
-        req.setUserId(userId);
-        req.setCourseId(courseId);
-        req.setLessonCount(lessonCount);
-        return req;
+        return TestFactory.makeOrderReq(userId, courseId, lessonCount);
     }
 
     private Order makeOrder(Long id, Long userId, Long courseId, int status) {
-        Order order = new Order();
-        order.setId(id);
-        order.setUserId(userId);
-        order.setCourseId(courseId);
-        order.setUnitPrice(500);
-        order.setDiscountPrice(500);
-        order.setLessonCount(10);
-        order.setLessonUsed(0);
-        order.setStatus(status);
-        return order;
+        return TestFactory.makeOrder(id, userId, courseId, status);
     }
 
     // ── createOrder ───────────────────────────────────────────────────────────
@@ -285,30 +265,4 @@ class OrderServiceTest {
         assertThat(orderService.cancelOrder(99L)).isFalse();
     }
 
-    // ── payOrder ──────────────────────────────────────────────────────────────
-
-    @Test
-    void payOrder_whenPendingOrder_setsStatusToPaid() {
-        Order order = makeOrder(1L, 1L, 1L, 1); // pending
-        when(orderRepo.findById(1L)).thenReturn(Optional.of(order));
-
-        assertThat(orderService.payOrder(1L)).isTrue();
-        assertThat(order.getStatus()).isEqualTo(2);
-        verify(orderRepo).save(order);
-    }
-
-    @Test
-    void payOrder_whenNotPending_returnsFalse() {
-        Order order = makeOrder(1L, 1L, 1L, 2); // already paid
-        when(orderRepo.findById(1L)).thenReturn(Optional.of(order));
-
-        assertThat(orderService.payOrder(1L)).isFalse();
-        verify(orderRepo, never()).save(any());
-    }
-
-    @Test
-    void payOrder_whenNotFound_returnsFalse() {
-        when(orderRepo.findById(99L)).thenReturn(Optional.empty());
-        assertThat(orderService.payOrder(99L)).isFalse();
-    }
 }

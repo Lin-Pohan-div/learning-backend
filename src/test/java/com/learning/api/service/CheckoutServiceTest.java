@@ -1,5 +1,6 @@
 package com.learning.api.service;
 
+import com.learning.api.TestFactory;
 import com.learning.api.dto.CheckoutReq;
 import com.learning.api.entity.*;
 import com.learning.api.repo.*;
@@ -16,6 +17,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -26,6 +28,8 @@ class CheckoutServiceTest {
     @Mock private OrderRepository orderRepo;
     @Mock private BookingRepository bookingRepo;
     @Mock private TutorScheduleRepo scheduleRepo;
+    @Mock private WalletService walletService;
+    @Mock private BookingService bookingService;
 
     @InjectMocks
     private CheckoutService checkoutService;
@@ -33,25 +37,11 @@ class CheckoutServiceTest {
     
 
     private User makeStudent(Long id, long wallet) {
-        User user = new User();
-        user.setId(id);
-        user.setName("Student");
-        user.setEmail("student@test.com");
-        user.setPassword("hashedpw");
-        user.setWallet(wallet);
-        return user;
+        return TestFactory.makeUser(id, wallet);
     }
 
     private Course makeCourse(Long id, Long tutorId, int price) {
-        Course course = new Course();
-        course.setId(id);
-        course.setTutorId(tutorId);
-        course.setName("Test Course");
-        course.setSubject(21);
-        course.setDescription("Desc");
-        course.setPrice(price);
-        course.setActive(true);
-        return course;
+        return TestFactory.makeCourse(id, tutorId, price, true);
     }
 
     private TutorSchedule makeAvailableSchedule(Long tutorId, int weekday, int hour) {
@@ -66,14 +56,7 @@ class CheckoutServiceTest {
 
     /** 建立含一個時段的 CheckoutReq（2026-03-16 星期一 = weekday 1） */
     private CheckoutReq makeReq(Long studentId, Long courseId, LocalDate date, int hour) {
-        CheckoutReq req = new CheckoutReq();
-        req.setStudentId(studentId);
-        req.setCourseId(courseId);
-        CheckoutReq.Slot slot = new CheckoutReq.Slot();
-        slot.setDate(date);
-        slot.setHour(hour);
-        req.setSelectedSlots(List.of(slot));
-        return req;
+        return TestFactory.makeCheckoutReq(studentId, courseId, date, hour);
     }
 
     // ── processPurchase ───────────────────────────────────────────────────────
@@ -90,7 +73,7 @@ class CheckoutServiceTest {
         when(courseRepo.findById(1L)).thenReturn(Optional.of(course));
         when(scheduleRepo.findByTutorIdAndWeekdayAndHour(2L, 1, 10))
                 .thenReturn(Optional.of(makeAvailableSchedule(2L, 1, 10)));
-        when(bookingRepo.findByTutorIdAndDateAndHour(2L, date, 10)).thenReturn(Optional.empty());
+        when(bookingRepo.findByTutorIdAndDateAndHourAndStatusNot(2L, date, 10, (byte) 3)).thenReturn(Optional.empty());
         when(orderRepo.save(any(Order.class))).thenReturn(savedOrder);
 
         String result = checkoutService.processPurchase(makeReq(1L, 1L, date, 10));
@@ -155,7 +138,7 @@ class CheckoutServiceTest {
         when(courseRepo.findById(1L)).thenReturn(Optional.of(course));
         when(scheduleRepo.findByTutorIdAndWeekdayAndHour(2L, 1, 10))
                 .thenReturn(Optional.of(makeAvailableSchedule(2L, 1, 10)));
-        when(bookingRepo.findByTutorIdAndDateAndHour(2L, date, 10)).thenReturn(Optional.of(existingBooking));
+        when(bookingRepo.findByTutorIdAndDateAndHourAndStatusNot(2L, date, 10, (byte) 3)).thenReturn(Optional.of(existingBooking));
 
         String result = checkoutService.processPurchase(makeReq(1L, 1L, date, 10));
 
@@ -194,15 +177,14 @@ class CheckoutServiceTest {
         when(courseRepo.findById(1L)).thenReturn(Optional.of(course));
         when(scheduleRepo.findByTutorIdAndWeekdayAndHour(2L, 1, 10))
                 .thenReturn(Optional.of(makeAvailableSchedule(2L, 1, 10)));
-        when(bookingRepo.findByTutorIdAndDateAndHour(2L, date, 10)).thenReturn(Optional.empty());
+        when(bookingRepo.findByTutorIdAndDateAndHourAndStatusNot(2L, date, 10, (byte) 3)).thenReturn(Optional.empty());
         when(orderRepo.save(any(Order.class))).thenReturn(savedOrder);
 
         checkoutService.processPurchase(makeReq(1L, 1L, date, 10));
 
-        verify(userRepo).save(student);
+        verify(walletService).debit(eq(1L), eq(500L), eq(2), eq(1), any());
         verify(orderRepo).save(any(Order.class));
         verify(bookingRepo).saveAll(any());
-        assertThat(student.getWallet()).isEqualTo(500L); // 1000 - 500
     }
 
     @Test
@@ -227,12 +209,12 @@ class CheckoutServiceTest {
                 .thenReturn(Optional.of(makeAvailableSchedule(2L, 1, 10)));
         when(scheduleRepo.findByTutorIdAndWeekdayAndHour(2L, 2, 11))
                 .thenReturn(Optional.of(makeAvailableSchedule(2L, 2, 11)));
-        when(bookingRepo.findByTutorIdAndDateAndHour(any(), any(), any())).thenReturn(Optional.empty());
+        when(bookingRepo.findByTutorIdAndDateAndHourAndStatusNot(any(), any(), any(), any())).thenReturn(Optional.empty());
         when(orderRepo.save(any(Order.class))).thenReturn(savedOrder);
 
         String result = checkoutService.processPurchase(req);
 
         assertThat(result).isEqualTo("success");
-        assertThat(student.getWallet()).isEqualTo(1000L); // 2000 - 500*2
+        verify(walletService).debit(eq(1L), eq(1000L), eq(2), eq(1), any()); // 500 * 2 slots
     }
 }

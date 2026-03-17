@@ -77,12 +77,4 @@ public class OrderController {
         return ResponseEntity.ok(Map.of("msg", "訂單已取消"));
     }
 
-    // 支付訂單
-    @PostMapping("/{id}/pay")
-    public ResponseEntity<?> payOrder(@PathVariable Long id) {
-        if (!orderService.payOrder(id)) {
-            return ResponseEntity.status(400).body(Map.of("msg", "支付失敗"));
-        }
-        return ResponseEntity.ok(Map.of("msg", "支付成功"));
-    }
 }

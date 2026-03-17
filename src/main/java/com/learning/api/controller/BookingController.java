@@ -23,4 +23,22 @@ public class BookingController {
         }
         return ResponseEntity.ok(Map.of("msg", "建立成功"));
     }
+
+    @PatchMapping("/{id}/complete")
+    public ResponseEntity<?> completeBooking(@PathVariable Long id) {
+        String result = bookingService.completeBooking(id);
+        if (!"success".equals(result)) {
+            return ResponseEntity.status(400).body(Map.of("msg", result));
+        }
+        return ResponseEntity.ok(Map.of("msg", "課程已完成，教師收入已發放"));
+    }
+
+    @PatchMapping("/{id}/cancel")
+    public ResponseEntity<?> cancelBooking(@PathVariable Long id) {
+        String result = bookingService.cancelBooking(id);
+        if (!"success".equals(result)) {
+            return ResponseEntity.status(400).body(Map.of("msg", result));
+        }
+        return ResponseEntity.ok(Map.of("msg", "課程已取消，退款已退回學生錢包"));
+    }
 }

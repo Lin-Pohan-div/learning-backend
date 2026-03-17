@@ -16,6 +16,8 @@ import com.learning.api.entity.Course;
 import com.learning.api.entity.Reviews;
 import com.learning.api.entity.Tutor;
 import com.learning.api.entity.TutorSchedule;
+import com.learning.api.service.CourseService;
+import com.learning.api.service.ReviewService;
 import com.learning.api.service.TutorService;
 
 @RestController
@@ -24,6 +26,8 @@ import com.learning.api.service.TutorService;
 public class TutorController {
 
     private final TutorService tutorService;
+    private final CourseService courseService;
+    private final ReviewService reviewService;
 
     /**
      * 以 API 形式取得老師個人檔案資料
@@ -43,18 +47,18 @@ public class TutorController {
 
         // 2. 取得老師的課表與課程列表
         List<TutorSchedule> schedules = tutorService.findSchedulesByTutorId(id);
-        List<Course> courses = tutorService.findCoursesByTutorId(id);
+        List<Course> courses = courseService.findByTutorId(id);
 
         // 3. 處理課程與評價邏輯
         Course selectedCourse = null;
         if (courseId != null) {
-            selectedCourse = tutorService.findCourseById(courseId);
+            selectedCourse = courseService.findById(courseId).orElse(null);
         } else if (!courses.isEmpty()) {
             selectedCourse = courses.get(0);
         }
 
         List<Reviews> reviews = (selectedCourse != null) ?
-                               tutorService.findReviewsByCourseId(selectedCourse.getId()) :
+                               reviewService.findByCourseId(selectedCourse.getId()) :
                                new ArrayList<>();
 
         // 4. 計算平均評分
@@ -65,15 +69,13 @@ public class TutorController {
 
         // 5. 將結果封裝進 DTO (TutorProfileDTO)
         TutorProfileDTO dto = new TutorProfileDTO();
-        dto.setName(tutor.getUser().getName()); // 假設 Tutor 關聯 User
+        dto.setName(tutor.getUser().getName());
         dto.setHeadline(tutor.getTitle());
         dto.setAvatar(tutor.getAvatar());
         dto.setIntro(tutor.getIntro());
-        // 證照與影片 (根據 Tutor.java 的欄位名稱)
         dto.setCertificate_name_1(tutor.getCertificateName1());
         dto.setVideoUrl1(tutor.getVideoUrl1());
 
-        // 列表與評分 (由 Service 取得的資料)
         dto.setSchedules(schedules);
         dto.setReviews(reviews);
         dto.setAverageRating(Double.parseDouble(String.format("%.1f", avgRating)));

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主機： localhost:3306
--- 產生時間： 2026-03-11 00:58:29
+-- 產生時間： 2026-03-16 08:35:49
 -- 伺服器版本： 5.7.24
 -- PHP 版本： 8.3.1
 
@@ -48,8 +48,8 @@ CREATE TABLE `chat_messages` (
   `id` bigint(20) NOT NULL,
   `order_id` bigint(20) NOT NULL,
   `role` tinyint(4) NOT NULL COMMENT '1=學生 2=老師',
-  `message_type` tinyint(4) NOT NULL DEFAULT '1' COMMENT '1=text 2=sticker 3=voice 4=image 5=video',
-  `message` varchar(1000) DEFAULT NULL,
+  `message` varchar(1000) NOT NULL,
+  `message_type` tinyint(4) NOT NULL COMMENT '1.text 2sticker 貼圖',
   `media_url` varchar(500) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -64,8 +64,7 @@ CREATE TABLE `courses` (
   `id` bigint(20) NOT NULL,
   `tutor_id` bigint(20) NOT NULL,
   `name` varchar(200) NOT NULL,
-  `subject` tinyint(4) NOT NULL COMMENT '1=英文 2=程式',
-  `level` tinyint(4) NOT NULL COMMENT '1=初級 2=中級 3=高級',
+  `subject` tinyint(4) NOT NULL COMMENT '科目：11低年級 12中年級 13高年級  21GEPT 22YLE 23國中先修 31其他 (開頭 1: 年級課程  2檢定與升學 3其他)',
   `description` varchar(1000) DEFAULT NULL,
   `price` int(11) NOT NULL,
   `is_active` tinyint(4) NOT NULL DEFAULT '1' COMMENT '1=上架 0=下架'
@@ -80,10 +79,9 @@ CREATE TABLE `courses` (
 CREATE TABLE `lesson_feedback` (
   `id` bigint(20) NOT NULL,
   `booking_id` bigint(20) NOT NULL,
-  `focus_score` int NOT NULL,
-  `comprehension_score` int NOT NULL,
-  `confidence_score` int NOT NULL,
-  `rating` tinyint(4) NOT NULL COMMENT '1~5分',
+  `focus_score` int(11) NOT NULL COMMENT '1-5',
+  `comprehension_score` int(11) NOT NULL COMMENT '1-5',
+  `confidence_score` int(11) NOT NULL COMMENT '1-5',
   `comment` varchar(1000) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -101,7 +99,7 @@ CREATE TABLE `orders` (
   `discount_price` int(11) NOT NULL COMMENT '折扣價',
   `lesson_count` int(11) NOT NULL COMMENT '購買堂數',
   `lesson_used` int(11) NOT NULL DEFAULT '0' COMMENT '已使用堂數',
-  `is_experienced` tinyint(1) DEFAULT NULL COMMENT '是否為體驗課 1為體驗課 預設 null',
+  `is_experienced` tinyint(4) DEFAULT NULL COMMENT '是否為體驗課 1為體驗課 預設null',
   `status` tinyint(4) NOT NULL COMMENT '1=pending 2=deal 3=complete'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -115,10 +113,9 @@ CREATE TABLE `reviews` (
   `id` bigint(20) NOT NULL,
   `user_id` bigint(20) NOT NULL,
   `course_id` bigint(20) NOT NULL,
-  `focus_score` tinyint(4) NOT NULL,
-  `comprehension_score` int(11) NOT NULL,
-  `confidence_score` int(11) NOT NULL,
-  `comment` varchar(1000) DEFAULT NULL
+  `rating` tinyint(4) NOT NULL COMMENT '1-5',
+  `comment` varchar(1000) DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -129,6 +126,8 @@ CREATE TABLE `reviews` (
 
 CREATE TABLE `tutors` (
   `id` bigint(20) NOT NULL,
+  `apply_date` date DEFAULT NULL,
+  `avatar` varchar(500) DEFAULT NULL,
   `title` varchar(50) DEFAULT NULL,
   `intro` varchar(1000) DEFAULT NULL,
   `certificate_1` varchar(500) DEFAULT NULL,
@@ -138,7 +137,8 @@ CREATE TABLE `tutors` (
   `video_url_1` varchar(500) DEFAULT NULL,
   `video_url_2` varchar(500) DEFAULT NULL,
   `bank_code` varchar(10) DEFAULT NULL,
-  `bank_account` varchar(20) DEFAULT NULL
+  `bank_account` varchar(20) DEFAULT NULL,
+  `status` tinyint(4) DEFAULT NULL COMMENT '//1 pending 2qualified 3停權'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -152,7 +152,7 @@ CREATE TABLE `tutor_schedules` (
   `tutor_id` bigint(20) NOT NULL,
   `weekday` tinyint(4) NOT NULL COMMENT '1=星期一 ... 7=星期日',
   `hour` tinyint(4) NOT NULL COMMENT '上課小時(9~21)',
-  `status` varchar(20) NOT NULL DEFAULT 'available' COMMENT 'available=開放 inactive=暫停'
+  `is_available` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -187,6 +187,8 @@ CREATE TABLE `wallet_logs` (
   `related_type` tinyint(4) DEFAULT NULL COMMENT '1=order 2=booking 3=bank',
   `related_id` bigint(20) DEFAULT NULL,
   `merchant_trade_no` varchar(100) DEFAULT NULL COMMENT '金流交易編號',
+  `d_type` tinyint(4) DEFAULT NULL COMMENT '儲值方案 A B C',
+  `payment_amount` int(11) DEFAULT NULL COMMENT '實際支付金額 ',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

@@ -1,6 +1,7 @@
 package com.learning.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.learning.api.TestFactory;
 import com.learning.api.dto.OrderDto;
 import com.learning.api.service.OrderService;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,24 +40,11 @@ class OrderControllerTest {
     
 
     private OrderDto.Req makeOrderReq(Long userId, Long courseId, Integer lessonCount) {
-        OrderDto.Req req = new OrderDto.Req();
-        req.setUserId(userId);
-        req.setCourseId(courseId);
-        req.setLessonCount(lessonCount);
-        return req;
+        return TestFactory.makeOrderReq(userId, courseId, lessonCount);
     }
 
     private OrderDto.Resp makeOrderResp(Long id, Long userId, Long courseId, int status) {
-        OrderDto.Resp resp = new OrderDto.Resp();
-        resp.setId(id);
-        resp.setUserId(userId);
-        resp.setCourseId(courseId);
-        resp.setUnitPrice(500);
-        resp.setDiscountPrice(500);
-        resp.setLessonCount(5);
-        resp.setLessonUsed(0);
-        resp.setStatus(status);
-        return resp;
+        return TestFactory.makeOrderResp(id, userId, courseId, status);
     }
 
     // ── POST /api/orders — 建立訂單 ───────────────────────────────────────────
@@ -73,34 +61,12 @@ class OrderControllerTest {
     }
 
     @Test
-    void createOrder_10Lessons_shouldReturn200() throws Exception {
-        when(orderService.createOrder(any(OrderDto.Req.class))).thenReturn(true);
-
-        mockMvc.perform(post("/api/orders")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(makeOrderReq(1L, 1L, 10))))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.msg").value("訂單建立成功"));
-    }
-
-    @Test
     void createOrder_nonExistentUser_shouldReturn400() throws Exception {
         when(orderService.createOrder(any(OrderDto.Req.class))).thenReturn(false);
 
         mockMvc.perform(post("/api/orders")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(makeOrderReq(999999L, 1L, 5))))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.msg").value("建立訂單失敗"));
-    }
-
-    @Test
-    void createOrder_inactiveCourse_shouldReturn400() throws Exception {
-        when(orderService.createOrder(any(OrderDto.Req.class))).thenReturn(false);
-
-        mockMvc.perform(post("/api/orders")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(makeOrderReq(1L, 999999L, 5))))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.msg").value("建立訂單失敗"));
     }
@@ -184,20 +150,6 @@ class OrderControllerTest {
                 .andExpect(jsonPath("$.msg").value("訂單更新失敗"));
     }
 
-    @Test
-    void updateOrder_nonExistentId_shouldReturn400() throws Exception {
-        when(orderService.updateOrder(eq(999999L), any(OrderDto.UpdateReq.class))).thenReturn(false);
-
-        OrderDto.UpdateReq req = new OrderDto.UpdateReq();
-        req.setLessonCount(8);
-
-        mockMvc.perform(put("/api/orders/{id}", 999999L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.msg").value("訂單更新失敗"));
-    }
-
     // ── PATCH /api/orders/{id}/status — 更新訂單狀態 ─────────────────────────
 
     @Test
@@ -228,20 +180,6 @@ class OrderControllerTest {
                 .andExpect(jsonPath("$.msg").value("狀態更新失敗"));
     }
 
-    @Test
-    void updateStatus_nonExistentId_shouldReturn400() throws Exception {
-        when(orderService.updateStatus(eq(999999L), any(OrderDto.StatusReq.class))).thenReturn(false);
-
-        OrderDto.StatusReq req = new OrderDto.StatusReq();
-        req.setStatus(2);
-
-        mockMvc.perform(patch("/api/orders/{id}/status", 999999L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.msg").value("狀態更新失敗"));
-    }
-
     // ── DELETE /api/orders/{id} — 取消訂單 ───────────────────────────────────
 
     @Test
@@ -262,41 +200,5 @@ class OrderControllerTest {
                 .andExpect(jsonPath("$.msg").value("取消失敗，僅 pending 訂單可取消"));
     }
 
-    @Test
-    void cancelOrder_nonExistentId_shouldReturn400() throws Exception {
-        when(orderService.cancelOrder(999999L)).thenReturn(false);
 
-        mockMvc.perform(delete("/api/orders/{id}", 999999L))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.msg").value("取消失敗，僅 pending 訂單可取消"));
-    }
-
-    // ── POST /api/orders/{id}/pay — 支付訂單 ─────────────────────────────────
-
-    @Test
-    void payOrder_pendingStatus_shouldReturn200() throws Exception {
-        when(orderService.payOrder(1L)).thenReturn(true);
-
-        mockMvc.perform(post("/api/orders/{id}/pay", 1L))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.msg").value("支付成功"));
-    }
-
-    @Test
-    void payOrder_dealStatus_shouldReturn400() throws Exception {
-        when(orderService.payOrder(2L)).thenReturn(false);
-
-        mockMvc.perform(post("/api/orders/{id}/pay", 2L))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.msg").value("支付失敗"));
-    }
-
-    @Test
-    void payOrder_nonExistentId_shouldReturn400() throws Exception {
-        when(orderService.payOrder(999999L)).thenReturn(false);
-
-        mockMvc.perform(post("/api/orders/{id}/pay", 999999L))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.msg").value("支付失敗"));
-    }
 }

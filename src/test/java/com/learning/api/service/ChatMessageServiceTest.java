@@ -1,10 +1,10 @@
 package com.learning.api.service;
 
+import com.learning.api.entity.Bookings;
 import com.learning.api.entity.ChatMessage;
-import com.learning.api.entity.Order;
 import com.learning.api.enums.MessageType;
+import com.learning.api.repo.BookingRepository;
 import com.learning.api.repo.ChatMessageRepository;
-import com.learning.api.repo.OrderRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,7 +23,7 @@ import static org.mockito.Mockito.*;
 class ChatMessageServiceTest {
 
     @Mock private ChatMessageRepository chatMessageRepository;
-    @Mock private OrderRepository orderRepo;
+    @Mock private BookingRepository bookingRepo;
 
     @InjectMocks
     private ChatMessageService chatMessageService;
@@ -40,17 +40,17 @@ class ChatMessageServiceTest {
         return msg;
     }
 
-    private Order makeOrder(Long id) {
-        Order order = new Order();
-        order.setId(id);
-        return order;
+    private Bookings makeBooking(Long id) {
+        Bookings booking = new Bookings();
+        booking.setId(id);
+        return booking;
     }
 
     // ── save ──────────────────────────────────────────────────────────────────
 
     @Test
     void save_textMessage_returnsSavedMessage() {
-        when(orderRepo.findById(1L)).thenReturn(Optional.of(makeOrder(1L)));
+        when(bookingRepo.findById(1L)).thenReturn(Optional.of(makeBooking(1L)));
         ChatMessage saved = makeMessage(10L, 1L, 1, MessageType.TEXT.getValue(), "Hello");
         when(chatMessageRepository.save(any(ChatMessage.class))).thenReturn(saved);
 
@@ -81,7 +81,7 @@ class ChatMessageServiceTest {
 
     @Test
     void save_orderNotFound_throwsNoSuchElement() {
-        when(orderRepo.findById(999L)).thenReturn(Optional.empty());
+        when(bookingRepo.findById(999L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> chatMessageService.save(999L, 1, 1, "msg", null))
                 .isInstanceOf(NoSuchElementException.class);
@@ -89,7 +89,7 @@ class ChatMessageServiceTest {
 
     @Test
     void save_imageMessage_setsMediaUrlAndEmptyMessage() {
-        when(orderRepo.findById(1L)).thenReturn(Optional.of(makeOrder(1L)));
+        when(bookingRepo.findById(1L)).thenReturn(Optional.of(makeBooking(1L)));
         when(chatMessageRepository.save(any(ChatMessage.class))).thenAnswer(i -> i.getArgument(0));
 
         ChatMessage result = chatMessageService.save(1L, 1, MessageType.IMAGE.getValue(), null, "images/001.jpg");
@@ -101,7 +101,7 @@ class ChatMessageServiceTest {
 
     @Test
     void save_voiceMessage_setsMediaUrl() {
-        when(orderRepo.findById(1L)).thenReturn(Optional.of(makeOrder(1L)));
+        when(bookingRepo.findById(1L)).thenReturn(Optional.of(makeBooking(1L)));
         when(chatMessageRepository.save(any(ChatMessage.class))).thenAnswer(i -> i.getArgument(0));
 
         ChatMessage result = chatMessageService.save(1L, 2, MessageType.VOICE.getValue(), null, "audio/001.mp3");
@@ -112,7 +112,7 @@ class ChatMessageServiceTest {
 
     @Test
     void save_nullMessageType_defaultsToText() {
-        when(orderRepo.findById(1L)).thenReturn(Optional.of(makeOrder(1L)));
+        when(bookingRepo.findById(1L)).thenReturn(Optional.of(makeBooking(1L)));
         when(chatMessageRepository.save(any(ChatMessage.class))).thenAnswer(i -> i.getArgument(0));
 
         ChatMessage result = chatMessageService.save(1L, 1, null, "msg", null);
@@ -122,7 +122,7 @@ class ChatMessageServiceTest {
 
     @Test
     void save_persistsWithCorrectRole() {
-        when(orderRepo.findById(1L)).thenReturn(Optional.of(makeOrder(1L)));
+        when(bookingRepo.findById(1L)).thenReturn(Optional.of(makeBooking(1L)));
         when(chatMessageRepository.save(any(ChatMessage.class))).thenAnswer(i -> i.getArgument(0));
 
         ChatMessage result = chatMessageService.save(1L, 2, MessageType.TEXT.getValue(), "tutor msg", null);

@@ -116,19 +116,6 @@ public class OrderService {
         return true;
     }
 
-    // 支付訂單
-    public boolean payOrder(Long id) {
-        Order order = orderRepo.findById(id).orElse(null);
-        if (order == null) return false;
-
-        // 僅 pending(1) 可支付
-        if (order.getStatus() != 1) return false;
-
-        order.setStatus(2); // paid
-        orderRepo.save(order);
-        return true;
-    }
-
     private Integer calcDiscountPrice(Integer unitPrice, Integer lessonCount) {
         // 10 堂以上享 95 折
         if (lessonCount >= 10) return (int) (unitPrice * 0.95);

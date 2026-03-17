@@ -88,15 +88,4 @@ class CheckoutControllerTest {
                 .andExpect(jsonPath("$.msg").exists());
     }
 
-    @Test
-    void purchase_slotAlreadyBooked_returns400() throws Exception {
-        when(checkoutService.processPurchase(any(CheckoutReq.class)))
-                .thenReturn("時段 2026-03-20 10:00 已被他人預約");
-
-        mockMvc.perform(post("/api/shop/purchase")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(makeReq(1L, 1L))))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.msg").exists());
-    }
 }

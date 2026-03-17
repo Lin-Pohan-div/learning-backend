@@ -1,5 +1,6 @@
 package com.learning.api.service;
 
+import com.learning.api.TestFactory;
 import com.learning.api.dto.booking.BookingReq;
 import com.learning.api.entity.Bookings;
 import com.learning.api.entity.Course;
@@ -32,25 +33,11 @@ class BookingServiceTest {
     
 
     private Course makeCourse(Long id, Long tutorId) {
-        Course course = new Course();
-        course.setId(id);
-        course.setTutorId(tutorId);
-        course.setName("Test Course");
-        course.setSubject(21);
-        course.setDescription("Desc");
-        course.setPrice(500);
-        course.setActive(true);
-        return course;
+        return TestFactory.makeCourse(id, tutorId);
     }
 
     private BookingReq makeReq(Long userId, Long courseId, int lessonCount) {
-        BookingReq req = new BookingReq();
-        req.setUserId(userId);
-        req.setCourseId(courseId);
-        req.setLessonCount(lessonCount);
-        req.setDate(LocalDate.of(2026, 3, 20));
-        req.setHour(10);
-        return req;
+        return TestFactory.makeBookingReq(userId, courseId, lessonCount);
     }
 
     // ── sendBooking ───────────────────────────────────────────────────────────

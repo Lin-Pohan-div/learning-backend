@@ -4,6 +4,7 @@ import com.learning.api.dto.CheckoutReq;
 import com.learning.api.entity.*;
 import com.learning.api.repo.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,8 @@ public class CheckoutService {
     private final OrderRepository orderRepo;
     private final BookingRepository bookingRepo;
     private final TutorScheduleRepo scheduleRepo;
+    private final WalletService walletService;
+    private final BookingService bookingService;
 
     @Transactional
     public String processPurchase(CheckoutReq req) {
@@ -43,41 +46,40 @@ public class CheckoutService {
             if (sched.isEmpty() || !"available".equals(sched.get().getStatus())) {
                 return "時段 " + slot.getDate() + " " + slot.getHour() + ":00 已不開放";
             }
-            // B. 檢查是否已被搶先預約
-            if (bookingRepo.findByTutorIdAndDateAndHour(course.getTutorId(), slot.getDate(), slot.getHour()).isPresent()) {
+            // B. 檢查是否已被搶先預約（排除已取消的預約，允許重新預約同一時段）
+            if (bookingRepo.findByTutorIdAndDateAndHourAndStatusNot(course.getTutorId(), slot.getDate(), slot.getHour(), (byte) 3).isPresent()) {
                 return "時段 " + slot.getDate() + " " + slot.getHour() + ":00 已被他人預約";
             }
         }
 
         // 5. 正式扣錢與建立紀錄 (Transactional 保證原子性)
-        // A. 扣除錢包
-        student.setWallet(student.getWallet() - totalPrice);
-        userRepo.save(student);
-
-        // B. 建立訂單
+        // A. 建立訂單（先建立以取得 orderId 供 WalletLog 使用）
         Order order = new Order();
         order.setUserId(student.getId());
         order.setCourseId(course.getId());
         order.setUnitPrice(course.getPrice());
-        order.setDiscountPrice(totalPrice);
+        order.setDiscountPrice(course.getPrice()); // 直購不打折，每堂即原價
         order.setLessonCount(totalSlots);
-        order.setLessonUsed(totalSlots); // 因為是直接買時段，所以直接標記為已使用
+        order.setLessonUsed(0); // 課程尚未上課，lessonUsed 在每次 completeBooking 時遞增
         order.setStatus(2); // 2:成交
         Order savedOrder = orderRepo.save(order);
+
+        // B. 扣除錢包並建立消費 WalletLog (type=2 購課, relatedType=1 Order)
+        walletService.debit(student.getId(), totalPrice, 2, 1, savedOrder.getId());
 
         // C. 建立多筆預約 (Bookings) — 批次儲存減少 DB round-trip
         List<Bookings> bookingList = new ArrayList<>();
         for (CheckoutReq.Slot slot : req.getSelectedSlots()) {
-            Bookings b = new Bookings();
-            b.setOrderId(savedOrder.getId());
-            b.setTutorId(course.getTutorId());
-            b.setStudentId(student.getId());
-            b.setDate(slot.getDate());
-            b.setHour(slot.getHour());
-            b.setStatus((byte) 1); // 1:排程中
-            bookingList.add(b);
+            bookingList.add(bookingService.buildFromSlot(
+                    savedOrder.getId(), course.getTutorId(), student.getId(),
+                    slot.getDate(), slot.getHour()));
         }
-        bookingRepo.saveAll(bookingList);
+        try {
+            bookingRepo.saveAll(bookingList);
+        } catch (DataIntegrityViolationException e) {
+            // 並發情況下被其他請求搶先預約同一時段
+            return "時段衝突，請重新選擇";
+        }
 
         return "success";
     }
