@@ -68,7 +68,11 @@ public class TutorController {
         // 5. 將結果封裝進 DTO (TutorProfileDTO)
         TutorProfileDTO dto = new TutorProfileDTO();
         dto.setName(tutor.getUser().getName()); // 假設 Tutor 關聯 User
+        dto.setHeadline(tutor.getTitle());
+        dto.setAvatar(tutor.getAvatar());
+        dto.setIntro(tutor.getIntro());
         // 證照與影片 (根據 Tutor.java 的欄位名稱)
+        dto.setCertificate_name_1(tutor.getCertificateName1());
         dto.setVideoUrl1(tutor.getVideoUrl1());
 
         // 列表與評分 (由 Service 取得的資料)
