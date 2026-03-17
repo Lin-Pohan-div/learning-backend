@@ -2,8 +2,10 @@ package com.learning.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.learning.api.entity.Course;
+import com.learning.api.entity.Tutor;
 import com.learning.api.entity.User;
 import com.learning.api.repo.CourseRepo;
+import com.learning.api.repo.TutorRepository;
 import com.learning.api.repo.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,6 +37,9 @@ class BookingControllerTest {
     @Autowired
     private CourseRepo courseRepo;
 
+    @Autowired
+    private TutorRepository tutorRepository;
+
     @Autowired(required = false)
     private ObjectMapper objectMapper;
 
@@ -59,6 +64,10 @@ class BookingControllerTest {
         user.setWallet(0L);
         user = userRepository.save(user);
         testUserId = user.getId();
+
+        Tutor tutor = new Tutor();
+        tutor.setUser(user);
+        tutorRepository.save(tutor);
 
         Course activeCourse = new Course();
         activeCourse.setTutorId(user.getId());
