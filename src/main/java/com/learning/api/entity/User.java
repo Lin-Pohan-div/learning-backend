@@ -29,7 +29,6 @@ public class User {
 
     private LocalDate birthday;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserRole role; //1:student/2:teacher/3admin
 
