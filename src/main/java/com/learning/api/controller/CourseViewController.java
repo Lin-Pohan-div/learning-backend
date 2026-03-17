@@ -77,7 +77,7 @@ public class CourseViewController {
     /**
      * 獲取老師課表，同樣支援跨域
      */
-   /*  @GetMapping("/api/view/teacher_schedule/{teacherId}")
+/*     @GetMapping("/api/view/teacher_schedule/{teacherId}")
     public Map<Integer, List<Integer>> getTeacherSchedule(@PathVariable Long teacherId) {
         List<TutorSchedule> schedules = scheduleRepo.findByTutorId(teacherId);
         

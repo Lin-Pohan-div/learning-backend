@@ -34,6 +34,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(
                         auth -> auth
                                 // 不需要登入
+                        		.requestMatchers("/**").permitAll()
                                 .requestMatchers("/api/auth/**").permitAll()
 
                                 .requestMatchers("/api/view/**").permitAll()
