@@ -284,7 +284,7 @@
   <label>Booking ID</label>
   <input id="bookingId" type="number" value="1" min="1" />
   <label>WebSocket URL</label>
-  <input id="wsUrl" type="text" value="http://localhost:8080/ws" placeholder="ws URL" />
+  <input id="wsUrl" type="text" placeholder="ws URL" />
   <span class="topbar-hint">兩個面板共用同一房間，模擬學生與導師視訊對話</span>
 </div>
 
@@ -557,6 +557,10 @@
 </div><!-- /columns -->
 
 <script>
+// 自動填入 wsUrl 預設值（根據當前頁面 host）
+document.getElementById('wsUrl').value =
+  window.location.protocol + '//' + window.location.host + '/ws';
+
 // ────────────────────────────────────────────────────────
 // State
 // ────────────────────────────────────────────────────────

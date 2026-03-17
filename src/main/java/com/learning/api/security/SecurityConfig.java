@@ -29,7 +29,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:8080"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
@@ -50,6 +50,8 @@ public class SecurityConfig {
                         auth -> auth
                                 .requestMatchers("/api/auth/**").permitAll()
                                 .requestMatchers("/api/view/**").permitAll()
+                                .requestMatchers("/VideoRoomTester.html").permitAll()
+                                .requestMatchers("/ws/**").permitAll()
                                 .requestMatchers("/api/tutor/**").hasRole("TUTOR")
                                 .requestMatchers("/api/student/**").hasRole("STUDENT")
                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
