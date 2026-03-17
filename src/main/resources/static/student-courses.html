@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌟 探索名師課程</title>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8fafc; margin: 0; padding: 40px 20px; }
+    .header { text-align: center; margin-bottom: 40px; }
+    .header h1 { color: #1e293b; font-size: 32px; margin-bottom: 10px; }
+    .header p { color: #64748b; font-size: 16px; }
+
+    .course-grid { display: flex; flex-wrap: wrap; gap: 25px; justify-content: center; max-width: 1200px; margin: 0 auto; }
+
+    .card { background: white; border-radius: 12px; padding: 25px; width: 260px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.3s; border: 1px solid #e2e8f0; display: flex; flex-direction: column; }
+    .card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px rgba(0,0,0,0.1); border-color: #cbd5e1; }
+
+    .tutor-badge { background: #fef2f2; color: #ef4444; font-size: 12px; font-weight: bold; padding: 5px 10px; border-radius: 20px; align-self: flex-start; margin-bottom: 15px; }
+    .tutor-sunny { background: #fff7ed; color: #ea580c; }
+    .tutor-adam { background: #f0fdf4; color: #16a34a; }
+    .tutor-david { background: #eff6ff; color: #2563eb; }
+
+    .course-title { font-size: 18px; color: #0f172a; margin: 0 0 10px 0; font-weight: bold; line-height: 1.4; flex-grow: 1; }
+    .course-desc { color: #64748b; font-size: 13px; margin-bottom: 20px; line-height: 1.6; height: 60px; overflow: hidden; }
+
+    .price-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-top: 1px solid #f1f5f9; padding-top: 15px; }
+    .price { font-size: 22px; color: #ef4444; font-weight: bold; }
+    .price span { font-size: 13px; color: #94a3b8; font-weight: normal; }
+
+    .book-btn { background: #2563eb; color: white; border: none; padding: 12px; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; transition: 0.2s; text-align: center; }
+    .book-btn:hover { background: #1d4ed8; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🌟 嚴選名師課程</h1>
+  <p>匯集 Sunny, Adam, David 三位大師，給您最專業的課程體驗！</p>
+</div>
+
+<div class="course-grid">
+  <!-- 課程 1: Sunny 老師 (ID 2) -->
+  <div class="card">
+    <div class="tutor-badge tutor-sunny">👩‍🏫 Sunny 老師</div>
+    <h3 class="course-title">高級 Java 程式設計</h3>
+    <p class="course-desc">Sunny 老師親授，掌握 Spring Boot 核心技術。</p>
+    <div class="price-row">
+      <div class="price">500 <span>元/堂</span></div>
+    </div>
+    <button class="book-btn" onclick="goToBooking(10, 2, 500, '高級 Java 程式設計')">立即查看時段</button>
+  </div>
+
+  <!-- 課程 2: Adam 老師 (ID 3) -->
+  <div class="card">
+    <div class="tutor-badge tutor-adam">👨‍🏫 Adam 老師</div>
+    <h3 class="course-title">基礎 Python 入門</h3>
+    <p class="course-desc">Adam 老師帶領零基礎的您，跨入程式開發的大門。</p>
+    <div class="price-row">
+      <div class="price">400 <span>元/堂</span></div>
+    </div>
+    <button class="book-btn" onclick="goToBooking(11, 3, 400, '基礎 Python 入門')">立即查看時段</button>
+  </div>
+
+  <!-- 課程 3: David 老師 (ID 4) -->
+  <div class="card">
+    <div class="tutor-badge tutor-david">👨‍🏫 David 老師</div>
+    <h3 class="course-title">大師級 React 網頁開發</h3>
+    <p class="course-desc">掌握現代前端主流框架，David 老師帶您打造高效 SPA。</p>
+    <div class="price-row">
+      <div class="price">800 <span>元/堂</span></div>
+    </div>
+    <button class="book-btn" onclick="goToBooking(12, 4, 800, '大師級 React 網頁開發')">立即查看時段</button>
+  </div>
+
+  <!-- 課程 4: David 老師 (ID 4) -->
+  <div class="card">
+    <div class="tutor-badge tutor-david">👨‍🏫 David 老師</div>
+    <h3 class="course-title">Next.js 全棧開發實戰</h3>
+    <p class="course-desc">David 老師的進階課，從前端到伺服器端一次掌握。</p>
+    <div class="price-row">
+      <div class="price">900 <span>元/堂</span></div>
+    </div>
+    <button class="book-btn" onclick="goToBooking(13, 4, 900, 'Next.js 全棧開發實戰')">立即查看時段</button>
+  </div>
+</div>
+
+<script>
+  function goToBooking(courseId, tutorId, price, courseName) {
+    const params = new URLSearchParams({
+      courseId: courseId,
+      tutorId: tutorId,
+      price: price,
+      name: courseName
+    });
+    window.location.href = `student-booking.html?${params.toString()}`;
+  }
+</script>
+</body>
+</html>

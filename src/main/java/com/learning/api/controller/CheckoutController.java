@@ -14,7 +14,7 @@ public class CheckoutController {
 
     @Autowired private CheckoutService checkoutService;
 
-    /* @PostMapping("/purchase")
+    @PostMapping("/purchase")
     public ResponseEntity<?> purchase(@RequestBody CheckoutReq req) {
         String result = checkoutService.processPurchase(req);
 
@@ -25,5 +25,5 @@ public class CheckoutController {
         } else {
             return ResponseEntity.badRequest().body(Map.of("msg", result));
         }
-    } */
+    } 
 }
