@@ -1,15 +1,6 @@
 package com.learning.api.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -46,8 +37,7 @@ public class Course {
     @Column(nullable = false)
     private Integer price; // 單堂價格（元）
 
+    // 👉 修正：對齊 DB 的 is_active，並建議使用 Boolean 物件
     @Column(name = "is_active", nullable = false)
-    private Integer active ; // 1: 上架, 0: 下架
-
-    
+    private Boolean isActive = true;
 }

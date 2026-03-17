@@ -165,7 +165,11 @@
       const res = await fetch('/api/shop/purchase', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId: 1, courseId: config.courseId, selectedSlots: selectedSlots.map(s => ({ date: s.date, hour: s.hour })) })
+        body: JSON.stringify({
+          studentId: 9527, // ✅ 對齊我們剛剛建的土豪學生
+          courseId: config.courseId,
+          selectedSlots: selectedSlots.map(s => ({ date: s.date, hour: s.hour }))
+        })
       });
       const data = await res.json();
       if (res.ok) { alert("🎉 預約成功！即將回到課程大廳。"); window.location.href = 'student-courses.html'; }

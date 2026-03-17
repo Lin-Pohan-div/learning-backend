@@ -6,63 +6,48 @@ import com.learning.api.entity.Course;
 import com.learning.api.repo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 
 @Service
 public class BookingService {
 
-    @Autowired private UserRepo memberRepo;
     @Autowired private CourseRepo courseRepo;
     @Autowired private BookingRepo bookingRepo;
     @Autowired private OrderRepository orderRepo;
 
-    /**
-     * 建立預約紀錄 (已修正紅線)
-     */
+    // 什麼都不做，直接回傳 200 OK 或空內容
+    @GetMapping("favicon.ico")
+    @ResponseBody
+    public void disableFavicon() {
+    }
     public boolean sendBooking(BookingReq req){
         if (req == null || req.getUserId() == null || req.getCourseId() == null) return false;
 
-        // 檢查課程是否存在
+        // 👉 防呆：DB 規定一定要有 order_id
+        if (req.getOrderId() == null) {
+            throw new IllegalArgumentException("預約必須關聯一筆有效訂單 (order_id 不可為空)");
+        }
+
         Course course = courseRepo.findById(req.getCourseId()).orElse(null);
         if (course == null) return false;
 
-        // 建立預約實體
         Booking booking = new Booking();
-
-        // 對齊你的 Booking.java 欄位
         booking.setStudentId(req.getUserId());
-        booking.setTutorId(req.getCourseId());
-        booking.setOrderId(req.getOrderId()); // 如果是直接預約，這會由 CheckoutService 傳入
+        booking.setTutorId(course.getTutorId());
+        booking.setOrderId(req.getOrderId());
         booking.setDate(req.getDate());
         booking.setHour(req.getHour());
-        booking.setStatus(1); // 1: scheduled
-        booking.setSlotLocked(false);
-
-        // 以下是原本報錯的折扣邏輯，因為 Entity 沒欄位，我們先不存
-        /*
-        Integer originalPrice = course.getPrice();
-        Integer discount = afterDiscPrice(originalPrice, req.getLessonCount());
-        // booking.setUnitPrice(originalPrice);    // Entity 沒這欄位 -> 註解
-        // booking.setDiscountPrice(discount);    // Entity 沒這欄位 -> 註解
-        // booking.setLessonCount(req.getLessonCount()); // Entity 沒這欄位 -> 註解
-        */
+        booking.setStatus(1);
+        booking.setSlotLocked(true); // 預約成功直接鎖定
 
         bookingRepo.save(booking);
         return true;
     }
 
-    /**
-     * 計算折扣 (保留邏輯供未來參考)
-     */
-    private Integer afterDiscPrice(Integer originalPrice, Integer lessonCount){
-        if (lessonCount != null && lessonCount >= 10) return (int) (originalPrice * 0.95);
-        return originalPrice;
-    }
 
-    /**
-     * 取得老師的所有預約 (供 test-schedule.html 顯示紅色格子)
-     */
     public List<Booking> getTutorBookings(Long tutorId) {
         return bookingRepo.findByTutorId(tutorId);
     }
