@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🛒 學生選課結帳</title>
+  <style>
+    body { font-family: 'Segoe UI', system-ui, sans-serif; display: flex; flex-direction: column; gap: 20px; padding: 20px; background: #f1f5f9; margin: 0; color: #1e293b; }
+    .top-nav { display: flex; align-items: center; justify-content: space-between; background: white; padding: 15px 25px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .back-link { text-decoration: none; color: #3b82f6; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .back-link:hover { color: #2563eb; }
+
+    .main-content { display: flex; gap: 24px; align-items: flex-start; max-width: 1400px; margin: 0 auto; width: 100%; }
+    .calendar-card { flex: 3; background: white; padding: 28px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    .cart-card { flex: 1; background: white; padding: 28px; border-radius: 16px; border: 2px solid #3b82f6; position: sticky; top: 20px; box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.1); }
+
+    .grid { display: grid; grid-template-columns: 70px repeat(7, 1fr); gap: 8px; margin-top: 20px; }
+    .cell { border: 1px solid #e2e8f0; padding: 14px 4px; text-align: center; border-radius: 8px; font-size: 13px; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+    .header { background: #334155; color: white; font-weight: 600; border: none; }
+    .time-label { background: #f8fafc; font-weight: 600; color: #64748b; }
+
+    .slot-none { background: #f8fafc; color: #cbd5e1; cursor: not-allowed; }
+    .slot-available { background: #f0fdf4; border-color: #4ade80; color: #166534; cursor: pointer; }
+    .slot-available:hover { background: #dcfce7; transform: translateY(-2px); }
+    .slot-booked { background: #fef2f2; border-color: #fca5a5; color: #991b1b; cursor: not-allowed; font-weight: 600; }
+    .slot-selected { background: #fef9c3; border-color: #eab308; color: #854d0e; font-weight: 700; transform: scale(1.02); box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.2); }
+
+    #buy-btn { width: 100%; padding: 16px; background: #3b82f6; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: 700; margin-top: 24px; transition: 0.2s; box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3); }
+    #buy-btn:hover:not(:disabled) { background: #2563eb; box-shadow: 0 6px 8px rgba(59, 130, 246, 0.4); }
+    #buy-btn:disabled { background: #94a3b8; cursor: not-allowed; box-shadow: none; }
+
+    /* Loading 動畫 */
+    .loading-spinner { display: none; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff; animation: spin 0.8s linear infinite; margin: 0 auto; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div class="top-nav">
+  <a href="student-courses.html" class="back-link">⬅️ 返回課程列表</a>
+  <div id="course-info-badge" style="font-weight: 600;">正在載入課程...</div>
+</div>
+
+<div class="main-content">
+  <div class="calendar-card">
+    <h2 id="page-title" style="margin-bottom: 8px;">載入中...</h2>
+    <div id="legend-area" style="display:flex; gap:12px; font-size:12px; margin-bottom:20px;">
+      <div style="display:flex; align-items:center; gap:4px;"><div style="width:12px; height:12px; background:#f8fafc; border:1px solid #ddd;"></div> 未開放</div>
+      <div style="display:flex; align-items:center; gap:4px;"><div style="width:12px; height:12px; background:#f0fdf4; border:1px solid #4ade80;"></div> 可預約</div>
+      <div style="display:flex; align-items:center; gap:4px;"><div style="width:12px; height:12px; background:#fef2f2; border:1px solid #fca5a5;"></div> 已滿堂🔥</div>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <div class="cart-card">
+    <h3 style="margin-top:0;">🛒 預約清單</h3>
+    <div id="cart-list" style="min-height: 80px; font-size: 14px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px;">尚未選擇時段</div>
+    <div id="summary-area" style="margin-top: 20px;">
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span>單價:</span><strong id="display-price">0</strong></div>
+      <div style="display:flex; justify-content:space-between; font-size:20px; color:#2563eb;"><span>總額:</span><strong id="display-total">0</strong></div>
+      <div id="discount-tip" style="margin-top:8px;"></div>
+    </div>
+    <button id="buy-btn" onclick="checkout()" disabled>
+      <span id="btn-text">確認購買並預約</span>
+      <div class="loading-spinner" id="btn-spinner"></div>
+    </button>
+    <div id="error-msg" style="margin-top:12px; color:#ef4444; font-size:13px; text-align:center; font-weight:600;"></div>
+  </div>
+</div>
+
+<script>
+  let selectedSlots = [];
+  let config = { price: 0, tutorId: 0, courseId: 0, name: '' };
+
+  window.onload = function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    config.courseId = parseInt(urlParams.get('courseId'));
+    config.tutorId = parseInt(urlParams.get('tutorId'));
+    config.price = parseInt(urlParams.get('price'));
+    config.name = urlParams.get('name');
+
+    if (!config.courseId) { window.location.href = 'student-courses.html'; return; }
+
+    document.getElementById('page-title').innerText = `🗓️ ${config.name}`;
+    document.getElementById('course-info-badge').innerText = `選購中: ${config.name}`;
+    updateCart();
+    loadCalendar();
+  };
+
+  async function loadCalendar() {
+    const grid = document.getElementById('grid');
+    grid.innerHTML = '<div class="cell header">時間</div>' + ['一','二','三','四','五','六','日'].map(d => `<div class="cell header">週${d}</div>`).join('');
+
+    try {
+      const [scheds, books] = await Promise.all([
+        fetch(`/api/teacher/schedules/${config.tutorId}`).then(r => r.json()),
+        fetch(`/api/bookings/tutor/${config.tutorId}`).then(r => r.json())
+      ]);
+
+      for (let h = 9; h <= 21; h++) {
+        grid.innerHTML += `<div class="cell time-label">${h}:00</div>`;
+        for (let d = 1; d <= 7; d++) {
+          const isAvailable = scheds.some(s => s.weekday === d && s.hour === h && s.status === 'available');
+          const isBooked = books.some(b => {
+            const date = Array.isArray(b.date) ? new Date(b.date[0], b.date[1]-1, b.date[2]) : new Date(b.date.replace(/-/g,'/'));
+            const w = date.getDay() === 0 ? 7 : date.getDay();
+            return w === d && b.hour === h;
+          });
+
+          let cls = 'slot-none', txt = '未開放', act = '';
+          if (isAvailable) { cls = 'slot-available'; txt = '可預約'; act = `onclick="toggle(${d},${h})"`; }
+          if (isBooked) { cls = 'slot-booked'; txt = '已滿🔥'; act = ''; }
+          grid.innerHTML += `<div class="cell ${cls}" id="slot-${d}-${h}" ${act}>${txt}</div>`;
+        }
+      }
+    } catch (e) { document.getElementById('error-msg').innerText = "連線失敗，請重整頁面"; }
+  }
+
+  function toggle(d, h) {
+    const id = `slot-${d}-${h}`, idx = selectedSlots.findIndex(s => s.weekday === d && s.hour === h), el = document.getElementById(id);
+    if (idx > -1) {
+      selectedSlots.splice(idx, 1);
+      el.classList.remove('slot-selected');
+      el.innerText = '可預約';
+    } else {
+      const target = new Date();
+      target.setDate(target.getDate() + (d + 7 - target.getDay()) % 7);
+      if (target <= new Date()) target.setDate(target.getDate() + 7);
+      selectedSlots.push({ weekday: d, hour: h, date: target.toISOString().split('T')[0] });
+      el.classList.add('slot-selected');
+      el.innerText = '已選取';
+    }
+    updateCart();
+  }
+
+  function updateCart() {
+    const count = selectedSlots.length;
+    document.getElementById('display-price').innerText = `${config.price} 元`;
+
+    if (count === 0) {
+      document.getElementById('cart-list').innerText = "尚未選擇時段";
+      document.getElementById('display-total').innerText = "0 元";
+      document.getElementById('buy-btn').disabled = true;
+      document.getElementById('discount-tip').innerText = "";
+      return;
+    }
+
+    document.getElementById('cart-list').innerHTML = selectedSlots.map(s => `<div>✅ 週${s.weekday} (${s.date}) <b>${s.hour}:00</b></div>`).join('');
+
+    let total = count * config.price, final = total, tip = "";
+    if (count >= 10) { final = Math.floor(total * 0.9); tip = "🎉 已享 9 折！"; }
+    else if (count >= 5) { final = Math.floor(total * 0.95); tip = `🎉 已享 95 折！再選 ${10-count} 堂享 9 折`; }
+    else { tip = `💡 再選 ${5-count} 堂享 95 折`; }
+
+    document.getElementById('display-total').innerHTML = final < total ? `<span style="text-decoration:line-through; font-size:14px; color:#94a3b8; margin-right:8px;">${total}</span>${final} 元` : `${final} 元`;
+    document.getElementById('discount-tip').innerHTML = `<small style="color:#ef4444; font-weight:600;">${tip}</small>`;
+    document.getElementById('buy-btn').disabled = false;
+  }
+
+  async function checkout() {
+    const btn = document.getElementById('buy-btn'), txt = document.getElementById('btn-text'), spi = document.getElementById('btn-spinner'), err = document.getElementById('error-msg');
+    btn.disabled = true; txt.style.display = 'none'; spi.style.display = 'block'; err.innerText = "";
+
+    try {
+      const res = await fetch('/api/shop/purchase', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId: 1, courseId: config.courseId, selectedSlots: selectedSlots.map(s => ({ date: s.date, hour: s.hour })) })
+      });
+      const data = await res.json();
+      if (res.ok) { alert("🎉 預約成功！即將回到課程大廳。"); window.location.href = 'student-courses.html'; }
+      else { throw new Error(data.msg || "購買失敗"); }
+    } catch (e) { err.innerText = "❌ " + e.message; btn.disabled = false; txt.style.display = 'block'; spi.style.display = 'none'; }
+  }
+</script>
+</body>
+</html>

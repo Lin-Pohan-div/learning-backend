@@ -1,11 +1,9 @@
 package com.learning.api.entity;
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Date;
-
+import java.time.LocalDate;
 
 
 @Entity
@@ -19,7 +17,8 @@ public class Booking {
 
     @Column(name = "order_id", nullable = false)
     private Long orderId;
-
+    
+ 
     @Column(name = "tutor_id", nullable = false)
     private Long tutorId;
 
@@ -27,7 +26,7 @@ public class Booking {
     private Long studentId;
 
     @Column(nullable = false)
-    private Date date;
+    private LocalDate date;
 
     @Column(nullable = false)
     private Integer hour;

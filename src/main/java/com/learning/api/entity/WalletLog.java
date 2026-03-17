@@ -6,7 +6,6 @@ import lombok.Setter;
 
 import java.time.Instant;
 
-
 @Entity
 @Table(name = "wallet_logs")
 @Getter
@@ -42,7 +41,7 @@ public class WalletLog {
      * 2 lesson
      * 3 bank
      */
-    @Column(name = "related_type",  nullable = false )
+    @Column(name = "related_type", nullable = false)
     private Integer relatedType;
 
     @Column(name = "related_id")
@@ -50,6 +49,12 @@ public class WalletLog {
 
     @Column(name = "merchant_trade_no", unique = true, length = 100)
     private String merchantTradeNo;
+
+    @Column(name = "d_type")
+    private Integer dType;
+
+    @Column(name = "payment_amount")
+    private Integer paymentAmount;
 
     /**
      * DB 自動產生

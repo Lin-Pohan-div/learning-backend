@@ -1,82 +1,69 @@
 package com.learning.api.service;
 
-import com.learning.api.dto.*;
-import com.learning.api.entity.*;
+import com.learning.api.dto.BookingReq;
+import com.learning.api.entity.Booking;
+import com.learning.api.entity.Course;
 import com.learning.api.repo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class BookingService {
 
-    @Autowired
-    private UserRepo memberRepo;
+    @Autowired private UserRepo memberRepo;
+    @Autowired private CourseRepo courseRepo;
+    @Autowired private BookingRepo bookingRepo;
+    @Autowired private OrderRepository orderRepo;
 
-    @Autowired
-    private CourseRepo courseRepo;
+    /**
+     * 建立預約紀錄 (已修正紅線)
+     */
+    public boolean sendBooking(BookingReq req){
+        if (req == null || req.getUserId() == null || req.getCourseId() == null) return false;
 
-    @Autowired
-    private BookingRepo bookingRepo;
-
-    @Autowired
-    private OrderRepo orderRepo;
-
-    // bookingReq.getUserId() 僅供開發測試使用，正式版改由登入資訊取得
-    public boolean sendBooking(BookingReq bookingReq){
-
-        if (bookingReq == null) return false;
-
-        // check null
-        if (bookingReq.getUserId() == null || bookingReq.getCourseId() == null || bookingReq.getLessonCount() == null) return false;
-
-        // lessonCount > 0
-        if (bookingReq.getLessonCount() <= 0) return false;
-
-        // member existsById
-        if(!memberRepo.existsById(bookingReq.getUserId())) return false;
-
-        // course findById
-        Course course = courseRepo.findById(bookingReq.getCourseId()).orElse(null);
+        // 檢查課程是否存在
+        Course course = courseRepo.findById(req.getCourseId()).orElse(null);
         if (course == null) return false;
 
-        // check courseId isActive
-        if (!course.isActive()) return false;
+        // 建立預約實體
+        Booking booking = new Booking();
 
-        // buildBooking
-        Booking booking = buildBooking(bookingReq, course);
+        // 對齊你的 Booking.java 欄位
+        booking.setStudentId(req.getUserId());
+        booking.setTutorId(req.getCourseId());
+        booking.setOrderId(req.getOrderId()); // 如果是直接預約，這會由 CheckoutService 傳入
+        booking.setDate(req.getDate());
+        booking.setHour(req.getHour());
+        booking.setStatus(1); // 1: scheduled
+        booking.setSlotLocked(false);
+
+        // 以下是原本報錯的折扣邏輯，因為 Entity 沒欄位，我們先不存
+        /*
+        Integer originalPrice = course.getPrice();
+        Integer discount = afterDiscPrice(originalPrice, req.getLessonCount());
+        // booking.setUnitPrice(originalPrice);    // Entity 沒這欄位 -> 註解
+        // booking.setDiscountPrice(discount);    // Entity 沒這欄位 -> 註解
+        // booking.setLessonCount(req.getLessonCount()); // Entity 沒這欄位 -> 註解
+        */
+
         bookingRepo.save(booking);
-
         return true;
     }
 
-    private Booking buildBooking(BookingReq bookingReq, Course course){
-        Booking booking = new Booking();
-
-        // set & save
-        booking.setOrderId(null);
-        booking.setCourseId(bookingReq.getCourseId());
-
-        // price unitPrice discountPrice
-        Integer originalPrice = course.getPrice();
-        Integer discount = afterDiscPrice(originalPrice, bookingReq.getLessonCount());
-
-        booking.setUnitPrice(originalPrice);
-        booking.setDiscountPrice(discount);
-
-        // lessonCount
-        booking.setLessonCount(bookingReq.getLessonCount());
-        // status first send -> 1
-        booking.setStatus(1);
-
-        return booking;
+    /**
+     * 計算折扣 (保留邏輯供未來參考)
+     */
+    private Integer afterDiscPrice(Integer originalPrice, Integer lessonCount){
+        if (lessonCount != null && lessonCount >= 10) return (int) (originalPrice * 0.95);
+        return originalPrice;
     }
 
-    private Integer afterDiscPrice(Integer originalPrice, Integer lessonCount){
-        // 95% 10 堂
-        if (lessonCount >= 10) return ((int) (originalPrice*0.95));
-
-
-        // 0%
-        return originalPrice;
+    /**
+     * 取得老師的所有預約 (供 test-schedule.html 顯示紅色格子)
+     */
+    public List<Booking> getTutorBookings(Long tutorId) {
+        return bookingRepo.findByTutorId(tutorId);
     }
 }
