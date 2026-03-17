@@ -25,7 +25,7 @@ import com.learning.api.repo.CourseRepo;
 // 1. 改為 @RestController 以便直接回傳 JSON 數據
 // 2. 加上 @CrossOrigin 解決跨域問題
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "*")
 public class CourseViewController {
 
     @Autowired

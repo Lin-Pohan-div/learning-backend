@@ -43,12 +43,12 @@ public class TutorController {
             return ResponseEntity.notFound().build();
         } 
 
-        // 2. 取得老師的課表與課程列表
+       // 2. 取得老師的課表與課程列表
         List<TutorSchedule> schedules = tutorService.findSchedulesByTutorId(id);
-        List<Course> courses = tutorService.findCoursesByTutorId(id); 
+        List<Course> courses = tutorService.findCoursesByTutorId(id);
         
         // 3. 處理課程與評價邏輯
-       Course selectedCourse = null;
+        Course selectedCourse = null;
         if (courseId != null) {
             selectedCourse = tutorService.findCourseById(courseId);
         } else if (!courses.isEmpty()) {
@@ -63,16 +63,12 @@ public class TutorController {
         double avgRating = reviews.stream()
                                   .mapToInt(Review::getRating)
                                   .average()
-                                  .orElse(0.0); 
+                                  .orElse(0.0);
 
         // 5. 將結果封裝進 DTO (TutorProfileDTO)
         TutorProfileDTO dto = new TutorProfileDTO();
         dto.setName(tutor.getUser().getName()); // 假設 Tutor 關聯 User
-        dto.setHeadline(tutor.getTitle());
-        dto.setAvatar(tutor.getAvatar());
-        dto.setIntro(tutor.getIntro());
         // 證照與影片 (根據 Tutor.java 的欄位名稱)
-        dto.setCertificate_name_1(tutor.getCertificateName1());
         dto.setVideoUrl1(tutor.getVideoUrl1());
 
         // 列表與評分 (由 Service 取得的資料)
@@ -80,6 +76,6 @@ public class TutorController {
         dto.setReviews(reviews);
         dto.setAverageRating(Double.parseDouble(String.format("%.1f", avgRating)));
 
-        return ResponseEntity.ok(dto);
-    }
+        return ResponseEntity.ok(dto); 
+    } 
 } 
