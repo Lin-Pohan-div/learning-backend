@@ -20,7 +20,7 @@ import com.learning.api.dto.CourseSearchDTO;
 import com.learning.api.entity.Course;
 import com.learning.api.entity.TutorSchedule;
 import com.learning.api.repo.CourseRepo;
-/* import com.learning.api.repo.TutorScheduleRepo; */
+import com.learning.api.repo.TutorScheduleRepo;
 
 // 1. 改為 @RestController 以便直接回傳 JSON 數據
 // 2. 加上 @CrossOrigin 解決跨域問題
@@ -31,8 +31,8 @@ public class CourseViewController {
     @Autowired
     private CourseRepo courseRepo;
 
-/*     @Autowired 
-    private TutorScheduleRepo scheduleRepo; */
+    @Autowired 
+    private TutorScheduleRepo scheduleRepo;
 
     /**
      * 修改為回傳 ResponseEntity，以便前端獲取分頁 JSON 數據
@@ -77,7 +77,7 @@ public class CourseViewController {
     /**
      * 獲取老師課表，同樣支援跨域
      */
-/*     @GetMapping("/api/view/teacher_schedule/{teacherId}")
+    @GetMapping("/api/view/teacher_schedule/{teacherId}")
     public Map<Integer, List<Integer>> getTeacherSchedule(@PathVariable Long teacherId) {
         List<TutorSchedule> schedules = scheduleRepo.findByTutorId(teacherId);
         
@@ -86,5 +86,5 @@ public class CourseViewController {
                 TutorSchedule::getWeekday,
                 Collectors.mapping(TutorSchedule::getHour, Collectors.toList())
             ));
-    } */
+    }
 }
