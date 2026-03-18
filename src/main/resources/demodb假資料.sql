@@ -1,6 +1,7 @@
 -- ============================================================
 -- learningv3 假資料 Seed Data
 -- 生成時間: 2026-03-17
+-- 專案假資料/影片URL:https://drive.google.com/drive/folders/1-vxh2VNO7Jqrn7SDpumUKRsZ-qreNRHn?usp=drive_link
 -- ============================================================
 
 SET FOREIGN_KEY_CHECKS = 0;
