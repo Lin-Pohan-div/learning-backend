@@ -12,7 +12,7 @@ import jakarta.persistence.criteria.Predicate;
 
 public class CourseSpec {
     public static Specification<Course> filterCourses(
-            String teacherName, String courseName, Integer subjectCategory, Integer subject, String priceRange, 
+            String teacherName, String courseName, Integer subjectCategory, Integer subject, String priceRange,
             Integer weekday, String timeSlot) {
 
         return (root, query, builder) -> {
@@ -23,10 +23,9 @@ public class CourseSpec {
 
             // 2. 老師姓名模糊搜尋 (Join User 表)
             if (teacherName != null && !teacherName.isEmpty()) {
-            	predicates.add(builder.like(
-                        root.join("tutor").join("user").get("name"), 
-                        "%" + teacherName + "%"
-                    ));
+                predicates.add(builder.like(
+                        root.join("tutor").join("user").get("name"),
+                        "%" + teacherName + "%"));
             }
 
             // 3. 課程名稱模糊搜尋
@@ -38,7 +37,7 @@ public class CourseSpec {
             // 如果選了具體科目 (如 11, 21)
             if (subject != null) {
                 predicates.add(builder.equal(root.get("subject"), subject));
-            } 
+            }
             // 如果只選了大類別 (如 10 代表年級課程, 20 代表檢定升學)
             else if (subjectCategory != null) {
                 // 搜尋該開頭的代碼，例如 10~19 之間
