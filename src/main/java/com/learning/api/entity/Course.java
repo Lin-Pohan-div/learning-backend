@@ -13,7 +13,7 @@ public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tutor_id", nullable = false)
     private Tutor tutor;
@@ -25,9 +25,9 @@ public class Course {
      * 科目代碼：
      * 年級課程 — 11: 低年級, 12: 中年級, 13: 高年級
      * 檢定升學 — 21: GEPT, 22: YLE, 23: 國中先修
-     * 其他     — 31: 其他
+     * 其他 — 31: 其他
      */
-    
+
     @Column(nullable = false)
     private Integer subject;
 

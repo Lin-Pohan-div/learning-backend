@@ -19,7 +19,7 @@ public class CourseSpec {
             List<Predicate> predicates = new ArrayList<>();
 
             // 1. 強制過濾：只顯示上架課程
-            predicates.add(builder.equal(root.get("active"), 1));
+            predicates.add(builder.equal(root.get("isActive"), true));
 
             // 2. 老師姓名模糊搜尋 (Join User 表)
             if (teacherName != null && !teacherName.isEmpty()) {
