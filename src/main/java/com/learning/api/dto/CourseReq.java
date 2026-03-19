@@ -10,5 +10,5 @@ public class CourseReq {
     private Integer subject; // 科目代碼 11~31
     private String description; // 課程介紹
     private Integer price; // 單堂價格
-    private Boolean active; // true=上架 / false=下架
+    private Boolean isActive; // true=上架 / false=下架
 }

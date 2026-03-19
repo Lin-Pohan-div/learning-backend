@@ -6,6 +6,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
+/* 
+-------公開讀取內容--------給學生看的老師個人頁面-----------
+ */
 public class TutorProfileDTO {
     private String name;
     private String headline; // 對應 tutor.title

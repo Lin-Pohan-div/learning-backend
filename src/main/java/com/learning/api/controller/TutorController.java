@@ -22,7 +22,7 @@ import com.learning.api.entity.TutorSchedule;
 import com.learning.api.service.TutorService;
 
 @RestController
-@RequestMapping("api/tutor")
+@RequestMapping("api/view/tutor")
 @CrossOrigin(origins = "http://localhost:5173")
 public class TutorController {
 

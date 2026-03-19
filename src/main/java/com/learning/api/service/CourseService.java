@@ -53,7 +53,7 @@ public class CourseService {
         course.setSubject(dto.getSubject());
         course.setDescription(dto.getDescription());
         course.setPrice(dto.getPrice());
-        course.setIsActive(dto.getActive() != null ? dto.getActive() : true);
+        course.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
 
         return toDTO(courseRepo.save(course));
     }
@@ -69,7 +69,7 @@ public class CourseService {
         if (dto.getSubject()     != null) course.setSubject(dto.getSubject());
         if (dto.getDescription() != null) course.setDescription(dto.getDescription());
         if (dto.getPrice()       != null) course.setPrice(dto.getPrice());
-        if (dto.getActive()      != null) course.setIsActive(dto.getActive());
+        if (dto.getIsActive()      != null) course.setIsActive(dto.getIsActive());
 
         return toDTO(courseRepo.save(course));
     }
