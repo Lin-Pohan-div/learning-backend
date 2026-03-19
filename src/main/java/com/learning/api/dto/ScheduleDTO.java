@@ -1,5 +1,7 @@
 package com.learning.api.dto;
 
+import java.util.List;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,5 +30,21 @@ public class ScheduleDTO {
             this.hour = hour;
             this.isAvailable = isAvailable;
         }
+    }
+
+    // 🔥 批次操作
+    @Getter
+    @Setter
+    public static class BatchToggleReq {
+        private Long tutorId;
+        private List<Slot> slots;
+    }
+
+    @Getter
+    @Setter
+    public static class Slot {
+        private Integer weekday;
+        private Integer hour;
+        private Boolean isAvailable;
     }
 }
