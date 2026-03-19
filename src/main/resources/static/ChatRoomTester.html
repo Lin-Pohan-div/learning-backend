@@ -255,6 +255,33 @@
     .log-line.out { color: #68d391; }
     .log-line.sys { color: #b794f4; }
     .log-line.err { color: #fc8181; }
+
+    /* ── link preview card ── */
+    .link-preview {
+      margin-top: 8px; border-radius: 10px; overflow: hidden;
+      border: 1px solid #2d3748; max-width: 300px;
+      background: #1a1d2e; cursor: pointer; display: block;
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .link-preview:hover { border-color: #4299e1; }
+    .link-preview-thumb { width: 100%; max-height: 160px; object-fit: cover; display: block; background: #0f1117; }
+    .link-preview-thumb.yt { aspect-ratio: 16/9; }
+    .link-preview-meta { padding: 8px 10px; }
+    .link-preview-title {
+      font-size: 12px; font-weight: 600; color: #e2e8f0;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px;
+    }
+    .link-preview-desc {
+      font-size: 11px; color: #718096;
+      display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .link-preview-domain { font-size: 10px; color: #4a5568; margin-top: 4px; }
+    .inline-img-preview {
+      margin-top: 6px; max-width: 300px; max-height: 200px;
+      border-radius: 8px; display: block; object-fit: cover;
+      cursor: pointer; transition: opacity 0.2s;
+    }
+    .inline-img-preview:hover { opacity: 0.85; }
   </style>
 </head>
 <body>
@@ -582,19 +609,122 @@ const LINKIFY_RE = /(https?:\/\/[^\s<]+)/gi;
 
 function linkifyText(text, container) {
   const parts = text.split(LINKIFY_RE);
+  let firstUrl = null;
   for (const part of parts) {
+    LINKIFY_RE.lastIndex = 0;
     if (LINKIFY_RE.test(part)) {
+      LINKIFY_RE.lastIndex = 0;
       const a = document.createElement('a');
       a.href = part;
       a.textContent = part;
       a.target = '_blank';
       a.rel = 'noopener noreferrer';
       container.appendChild(a);
+      if (!firstUrl) firstUrl = part;
     } else if (part) {
       container.appendChild(document.createTextNode(part));
     }
     LINKIFY_RE.lastIndex = 0;
   }
+  if (firstUrl) appendUrlPreview(firstUrl, container);
+}
+
+// ─────────────────────────────────────────────
+// URL 預覽卡片
+// ─────────────────────────────────────────────
+const YT_RE      = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/;
+const IMG_URL_RE = /\.(jpe?g|png|gif|webp)(\?[^\s]*)?$/i;
+
+function extractYouTubeId(url) { const m = YT_RE.exec(url); return m ? m[1] : null; }
+function isDirectImageUrl(url) { return IMG_URL_RE.test(url); }
+
+function buildYouTubePreview(url, videoId) {
+  const a = document.createElement('a');
+  a.className = 'link-preview';
+  a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+
+  const img = document.createElement('img');
+  img.className = 'link-preview-thumb yt';
+  img.alt = 'YouTube thumbnail';
+  img.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+  img.onerror = function() { this.closest('.link-preview').remove(); };
+
+  const meta = document.createElement('div');
+  meta.className = 'link-preview-meta';
+  const domain = document.createElement('div');
+  domain.className = 'link-preview-domain';
+  domain.textContent = 'youtube.com';
+  meta.appendChild(domain);
+
+  a.append(img, meta);
+  return a;
+}
+
+function buildInlineImagePreview(url) {
+  const img = document.createElement('img');
+  img.className = 'inline-img-preview';
+  img.alt = '圖片預覽'; img.title = '點擊查看原圖'; img.src = url;
+  img.onerror = function() { this.remove(); };
+  img.addEventListener('click', () => window.open(url, '_blank'));
+  return img;
+}
+
+const previewCache = new Map();
+
+async function buildGenericPreview(url) {
+  try {
+    let data = previewCache.get(url);
+    if (!data) {
+      const res = await fetch(`/api/linkPreview?url=${encodeURIComponent(url)}`);
+      if (!res.ok) return null;
+      data = await res.json();
+      previewCache.set(url, data);
+    }
+    if (!data.title) return null;
+
+    const a = document.createElement('a');
+    a.className = 'link-preview';
+    a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+
+    if (data.imageUrl) {
+      const img = document.createElement('img');
+      img.className = 'link-preview-thumb';
+      img.src = data.imageUrl;
+      img.onerror = function() { this.remove(); };
+      a.appendChild(img);
+    }
+
+    const meta = document.createElement('div');
+    meta.className = 'link-preview-meta';
+
+    const title = document.createElement('div');
+    title.className = 'link-preview-title';
+    title.textContent = data.title;
+    meta.appendChild(title);
+
+    if (data.description) {
+      const desc = document.createElement('div');
+      desc.className = 'link-preview-desc';
+      desc.textContent = data.description;
+      meta.appendChild(desc);
+    }
+
+    const domain = document.createElement('div');
+    domain.className = 'link-preview-domain';
+    try { domain.textContent = new URL(url).hostname; } catch(_) { domain.textContent = url; }
+    meta.appendChild(domain);
+
+    a.appendChild(meta);
+    return a;
+  } catch(_) { return null; }
+}
+
+async function appendUrlPreview(url, container) {
+  const ytId = extractYouTubeId(url);
+  if (ytId) { container.appendChild(buildYouTubePreview(url, ytId)); return; }
+  if (isDirectImageUrl(url)) { container.appendChild(buildInlineImagePreview(url)); return; }
+  const card = await buildGenericPreview(url);
+  if (card) container.appendChild(card);
 }
 
 function createMediaElement(msg) {

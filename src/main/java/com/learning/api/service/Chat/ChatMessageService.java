@@ -1,4 +1,4 @@
-package com.learning.api.service;
+package com.learning.api.service.Chat;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

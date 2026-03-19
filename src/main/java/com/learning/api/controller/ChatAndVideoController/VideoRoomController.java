@@ -1,15 +1,14 @@
-package com.learning.api.controller;
+package com.learning.api.controller.ChatAndVideoController;
 
-import com.learning.api.dto.ChatMessageRequest;
-import com.learning.api.dto.SignalingMessage;
+import com.learning.api.dto.ChatRoom.ChatMessageRequest;
 import com.learning.api.dto.videoroom.RoomError;
 import com.learning.api.dto.videoroom.RoomEvent;
+import com.learning.api.dto.videoroom.SignalingMessage;
 import com.learning.api.entity.Booking;
 import com.learning.api.entity.ChatMessage;
 import com.learning.api.enums.MessageType;
 import com.learning.api.repo.BookingRepo;
-import com.learning.api.service.ChatMessageService;
-import com.learning.api.service.RoomService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -23,6 +22,8 @@ import java.time.Instant;
 import java.util.Optional;
 
 import com.learning.api.security.SecurityUser;
+import com.learning.api.service.Chat.ChatMessageService;
+import com.learning.api.service.Chat.RoomService;
 
 @Controller
 @RequiredArgsConstructor

@@ -1,4 +1,4 @@
-package com.learning.api.service;
+package com.learning.api.service.Chat;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;

@@ -1,4 +1,4 @@
-package com.learning.api.controller;
+package com.learning.api.controller.ChatAndVideoController;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
@@ -10,11 +10,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.learning.api.dto.ChatMessageRequest;
+import com.learning.api.dto.ChatRoom.ChatMessageRequest;
 import com.learning.api.entity.ChatMessage;
 import com.learning.api.enums.MessageType;
-import com.learning.api.service.ChatMessageService;
-import com.learning.api.service.FileStorageService;
+import com.learning.api.service.Chat.ChatMessageService;
+import com.learning.api.service.Chat.FileStorageService;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;

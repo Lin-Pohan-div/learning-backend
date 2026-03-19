@@ -1,4 +1,4 @@
-package com.learning.api.service;
+package com.learning.api.service.Chat;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
