@@ -99,8 +99,8 @@ public String batchToggleWithToken (ScheduleDTO.BatchToggleReq req, String token
     Long tokenUserId = jwtService.userId(token);
 
     // 只允許老師操作自己的課表
-    if (!"TEACHER".equalsIgnoreCase(role)) {
-        return "權限不足：只有老師可以操作。";
+    if (!"TUTOR".equalsIgnoreCase(role)) {
+        return "不是老師無法操作";
     }
 
     for (ScheduleDTO.Slot slot : req.getSlots()) {

@@ -34,9 +34,19 @@ public class TutorScheduleController {
     //     return ResponseEntity.ok(Map.of("msg", "時段狀態已更新"));
     // }
 
-     @PostMapping("/batch-toggle")
-    public ResponseEntity<?> batchToggle(@RequestBody ScheduleDTO.BatchToggleReq req) {
+     @PostMapping("batch-toggle")
+    public ResponseEntity<?> batchToggle(@RequestBody ScheduleDTO.BatchToggleReq req , @RequestHeader("Authorization") String token) {
         String result= scheduleService.batchToggle(req);
+        if (!"success".equals(result)) {
+            // 如果失敗 (例如時間格式錯誤)，回傳 400 錯誤與訊息
+            return ResponseEntity.badRequest().body(Map.of("msg", result));
+        }
+        return ResponseEntity.ok(Map.of("msg", "批次更新成功"));
+    }
+
+    @PostMapping("me/batch-toggle")
+    public ResponseEntity<?> batchToggleWithToken(@RequestBody ScheduleDTO.BatchToggleReq req , @RequestHeader("Authorization") String token) {
+        String result= scheduleService.batchToggleWithToken(req, token);
         if (!"success".equals(result)) {
             // 如果失敗 (例如時間格式錯誤)，回傳 400 錯誤與訊息
             return ResponseEntity.badRequest().body(Map.of("msg", result));
