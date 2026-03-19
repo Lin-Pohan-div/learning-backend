@@ -23,6 +23,7 @@ INSERT INTO `users` (`id`, `name`, `email`, `password`, `birthday`, `role`, `wal
 (9,  '劉佳慧', 'jiahui@example.com', '$2a$10$3XT3q7wUNnc8g6aNX6TbkOfs2uI9bUjh/sAxHj2QeTyufUVPV6O.W', '1995-12-20', 2, 3800, '2025-10-10 11:00:00', '2026-03-16 08:00:00'),
 -- 管理者 (id 10) password="admin@2025"
 (10, '系統管理員', 'admin@learning.com', '$2a$10$qpsYfQy7iGzJR5t1j3Gbn.ZFdbHIQyhzin0Xhv9zDj4v66AZ7bUk.', NULL, 3, 0, '2025-07-01 00:00:00', '2025-07-01 00:00:00');
+>>>>>>>>> Temporary merge branch 2
 
 -- ============================================================
 -- tutors (id 對應 users.id，status: 1=pending 2=qualified 3=停權)
