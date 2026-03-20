@@ -1,69 +1,99 @@
 package com.learning.api.service.Chat;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Set;
 import java.util.UUID;
 
 @Service
 public class FileStorageService {
 
-    private static final Set<String> IMAGE_TYPES = Set.of("image/jpeg", "image/png", "image/gif", "image/webp");
-    private static final Set<String> VIDEO_TYPES = Set.of("video/mp4", "video/webm", "video/quicktime");
-    private static final Set<String> AUDIO_TYPES = Set.of("audio/mpeg", "audio/wav", "audio/ogg", "audio/webm");
+    @Value("${file.upload-dir}")
+    private String uploadDir;
 
-    private static final Set<String> ALLOWED_EXTENSIONS = Set.of(
-        ".jpg", ".jpeg", ".png", ".gif", ".webp",
-        ".mp4", ".webm", ".mov",
-        ".mp3", ".wav", ".ogg",
-        ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".txt"
+    @Value("${file.base-url}")
+    private String baseUrl;
+
+    private static final Set<String> IMAGE_TYPES = Set.of(
+        "image/jpeg", "image/png", "image/gif", "image/webp"
+    );
+    private static final Set<String> VIDEO_TYPES = Set.of(
+        "video/mp4", "video/webm", "video/quicktime"
+    );
+    private static final Set<String> AUDIO_TYPES = Set.of(
+        "audio/mpeg", "audio/wav", "audio/ogg", "audio/webm"
     );
 
-    private final Path uploadDir;
+    /**
+     * 通用儲存邏輯
+     * @param file   檔案
+     * @param subDir 子目錄 (例如 "avatars", "chat", "videos")
+     * @return 完整的可存取 URL
+     */
+    public String store(MultipartFile file, String subDir) {
+        if (file.isEmpty()) throw new IllegalArgumentException("檔案不可為空");
 
-    public FileStorageService(@Value("${file.upload-dir:uploads}") String uploadDir) {
-        this.uploadDir = Paths.get(uploadDir).toAbsolutePath().normalize();
-        try {
-            Files.createDirectories(this.uploadDir);
-        } catch (IOException e) {
-            throw new RuntimeException("無法建立上傳目錄: " + this.uploadDir, e);
-        }
-    }
-
-    public String store(MultipartFile file) throws IOException {
-        String original = file.getOriginalFilename();
-        String ext = "";
-        if (original != null && original.contains(".")) {
-            ext = original.substring(original.lastIndexOf('.')).toLowerCase();
-        }
-        if (ext.isEmpty() || !ALLOWED_EXTENSIONS.contains(ext)) {
-            throw new IllegalArgumentException("不允許的檔案類型: " + (ext.isEmpty() ? "(無副檔名)" : ext));
-        }
+        // 1. 取得副檔名並生成唯一檔名
+        String originalFilename = file.getOriginalFilename();
+        String ext = (originalFilename != null && originalFilename.contains("."))
+            ? originalFilename.substring(originalFilename.lastIndexOf("."))
+            : "";
         String filename = UUID.randomUUID() + ext;
-        Path target = uploadDir.resolve(filename);
-        file.transferTo(target.toFile());
-        return "/uploads/" + filename;
-    }
 
-    public Resource loadAsResource(String filename) throws MalformedURLException {
-        Path file = uploadDir.resolve(filename).normalize();
-        if (!file.startsWith(uploadDir)) {
-            throw new SecurityException("非法的檔案路徑");
+        // 2. 建立目錄
+        Path targetDir = Paths.get(uploadDir, subDir);
+        try {
+            Files.createDirectories(targetDir);
+
+            // 3. 儲存檔案
+            Path targetPath = targetDir.resolve(filename);
+            Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new RuntimeException("檔案儲存失敗", e);
         }
-        return new UrlResource(file.toUri());
+
+        // 4. 回傳統一格式的 URL
+        return baseUrl + "/uploads/" + subDir + "/" + filename;
     }
 
     /**
-     * 根據檔案的 Content-Type 推斷 messageType：4=IMAGE, 5=VIDEO, 3=VOICE, 6=FILE
+     * 專門給老師個人檔案用的輔助方法
+     */
+    public String saveImage(MultipartFile file) {
+        validateType(file, IMAGE_TYPES);
+        return store(file, "images");
+    }
+
+    public String saveVideo(MultipartFile file) {
+        validateType(file, VIDEO_TYPES);
+        return store(file, "videos");
+    }
+
+    /**
+     * 刪除實體檔案（用於更新個人資料時清理舊圖）
+     */
+    public void deleteFileByUrl(String fileUrl) {
+        if (fileUrl == null || !fileUrl.contains("/uploads/")) return;
+        try {
+            // 從 URL 反推磁碟路徑
+            String relativePath = fileUrl.substring(fileUrl.indexOf("/uploads/") + 9);
+            Path filePath = Paths.get(uploadDir, relativePath);
+            Files.deleteIfExists(filePath);
+        } catch (IOException e) {
+            System.err.println("刪除舊檔案失敗: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 根據檔案的 Content-Type 推斷 messageType
+     * 4=IMAGE, 5=VIDEO, 3=VOICE, 6=FILE
      */
     public int detectMessageType(MultipartFile file) {
         String contentType = file.getContentType();
@@ -72,5 +102,25 @@ public class FileStorageService {
         if (VIDEO_TYPES.contains(contentType)) return 5;
         if (AUDIO_TYPES.contains(contentType)) return 3;
         return 6;
+    }
+
+    /**
+     * 載入檔案資源（供下載使用）
+     */
+    public org.springframework.core.io.Resource loadAsResource(String filename) {
+        try {
+            Path file = Paths.get(uploadDir).resolve(filename).normalize();
+            return new org.springframework.core.io.UrlResource(file.toUri());
+        } catch (java.net.MalformedURLException e) {
+            throw new RuntimeException("無法載入檔案: " + filename, e);
+        }
+    }
+
+    // ── 私有輔助方法 ──────────────────────────────────────────────────
+
+    private void validateType(MultipartFile file, Set<String> allowed) {
+        if (!allowed.contains(file.getContentType())) {
+            throw new IllegalArgumentException("不支援的格式: " + file.getContentType());
+        }
     }
 }
