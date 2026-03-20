@@ -60,9 +60,6 @@ public class EmailService {
         	          dto.getTutorEmail(), 
         	          e.getMessage());
 
-            // 不 throw exception
-            // API 仍然會正常回傳
-
         }
     }
     
