@@ -1,15 +1,14 @@
-package com.learning.api.controller;
+package com.learning.api.controller.ChatAndVideoController;
 
-import com.learning.api.dto.ChatMessageRequest;
-import com.learning.api.dto.SignalingMessage;
+import com.learning.api.dto.ChatRoom.ChatMessageRequest;
 import com.learning.api.dto.videoroom.RoomError;
 import com.learning.api.dto.videoroom.RoomEvent;
+import com.learning.api.dto.videoroom.SignalingMessage;
 import com.learning.api.entity.Booking;
 import com.learning.api.entity.ChatMessage;
 import com.learning.api.enums.MessageType;
 import com.learning.api.repo.BookingRepo;
-import com.learning.api.service.ChatMessageService;
-import com.learning.api.service.RoomService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -23,6 +22,8 @@ import java.time.Instant;
 import java.util.Optional;
 
 import com.learning.api.security.SecurityUser;
+import com.learning.api.service.Chat.ChatMessageService;
+import com.learning.api.service.Chat.RoomService;
 
 @Controller
 @RequiredArgsConstructor
@@ -54,7 +55,8 @@ public class VideoRoomController {
                      ChatMessageRequest request,
                      SimpMessageHeaderAccessor accessor) {
         try {
-            if (!validateBookingAndRole(bookingId, parseRole(request.getRole()), accessor)) return;
+            Integer roleNum = parseRole(request.getRole());
+            if (!validateBookingAndRole(bookingId, roleNum, accessor)) return;
 
             int typeValue = request.getMessageType() != null
                     ? request.getMessageType()
@@ -62,7 +64,7 @@ public class VideoRoomController {
 
             ChatMessage saved = chatMessageService.save(
                     bookingId,
-                    request.getRole(),
+                    normalizeRole(request.getRole()),
                     typeValue,
                     request.getMessage(),
                     request.getMediaUrl()
@@ -109,6 +111,13 @@ public class VideoRoomController {
      */
     private boolean validateBookingAndRole(Long bookingId, Integer role, SimpMessageHeaderAccessor accessor) {
         String sessionId = accessor.getSessionId();
+        Long userId = resolveUserId(accessor);
+
+        // 0. 必須有 JWT userId
+        if (userId == null) {
+            sendError(bookingId, sessionId, "UNAUTHORIZED", "未登入或 JWT 無效，無法進入房間");
+            return false;
+        }
 
         // 1. bookingId 存在
         Optional<Booking> bookingOpt = bookingRepo.findById(bookingId);
@@ -132,13 +141,29 @@ public class VideoRoomController {
             return false;
         }
 
+        // 4. JWT userId 必須符合 booking 中對應角色的使用者
+        Booking booking = bookingOpt.get();
+        boolean isOwner = (role == 1)
+                ? userId.equals(booking.getStudentId())
+                : userId.equals(booking.getTutorId());
+        if (!isOwner) {
+            sendError(bookingId, sessionId, "UNAUTHORIZED", "您無權進入此房間");
+            return false;
+        }
+
         return true;
     }
 
     private Integer parseRole(String role) {
-        if ("student".equals(role)) return 1;
-        if ("tutor".equals(role)) return 2;
+        if ("student".equals(role) || "1".equals(role)) return 1;
+        if ("tutor".equals(role)   || "2".equals(role)) return 2;
         return null;
+    }
+
+    private String normalizeRole(String role) {
+        Integer num = parseRole(role);
+        if (num == null) return role;
+        return num == 1 ? "student" : "tutor";
     }
 
     /**

@@ -43,9 +43,9 @@ public class SecurityConfig {
 
                                 .requestMatchers("/api/view/**").permitAll()
 
-                                .requestMatchers("/api/tutor/**").permitAll()
-
                                 // 只有老師身份可以登入
+                                .requestMatchers("/api/tutor/me/**").hasRole("TUTOR")
+                                
                                 .requestMatchers("/api/tutor/**").hasRole("TUTOR")
 
                                 .requestMatchers("/api/student/**").hasRole("STUDENT")

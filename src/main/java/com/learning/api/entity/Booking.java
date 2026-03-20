@@ -18,7 +18,6 @@ public class Booking {
     @Column(name = "order_id", nullable = false)
     private Long orderId;
     
- 
     @Column(name = "tutor_id", nullable = false)
     private Long tutorId;
 

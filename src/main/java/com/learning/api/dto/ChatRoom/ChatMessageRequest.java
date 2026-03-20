@@ -1,4 +1,4 @@
-package com.learning.api.dto;
+package com.learning.api.dto.ChatRoom;
 
 import lombok.Data;
 

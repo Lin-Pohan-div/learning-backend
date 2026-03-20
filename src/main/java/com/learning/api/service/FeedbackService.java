@@ -1,9 +1,20 @@
 package com.learning.api.service;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import com.learning.api.dto.FeedbackEmailDTO;
+import com.learning.api.entity.Booking;
+import com.learning.api.entity.Course;
 import com.learning.api.entity.Feedback;
+import com.learning.api.entity.Order;
+import com.learning.api.entity.User;
+import com.learning.api.repo.BookingRepo;
+import com.learning.api.repo.CourseRepo;
 import com.learning.api.repo.FeedbackRepository;
+import com.learning.api.repo.OrderRepository;
+import com.learning.api.repo.UserRepo;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,7 +22,14 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class FeedbackService {
 
+    private static final Logger log = LoggerFactory.getLogger(FeedbackService.class);
+
     private final FeedbackRepository lessonFeedbackRepository;
+    private final BookingRepo bookingRepo;
+    private final UserRepo userRepo;
+    private final OrderRepository orderRepository;
+    private final CourseRepo courseRepo;
+    private final EmailService emailService;
 
     private static final int MIN_SCORE = 1;
     private static final int MAX_SCORE = 5;
@@ -36,7 +54,52 @@ public class FeedbackService {
 
     public Feedback save(Feedback feedback) {
         validate(feedback);
-        return lessonFeedbackRepository.save(feedback);
+        Feedback saved = lessonFeedbackRepository.save(feedback);
+        buildAndSendFeedbackEmail(saved);
+        return saved;
+    }
+
+    private void buildAndSendFeedbackEmail(Feedback saved) {
+        // Step 1: 查 Booking（需要 date, hour, studentId, tutorId, orderId）
+        Booking booking = bookingRepo.findById(saved.getBookingId()).orElse(null);
+        if (booking == null) {
+            log.warn("Feedback email 略過：找不到 booking，bookingId={}", saved.getBookingId());
+            return;
+        }
+
+        // Step 2: 查 Student（需要 email, name）
+        User student = userRepo.findById(booking.getStudentId()).orElse(null);
+        // Step 3: 查 Tutor（只需要 name，Tutor.id = User.id）
+        User tutor = userRepo.findById(booking.getTutorId()).orElse(null);
+        // Step 4: 查 Order（需要 courseId）
+        Order order = orderRepository.findById(booking.getOrderId()).orElse(null);
+        if (student == null || tutor == null || order == null) {
+            log.warn("Feedback email 略過：缺少相關資料，bookingId={}", booking.getId());
+            return;
+        }
+
+        // Step 5: 查 Course（需要 name）
+        Course course = courseRepo.findById(order.getCourseId()).orElse(null);
+        if (course == null) {
+            log.warn("Feedback email 略過：找不到課程，courseId={}", order.getCourseId());
+            return;
+        }
+
+        // Step 6: 組裝 FeedbackEmailDTO（comment 可為 null，轉為空字串）
+        FeedbackEmailDTO dto = new FeedbackEmailDTO();
+        dto.setStudentEmail(student.getEmail());
+        dto.setStudentName(student.getName());
+        dto.setTutorName(tutor.getName());
+        dto.setCourseName(course.getName());
+        dto.setDate(booking.getDate());
+        dto.setHour(booking.getHour());
+        dto.setFocusScore(saved.getFocusScore());
+        dto.setComprehensionScore(saved.getComprehensionScore());
+        dto.setConfidenceScore(saved.getConfidenceScore());
+        dto.setComment(saved.getComment() != null ? saved.getComment() : "");
+
+        // Step 7: 呼叫現有的 sendFeedbackEmail（內部已有 try-catch）
+        emailService.sendFeedbackEmail(dto);
     }
 
     public Optional<Feedback> update(Long id, Feedback updated) {
@@ -68,7 +131,6 @@ public class FeedbackService {
             throw new IllegalArgumentException("評論不能超過 " + MAX_COMMENT_LENGTH + " 個字元");
         }
     }
-
     private void validateScore(String fieldName, Integer score) {
         if (score == null) {
             throw new IllegalArgumentException(fieldName + "不能為空");

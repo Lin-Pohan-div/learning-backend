@@ -66,9 +66,6 @@ public class EmailService {
         	          dto.getTutorEmail(), 
         	          e.getMessage());
 
-            // 不 throw exception
-            // API 仍然會正常回傳
-
         }
     }
     
@@ -91,7 +88,7 @@ public class EmailService {
 
         } catch (Exception e) {
 
-            log.error("Feedback Email 發送失敗 email={}", dto.getStudentEmail(), e.getMessage());
+            log.error("Feedback Email 發送失敗 email={}", dto.getStudentEmail(), e);
 
         }
 

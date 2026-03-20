@@ -15,5 +15,7 @@ public interface BookingRepo extends JpaRepository<Booking, Long> {
      */
     Optional<Booking> findByTutorIdAndDateAndHourAndSlotLockedTrue(Long tutorId, LocalDate date, Integer hour);
 
+    Optional<Booking> findByStudentIdAndDateAndHourAndSlotLockedTrue(Long studentId, LocalDate date, Integer hour);
+
     List<Booking> findByTutorId(Long tutorId);
 }

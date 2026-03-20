@@ -25,12 +25,12 @@ public class AuthService {
     public LoginResp loginReq(LoginReq loginReq){
         // 查人
         User user = memberRepo.findByEmail(loginReq.getEmail()).orElse(null);
-        if (user == null) throw new IllegalArgumentException("帳號或密碼錯誤1");
+        if (user == null) throw new IllegalArgumentException("帳號或密碼錯誤");
 
         // 查密碼
         boolean isU = passwordEncoder.matches(loginReq.getPassword(), user.getPassword());
         if (!isU) {
-            throw new IllegalArgumentException("帳號或密碼錯誤2");
+            throw new IllegalArgumentException("帳號或密碼錯誤");
         }
 
         String token = jwtService.generateToken(user);

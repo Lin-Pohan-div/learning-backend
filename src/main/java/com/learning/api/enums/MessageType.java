@@ -5,7 +5,8 @@ public enum MessageType {
     STICKER(2),
     VOICE(3),
     IMAGE(4),
-    VIDEO(5);
+    VIDEO(5),
+    FILE(6);
 
     private final int value;
 

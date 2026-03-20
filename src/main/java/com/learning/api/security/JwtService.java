@@ -56,7 +56,9 @@ public class JwtService {
     public String email(String token) {
         return parseToken(token).getSubject();
     }
-
+    public Long userId(String token){
+        return parseToken(token).get("userId", Long.class);
+    }
     // role
     public String role(String token){
         return parseToken(token).get("role", String.class);
