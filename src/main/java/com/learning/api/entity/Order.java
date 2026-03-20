@@ -30,7 +30,7 @@ public class Order {
     @Column(name = "lesson_used", nullable = false)
     private Integer lessonUsed;
 
-    @Column(name = "is_experienced", nullable = false)
+    @Column(name = "is_experienced", nullable = true)
     private Integer isExperienced;
     
     @Column(name = "status", nullable = false)

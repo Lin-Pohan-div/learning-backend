@@ -6,6 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,14 +15,24 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.WebSocket.util.EcpayUtil;
 import com.learning.api.dto.EcpayReturnDto;
+import com.learning.api.entity.User;
+import com.learning.api.repo.UserRepo;
+import com.learning.api.security.JwtService;
 import com.learning.api.service.WalletLogsService;
 
+import jakarta.servlet.http.HttpServletRequest;
+
+
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/api/ecpay")
 public class EcpayController {
-
+	@Autowired
+	private JwtService jwtService;
 	@Autowired
     private WalletLogsService walletLogsService;
+	@Autowired
+	private UserRepo userRepo;
 	
     private final String MERCHANT_ID = "3002607";
     private final String HASH_KEY = "pwFHCqoQZGmho4w6";
@@ -32,9 +44,23 @@ public class EcpayController {
     // =========================
     // 付款入口
     // =========================
-    @PostMapping("/pay")
-    public String pay(@RequestParam("ecpayprice") String ecpayprice,@RequestParam("userId") String userId) throws Exception {
 
+    
+    @PostMapping("/pay")
+    public String pay(@RequestParam String ecpayprice, HttpServletRequest request) throws Exception {
+    	String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("No token");
+        }
+        String token = authHeader.substring(7);
+        String email = jwtService.email(token); // 從 token 拿 email
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Long userId = user.getId(); // 正確的使用者ID
+        System.out.println("價格: " + ecpayprice);
+        System.out.println("userId: " + userId);
+    	
         Map<String, String> params = new LinkedHashMap<>();
 
         params.put("CustomField1", String.valueOf(userId));
