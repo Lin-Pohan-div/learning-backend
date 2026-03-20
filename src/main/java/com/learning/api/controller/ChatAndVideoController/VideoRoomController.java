@@ -111,6 +111,13 @@ public class VideoRoomController {
      */
     private boolean validateBookingAndRole(Long bookingId, Integer role, SimpMessageHeaderAccessor accessor) {
         String sessionId = accessor.getSessionId();
+        Long userId = resolveUserId(accessor);
+
+        // 0. 必須有 JWT userId
+        if (userId == null) {
+            sendError(bookingId, sessionId, "UNAUTHORIZED", "未登入或 JWT 無效，無法進入房間");
+            return false;
+        }
 
         // 1. bookingId 存在
         Optional<Booking> bookingOpt = bookingRepo.findById(bookingId);
@@ -131,6 +138,16 @@ public class VideoRoomController {
         if (role == null || (role != 1 && role != 2)) {
             sendError(bookingId, sessionId, "INVALID_ROLE",
                     "role 必須為 1（學生）或 2（導師），收到: " + role);
+            return false;
+        }
+
+        // 4. JWT userId 必須符合 booking 中對應角色的使用者
+        Booking booking = bookingOpt.get();
+        boolean isOwner = (role == 1)
+                ? userId.equals(booking.getStudentId())
+                : userId.equals(booking.getTutorId());
+        if (!isOwner) {
+            sendError(bookingId, sessionId, "UNAUTHORIZED", "您無權進入此房間");
             return false;
         }
 
