@@ -47,7 +47,7 @@ CREATE TABLE `bookings` (
 CREATE TABLE `chat_messages` (
   `id` bigint(20) NOT NULL,
   `order_id` bigint(20) NOT NULL,
-  `role` tinyint(4) NOT NULL COMMENT '1=學生 2=老師',
+  `role` varchar(20) NOT NULL COMMENT 'student / tutor',
   `message` varchar(1000) NOT NULL,
   `message_type` tinyint(4) NOT NULL COMMENT '1.text 2sticker 貼圖',
   `media_url` varchar(500) DEFAULT NULL,

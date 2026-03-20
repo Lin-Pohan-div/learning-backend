@@ -59,7 +59,6 @@
             date = new Date(dateData[0], dateData[1] - 1, dateData[2]);
         } else {
             // 如果後端回傳 "2026-03-16"
-            // 使用 replace 避免 Safari/某些瀏覽器的時區偏好問題
             date = new Date(dateData.replace(/-/g, '/'));
         }
         const day = date.getDay();
@@ -89,7 +88,8 @@
 
             schedules.forEach(s => {
                 const el = document.getElementById(`slot-${s.weekday}-${s.hour}`);
-                if (el && s.status === 'available') {
+                // 🌟 修正 1：對齊後端的 isAvailable (布林值)
+                if (el && s.isAvailable) {
                     el.className = 'slot status-available';
                     el.innerText = '開放中';
                     el.dataset.type = 'template';
@@ -99,12 +99,10 @@
             // 3. 抓取實際預約 (Bookings)
             const resBook = await fetch(`/api/bookings/tutor/${tutorId}`);
             const bookings = await resBook.json();
-            log(`收到預約資料: ${JSON.stringify(bookings)}`);
+            log(`收到預約資料: 總共 ${bookings.length} 筆`);
 
             bookings.forEach(b => {
                 const weekday = getWeekdayFromData(b.date);
-                log(`預約分析: 原始日期資料 ${b.date} -> 解析為星期 ${weekday}, 時間 ${b.hour}:00`);
-
                 const el = document.getElementById(`slot-${weekday}-${b.hour}`);
                 if (el) {
                     el.className = 'slot status-booked';
@@ -130,15 +128,17 @@
         }
 
         const isNowAvailable = el.classList.contains('status-available');
-        const targetStatus = isNowAvailable ? 'inactive' : 'available';
+        // 🌟 修正 2：準備要傳給後端的布林值狀態
+        const targetIsAvailable = !isNowAvailable;
 
-        log(`要求切換狀態: 週${weekday} ${hour}:00 -> ${targetStatus}`);
+        log(`要求切換狀態: 週${weekday} ${hour}:00 -> ${targetIsAvailable ? '開放' : '休息'}`);
 
         try {
             const res = await fetch('/api/teacher/schedules/toggle', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ tutorId, weekday, hour, targetStatus })
+                // 🌟 修正 3：對齊 ToggleReq.java 裡的 isAvailable 變數名稱
+                body: JSON.stringify({ tutorId, weekday, hour, isAvailable: targetIsAvailable })
             });
 
             if (res.ok) {

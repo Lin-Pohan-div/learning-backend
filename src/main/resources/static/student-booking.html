@@ -29,7 +29,6 @@
     #buy-btn:hover:not(:disabled) { background: #2563eb; box-shadow: 0 6px 8px rgba(59, 130, 246, 0.4); }
     #buy-btn:disabled { background: #94a3b8; cursor: not-allowed; box-shadow: none; }
 
-    /* Loading 動畫 */
     .loading-spinner { display: none; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff; animation: spin 0.8s linear infinite; margin: 0 auto; }
     @keyframes spin { to { transform: rotate(360deg); } }
   </style>
@@ -100,20 +99,36 @@
       for (let h = 9; h <= 21; h++) {
         grid.innerHTML += `<div class="cell time-label">${h}:00</div>`;
         for (let d = 1; d <= 7; d++) {
-          const isAvailable = scheds.some(s => s.weekday === d && s.hour === h && s.status === 'available');
+          // 🌟 修正 1：對齊後端的 isAvailable (布林值)
+          const isAvailable = scheds.some(s =>
+                  s.weekday === d && s.hour === h && (s.isAvailable === true || s.status === 'available')
+          );
+
+          // 🌟 修正 2：改進預約檢查邏輯
           const isBooked = books.some(b => {
-            const date = Array.isArray(b.date) ? new Date(b.date[0], b.date[1]-1, b.date[2]) : new Date(b.date.replace(/-/g,'/'));
-            const w = date.getDay() === 0 ? 7 : date.getDay();
-            return w === d && b.hour === h;
+            let bDate;
+            if (Array.isArray(b.date)) {
+              // 處理 [2026, 3, 16] 格式
+              bDate = new Date(b.date[0], b.date[1]-1, b.date[2]);
+            } else {
+              bDate = new Date(b.date.replace(/-/g,'/'));
+            }
+            const w = bDate.getDay() === 0 ? 7 : bDate.getDay();
+            // 必須是同一個小時且該時段被鎖定 (slotLocked)
+            return w === d && b.hour === h && b.slotLocked === true;
           });
 
           let cls = 'slot-none', txt = '未開放', act = '';
           if (isAvailable) { cls = 'slot-available'; txt = '可預約'; act = `onclick="toggle(${d},${h})"`; }
           if (isBooked) { cls = 'slot-booked'; txt = '已滿🔥'; act = ''; }
+
           grid.innerHTML += `<div class="cell ${cls}" id="slot-${d}-${h}" ${act}>${txt}</div>`;
         }
       }
-    } catch (e) { document.getElementById('error-msg').innerText = "連線失敗，請重整頁面"; }
+    } catch (e) {
+      console.error(e);
+      document.getElementById('error-msg').innerText = "連線失敗，請重整頁面或確認後端服務";
+    }
   }
 
   function toggle(d, h) {
@@ -124,8 +139,12 @@
       el.innerText = '可預約';
     } else {
       const target = new Date();
+      // 計算下一個符合該星期幾的日期
       target.setDate(target.getDate() + (d + 7 - target.getDay()) % 7);
-      if (target <= new Date()) target.setDate(target.getDate() + 7);
+      // 如果推算出來是今天且時間已過，則推到下週
+      if (target <= new Date() || (target.toDateString() === new Date().toDateString() && h <= new Date().getHours())) {
+        target.setDate(target.getDate() + 7);
+      }
       selectedSlots.push({ weekday: d, hour: h, date: target.toISOString().split('T')[0] });
       el.classList.add('slot-selected');
       el.innerText = '已選取';
@@ -147,10 +166,17 @@
 
     document.getElementById('cart-list').innerHTML = selectedSlots.map(s => `<div>✅ 週${s.weekday} (${s.date}) <b>${s.hour}:00</b></div>`).join('');
 
+    // 🌟 修正 3：對齊後端 CheckoutService 的折扣邏輯 (5堂95折, 10堂9折)
     let total = count * config.price, final = total, tip = "";
-    if (count >= 10) { final = Math.floor(total * 0.9); tip = "🎉 已享 9 折！"; }
-    else if (count >= 5) { final = Math.floor(total * 0.95); tip = `🎉 已享 95 折！再選 ${10-count} 堂享 9 折`; }
-    else { tip = `💡 再選 ${5-count} 堂享 95 折`; }
+    if (count >= 10) {
+      final = Math.floor(total * 0.9);
+      tip = "🎉 已享 9 折大師優惠！";
+    } else if (count >= 5) {
+      final = Math.floor(total * 0.95);
+      tip = `🎉 已享 95 折！再選 ${10-count} 堂享 9 折`;
+    } else {
+      tip = `💡 再選 ${5-count} 堂享 95 折`;
+    }
 
     document.getElementById('display-total').innerHTML = final < total ? `<span style="text-decoration:line-through; font-size:14px; color:#94a3b8; margin-right:8px;">${total}</span>${final} 元` : `${final} 元`;
     document.getElementById('discount-tip').innerHTML = `<small style="color:#ef4444; font-weight:600;">${tip}</small>`;
@@ -165,12 +191,26 @@
       const res = await fetch('/api/shop/purchase', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId: 1, courseId: config.courseId, selectedSlots: selectedSlots.map(s => ({ date: s.date, hour: s.hour })) })
+        body: JSON.stringify({
+          // 🌟 修正 4：對齊測試資料庫中的土豪學生 ID
+          studentId: 9527,
+          courseId: config.courseId,
+          selectedSlots: selectedSlots.map(s => ({ date: s.date, hour: s.hour }))
+        })
       });
       const data = await res.json();
-      if (res.ok) { alert("🎉 預約成功！即將回到課程大廳。"); window.location.href = 'student-courses.html'; }
-      else { throw new Error(data.msg || "購買失敗"); }
-    } catch (e) { err.innerText = "❌ " + e.message; btn.disabled = false; txt.style.display = 'block'; spi.style.display = 'none'; }
+      if (res.ok) {
+        alert("🎉 購買成功！訂單已成立，即將跳轉。");
+        window.location.href = 'student-courses.html';
+      } else {
+        throw new Error(data.msg || "購買失敗");
+      }
+    } catch (e) {
+      err.innerText = "❌ " + e.message;
+      btn.disabled = false;
+      txt.style.display = 'block';
+      spi.style.display = 'none';
+    }
   }
 </script>
 </body>

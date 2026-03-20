@@ -18,8 +18,8 @@ public class ChatMessage {
     @Column(name = "order_id", nullable = false)
     private Long orderId;
 
-    @Column(nullable = false)
-    private Integer role; //1Student 2tutor
+    @Column(nullable = false, length = 255)
+    private String role; // student / tutor
 
     @Column(name = "message_type", nullable = false)
     private Integer messageType = 1; // 1=text, 2=sticker

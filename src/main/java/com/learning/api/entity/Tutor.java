@@ -28,7 +28,7 @@ public class Tutor {
     private User user;
 
     @Column(length = 50)
-    private String title;  // 吸睛標題，如「TESL認證英語教師」
+    private String title; // 吸睛標題，如「TESL認證英語教師」
 
     @Column(length = 500)
     private String avatar;
@@ -36,17 +36,17 @@ public class Tutor {
     @Column(length = 1000)
     private String intro; // 自我介紹
 
-    @Column(name ="certificate_1" ,length = 500)
-    private String certificate1;//位址
+    @Column(name = "certificate_1", length = 500)
+    private String certificate1;// 位址
 
-    @Column(name ="certificate_name_1" ,length = 500)
-    private String certificateName1;//證照名稱
+    @Column(name = "certificate_name_1", length = 500)
+    private String certificateName1;// 證照名稱
 
-    @Column(name ="certificate_2" ,length = 500)
-    private String certificate2;//位址
-    
-    @Column(name ="certificate_name_2" ,length = 500)
-    private String certificateName2;//證照名稱
+    @Column(name = "certificate_2", length = 500)
+    private String certificate2;// 位址
+
+    @Column(name = "certificate_name_2", length = 500)
+    private String certificateName2;// 證照名稱
 
     @Column(name = "video_url_1", length = 500)
     private String videoUrl1; // 自我介紹影片
@@ -59,8 +59,8 @@ public class Tutor {
 
     @Column(name = "bank_account", length = 20)
     private String bankAccount;
-    
-    //為了讓 CourseSpec 能順利從課程連動到課表
+
+    // 為了讓 CourseSpec 能順利從課程連動到課表
     @OneToMany(mappedBy = "tutor")
     private List<TutorSchedule> schedules;
     

@@ -226,6 +226,8 @@
     <input id="bookingId" type="number" value="1" min="1" style="width:100px;" />
     <span class="hint">兩個面板共用此 ID，模擬同一視訊房間</span>
     <input id="wsUrl" type="text" value="http://localhost:8080/ws" style="flex:1; max-width:300px;" placeholder="WebSocket URL" />
+    <label style="white-space:nowrap; color:#f6ad55; margin:0;">JWT Token</label>
+    <input id="jwtToken" type="text" style="flex:1; max-width:420px;" placeholder="貼入 Bearer token（呼叫 /api/auth/login 取得）" />
   </div>
 </div>
 
@@ -522,9 +524,12 @@ function connect(panel) {
 
   state[panel].client = client;
 
-  client.connect({}, () => {
+  const token = document.getElementById('jwtToken').value.trim();
+  const connectHeaders = token ? { Authorization: 'Bearer ' + token } : {};
+
+  client.connect(connectHeaders, () => {
     document.getElementById('dot' + panel).classList.add('connected');
-    log(panel, 'SYS', `已連線至 ${wsUrl()}`);
+    log(panel, 'SYS', `已連線至 ${wsUrl()}${token ? '（JWT 認證）' : '（無 JWT）'}`);
 
     const bid = bookingId();
 
@@ -545,6 +550,12 @@ function connect(panel) {
     client.subscribe(`/topic/room/${bid}/events`, (frame) => {
       const msg = JSON.parse(frame.body);
       log(panel, 'IN', `[event] type=${msg.type} role=${msg.role} ts=${msg.timestamp}`);
+    });
+
+    // 訂閱錯誤訊息
+    client.subscribe(`/topic/room/${bid}/errors`, (frame) => {
+      const msg = JSON.parse(frame.body);
+      log(panel, 'ERR', `[error] code=${msg.code} | ${msg.message}`);
     });
 
   }, (err) => {

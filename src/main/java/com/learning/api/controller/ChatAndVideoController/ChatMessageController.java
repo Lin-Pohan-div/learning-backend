@@ -1,15 +1,23 @@
-package com.learning.api.controller;
+package com.learning.api.controller.ChatAndVideoController;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.learning.api.dto.ChatMessageRequest;
+import com.learning.api.dto.ChatRoom.ChatMessageRequest;
 import com.learning.api.entity.ChatMessage;
 import com.learning.api.enums.MessageType;
-import com.learning.api.service.ChatMessageService;
+import com.learning.api.service.Chat.ChatMessageService;
+import com.learning.api.service.Chat.FileStorageService;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -20,10 +28,64 @@ import java.util.NoSuchElementException;
 public class ChatMessageController {
 
     private final ChatMessageService chatMessageService;
+    private final FileStorageService fileStorageService;
 
     @GetMapping("/booking/{bookingId}")
     public ResponseEntity<List<ChatMessage>> getByBookingId(@PathVariable Long bookingId) {
         return ResponseEntity.ok(chatMessageService.findByBookingId(bookingId));
+    }
+
+    @PostMapping("/upload")
+    public ResponseEntity<?> upload(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("bookingId") Long bookingId,
+            @RequestParam("role") String role,
+            @RequestParam(value = "message", required = false) String message) {
+        try {
+            if (file.isEmpty()) {
+                return ResponseEntity.badRequest().body(new ErrorResponse("檔案不能為空"));
+            }
+            String mediaUrl = fileStorageService.store(file);
+            int messageType = fileStorageService.detectMessageType(file);
+            String originalFileName = file.getOriginalFilename();
+            String textMessage = (message != null && !message.isBlank()) ? message : originalFileName;
+
+            ChatMessage chatMessage = chatMessageService.save(
+                    bookingId, role, messageType, textMessage, mediaUrl);
+            return ResponseEntity.status(HttpStatus.CREATED).body(chatMessage);
+
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse("錯誤: " + e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("上傳失敗: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/download/{filename:.+}")
+    public ResponseEntity<Resource> download(
+            @PathVariable String filename,
+            @RequestParam(value = "name", required = false) String originalName) {
+        try {
+            Resource resource = fileStorageService.loadAsResource(filename);
+            if (!resource.exists()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            String downloadName = (originalName != null && !originalName.isBlank())
+                    ? originalName : filename;
+            String encodedName = URLEncoder.encode(downloadName, StandardCharsets.UTF_8)
+                    .replace("+", "%20");
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=\"" + encodedName + "\"; filename*=UTF-8''" + encodedName)
+                    .body(resource);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping

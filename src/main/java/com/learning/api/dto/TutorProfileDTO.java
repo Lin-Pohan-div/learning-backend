@@ -1,23 +1,31 @@
 package com.learning.api.dto;
 
 import java.util.List;
-
-import com.learning.api.entity.Review;
-import com.learning.api.entity.TutorSchedule;
-
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+/* 
+-------公開讀取內容--------給學生看的老師個人頁面-----------
+ */
 public class TutorProfileDTO {
     private String name;
-    private String headline;
+    private String headline; // 對應 tutor.title
     private String avatar;
     private String intro;
-    private String certificate_name_1;
+
+    // 證照（位址 + 名稱，兩張）
+    private String certificate1;
+    private String certificateName1;
+    private String certificate2;
+    private String certificateName2;
+
+    // 影片（自我介紹 + 教學示範）
     private String videoUrl1;
-    private List<TutorSchedule> schedules;
-    private List<Review> reviews;
+    private String videoUrl2;
+
+    private List<TutorScheduleDTO> schedules;
+    private List<ReviewDTO> reviews;
     private Double averageRating;
 }

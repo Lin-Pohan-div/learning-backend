@@ -30,9 +30,10 @@ public class Order {
     @Column(name = "lesson_used", nullable = false)
     private Integer lessonUsed;
 
-    @Column(name = "is_experienced", nullable = true)
-    private Integer isExperienced;
-    
+    // 👉 修正：補上漏掉的 is_experienced 欄位
+    @Column(name = "is_experienced")
+    private Boolean isExperienced;
+
     @Column(name = "status", nullable = false)
     private Integer status; //1 pending 2deal 3complete
 }

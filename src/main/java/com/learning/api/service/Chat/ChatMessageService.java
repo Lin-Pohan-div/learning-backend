@@ -1,4 +1,4 @@
-package com.learning.api.service;
+package com.learning.api.service.Chat;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ public class ChatMessageService {
         return chatMessageRepository.findByBookingIdOrderByCreatedAtAsc(bookingId);
     }
 
-    public ChatMessage save(Long bookingId, Integer role, Integer messageTypeValue, String message, String mediaUrl) {
+    public ChatMessage save(Long bookingId, String role, Integer messageTypeValue, String message, String mediaUrl) {
         if (bookingId == null || bookingId <= 0) {
             throw new IllegalArgumentException("Booking ID 不能為空");
         }
@@ -38,6 +38,10 @@ public class ChatMessageService {
 
         if (type.isMedia()) {
             chatMessage.setMediaUrl(mediaUrl);
+            // 保存原始檔名到 message 欄位（用於下載時顯示正確檔名）
+            if (message != null && !message.isBlank()) {
+                chatMessage.setMessage(message);
+            }
         } else {
             chatMessage.setMessage(message);
         }
@@ -47,9 +51,9 @@ public class ChatMessageService {
 
     public Optional<ChatMessage> update(Long id, String message) {
         return chatMessageRepository.findById(id).map(existing -> {
-            if (message == null || message.trim().isEmpty()) {
+           /*  if (message == null || message.trim().isEmpty()) {
                 throw new IllegalArgumentException("消息內容不能為空");
-            }
+            } */
             existing.setMessage(message);
             return chatMessageRepository.save(existing);
         });

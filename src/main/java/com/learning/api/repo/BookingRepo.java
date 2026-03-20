@@ -10,8 +10,12 @@ public interface BookingRepo extends JpaRepository<Booking, Long> {
 
     /**
      * 防超賣核心查詢：
-     * 根據 老師ID、日期、小時，檢查是否已經存在預約紀錄。
+     * 根據 老師ID、日期、小時，檢查是否已經存在「且仍在鎖定中(slotLocked=true)」的預約紀錄。
+     * 若被取消 (slotLocked=null 或 false)，則不列入計算，允許新學生預約。
      */
-    Optional<Booking> findByTutorIdAndDateAndHour(Long tutorId, LocalDate date, Integer hour);
+    Optional<Booking> findByTutorIdAndDateAndHourAndSlotLockedTrue(Long tutorId, LocalDate date, Integer hour);
+
+    Optional<Booking> findByStudentIdAndDateAndHourAndSlotLockedTrue(Long studentId, LocalDate date, Integer hour);
+
     List<Booking> findByTutorId(Long tutorId);
 }
