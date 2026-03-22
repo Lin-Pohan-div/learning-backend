@@ -18,16 +18,6 @@ public class BookingController {
     @Autowired
     private BookingService bookingService;
 
-    @PostMapping
-    public ResponseEntity<?> sendBooking(@RequestBody BookingReq bookingReq){
-
-        if (!bookingService.sendBooking(bookingReq)) {
-            return ResponseEntity.status(400).body(Map.of("msg", "建立失敗"));
-        }
-
-        return ResponseEntity.ok(Map.of("msg", "建立成功"));
-    }
-
     @GetMapping("/tutor/{tutorId}")
     public ResponseEntity<?> getTutorBookings(@PathVariable Long tutorId) {
         List<Booking> bookings = bookingService.getTutorBookings(tutorId);

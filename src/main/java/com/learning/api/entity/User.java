@@ -3,6 +3,8 @@ import com.learning.api.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -29,7 +31,8 @@ public class User {
 
     private LocalDate birthday;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, length = 20)
+    @Enumerated(EnumType.STRING)
     private UserRole role;
 
     @Column(nullable=false)

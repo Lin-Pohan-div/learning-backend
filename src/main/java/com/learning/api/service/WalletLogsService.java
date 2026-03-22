@@ -11,6 +11,8 @@ import com.learning.api.repo.WalletLogsRepo;
 
 import jakarta.transaction.Transactional;
 
+import java.util.List;
+
 @Service
 public class WalletLogsService {
 
@@ -42,6 +44,10 @@ public class WalletLogsService {
         log.setRelatedType(1); 
 
         walletLogsRepo.save(log);
+    }
+
+    public List<WalletLog> getLogsByUserId(Long userId) {
+        return walletLogsRepo.findByUserIdOrderByCreatedAtDesc(userId);
     }
 }
 
