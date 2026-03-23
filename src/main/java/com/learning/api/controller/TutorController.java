@@ -29,7 +29,7 @@ import com.learning.api.dto.TutorScheduleDTO;
 import com.learning.api.service.TutorService;
 
 @RestController
-@RequestMapping("api/view/tutor")
+@RequestMapping("api/tutor")
 @CrossOrigin(origins = "http://localhost:5173")
 public class TutorController {
 
