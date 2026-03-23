@@ -1,6 +1,5 @@
 package com.learning.api.security;
 
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,30 +29,34 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // session
-                                                                                                              // ->
-                                                                                                              // token
+                // ->
+                // token
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
                 // 授權設定
-                .authorizeHttpRequests(
-                        auth -> auth
-                                // 不需要登入
-                                .requestMatchers("/**").permitAll()
-                                .requestMatchers("/api/auth/**").permitAll()
+                .authorizeHttpRequests(auth -> auth
+                        // 完全公開
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/view/**").permitAll()
+                        .requestMatchers("/api/tutor/**").permitAll()  // 前台老師資料頁公開
+                        .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/api/teacher/schedules/*").permitAll()  // 查詢課表公開
+                        // 老師後台專用
+                        .requestMatchers("/api/teacher/**").hasRole("TUTOR")
 
-                                .requestMatchers("/api/view/**").permitAll()
+                        // 登入才能預約
+                        .requestMatchers("/api/bookings/**").authenticated()
+                        // 登入才能結帳
+                        .requestMatchers("/api/shop/**").authenticated()
+                        // 學生專用
+                        .requestMatchers("/api/student/**").hasRole("STUDENT")
 
-                                // 只有老師身份可以登入
-                                .requestMatchers("/api/tutor/me/**").hasRole("TUTOR")
-                                
-                                .requestMatchers("/api/tutor/**").hasRole("TUTOR")
+                        // 管理者
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-                                .requestMatchers("/api/student/**").hasRole("STUDENT")
-
-                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-
-                                // 以上沒有的都要登入
-                                .anyRequest().authenticated())
+                        // 其他都要登入
+                        .anyRequest().authenticated()
+                )
                 // 檢查 token
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 

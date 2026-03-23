@@ -2,8 +2,11 @@ package com.learning.api.service;
 
 import com.learning.api.dto.BookingDTO;
 import com.learning.api.entity.Booking;
+import com.learning.api.entity.Course;
 import com.learning.api.entity.User;
 import com.learning.api.repo.BookingRepo;
+import com.learning.api.repo.CourseRepo;
+import com.learning.api.repo.OrderRepository;
 import com.learning.api.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,16 +22,28 @@ public class BookingService {
     private BookingRepo bookingRepo;
     @Autowired
     private UserRepo userRepo;
+    @Autowired
+    private OrderRepository orderRepo;
+    @Autowired
+    private CourseRepo courseRepo;
 
     public List<BookingDTO> getTutorBookings(Long tutorId) {
         return bookingRepo.findByTutorId(tutorId).stream()
                 .map(b -> {
-                    String name = userRepo.findById(b.getStudentId())
+                    String studentName = userRepo.findById(b.getStudentId())
                             .map(User::getName)
                             .orElse("學生 #" + b.getStudentId());
+
+                    // 從 order 查 courseId，再查課程名稱
+                    String courseName = orderRepo.findById(b.getOrderId())
+                            .flatMap(o -> courseRepo.findById(o.getCourseId()))
+                            .map(Course::getName)
+                            .orElse("課程");
+
                     return new BookingDTO(
                             b.getId(), b.getOrderId(), b.getTutorId(),
-                            b.getStudentId(), name,
+                            b.getStudentId(), studentName,
+                            courseName,  // ← 新增
                             b.getDate(), b.getHour(), b.getStatus(), b.getSlotLocked()
                     );
                 })

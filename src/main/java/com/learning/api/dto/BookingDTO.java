@@ -12,6 +12,7 @@ public class BookingDTO {
     private Long tutorId;
     private Long studentId;
     private String studentName;
+    private String courseName;
     private LocalDate date;
     private Integer hour;
     private Integer status;
