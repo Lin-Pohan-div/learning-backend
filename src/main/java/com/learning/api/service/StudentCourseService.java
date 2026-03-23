@@ -3,6 +3,7 @@ package com.learning.api.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -275,6 +276,29 @@ public class StudentCourseService {
             b.getHour(),
             b.getStatus(),
             tutorNameMap.getOrDefault(b.getTutorId(), "找不到老師姓名") // 確保 DTO 最後一個參數是 String
+        )).toList();
+    }
+    
+    public List<TodayCourseDto> getFutureCourses(Long studentId) {
+        // 取得今天日期
+        LocalDate today = LocalDate.now();
+        
+        // 修改查詢條件為：日期大於等於今天，並按日期與小時排序
+        List<Booking> bookings = bookingsRepo.findByStudentIdAndDateGreaterThanEqualOrderByDateAscHourAsc(studentId, today);
+        
+        if (bookings.isEmpty()) return Collections.emptyList();
+
+        // 取得老師資訊（沿用你原本優化過的邏輯）
+        Set<Long> tutorIds = bookings.stream().map(Booking::getTutorId).collect(Collectors.toSet());
+        Map<Long, String> tutorNameMap = usersRepo.findAllById(tutorIds).stream()
+                .collect(Collectors.toMap(User::getId, User::getName));
+        
+        return bookings.stream().map(b -> new TodayCourseDto(
+            b.getId(),
+            b.getDate(),
+            b.getHour(),
+            b.getStatus(),
+            tutorNameMap.getOrDefault(b.getTutorId(), "找不到老師姓名")
         )).toList();
     }
 

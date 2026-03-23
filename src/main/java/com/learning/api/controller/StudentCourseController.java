@@ -66,7 +66,11 @@ public class StudentCourseController {
             @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         return courseService.getCoursesByDate(userId, date);
     }
-
+    
+    @GetMapping("/future/me")
+    public List<TodayCourseDto> getMyFutureCourses(@RequestParam("userId") Long userId) {
+        return courseService.getFutureCourses(userId);
+    }
     
     @PostMapping("/bookings/cancel")
     public CancelResponseDTO cancelBooking(@RequestBody CancelBookingRequestDTO request) {
