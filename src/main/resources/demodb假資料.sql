@@ -1,13 +1,8 @@
 -- ============================================================
 -- learningv3 假資料 Seed Data
 -- 生成時間: 2026-03-17
--- 專案假資料/影片URL:https://drive.google.com/drive/folders/1-vxh2VNO7Jqrn7SDpumUKRsZ-qreNRHn?usp=drive_link
---       -頭像測試文件:https://drive.google.com/file/d/1DXU3uHxuMw2IvxwI6i0Sp5FLRMziZeq_/view?usp=drive_link
---       -證照測試文件:https://drive.google.com/file/d/1GyM8OkWUQ_s_LZe07njf7P03NiDcFnBG/view?usp=drive_link
---       -測試文件:https://drive.google.com/file/d/1s7jhFkLaUWVpxymXdOCOCSCoQMrn_aRh/view?usp=drive_link
---       -自我介紹測試影片:https://drive.google.com/file/d/11vlhLQ0hjYCt7lZ3AsFVJLQUYQf757EF/view?usp=drive_link
---       -測試影片: https://drive.google.com/file/d/1UCHd6M_Z4-ZnJPp6RTry15iZiMyH3tMP/view?usp=drive_link  
 -- ============================================================
+
 
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -31,73 +26,38 @@ INSERT INTO `users` (`id`, `name`, `email`, `password`, `birthday`, `role`, `wal
 
 -- ============================================================
 -- tutors (id 對應 users.id，status: 1=pending 2=qualified 3=停權)
-<<<<<<< HEAD
-INSERT INTO `tutors` (`id`, `apply_date`, `avatar`, `title`, `intro`, `certificate_1`, `certificate_name_1`,
-                      `certificate_2`, `certificate_name_2`, `video_url_1`, `video_url_2`, `bank_code`, `bank_account`,
-                      `status`)
-VALUES (6, '2025-08-01', 'https://drive.google.com/file/d/1DXU3uHxuMw2IvxwI6i0Sp5FLRMziZeq_/view?usp=drive_link',
-        '兒童英語教學專家',
-        '擁有 10 年兒童英語教學經驗，專攻小學中低年級聽說讀寫，課程活潑有趣，讓孩子愛上英文！',
-        'https://drive.google.com/file/d/1GyM8OkWUQ_s_LZe07njf7P03NiDcFnBG/view?usp=drive_link',
-        'TESOL 國際英語教師認證',
-        'https://drive.google.com/file/d/1-yT3YxcuMpdF4xML_hPUxT5W4F-7aNWp/view?usp=drive_link', 2,
-        'https://drive.google.com/file/d/1UCHd6M_Z4-ZnJPp6RTry15iZiMyH3tMP/view?usp=drive_link', NULL,
-        '004', '123456789012', 2),
-       (7, '2025-08-15', 'https://cdn.learning.com/avatars/tutor7.jpg',
-        'GEPT 全民英檢補習名師',
-        '專精 GEPT 初級、中級與 YLE 劍橋兒童英檢備考，歷年學生通過率逾 90%。',
-        'https://cdn.learning.com/certs/tutor7_cert1.jpg', 'TKT 劍橋教師認證',
-        'https://cdn.learning.com/certs/tutor7_cert2.jpg', 1,
-        'https://cdn.learning.com/videos/tutor7_intro.mp4', 'https://cdn.learning.com/videos/tutor7_demo.mp4',
-        '013', '987654321098', 2),
-       (8, '2025-09-01', 'https://cdn.learning.com/avatars/tutor8.jpg',
-        '國中英文一對一家教',
-        '台大外文系畢業，擅長國中文法與閱讀，協助學生建立完整文法觀念，應對會考輕鬆上手。',
-        'https://cdn.learning.com/certs/tutor8_cert1.jpg', '台灣大學外國語文學系',
-        'https://cdn.learning.com/certs/tutor8_cert2.jpg', 3,
-        'https://cdn.learning.com/videos/tutor8_intro.mp4', NULL,
-        '822', '456789012345', 2),
-       (9, '2025-10-10', 'https://cdn.learning.com/avatars/tutor9.jpg',
-        '小學英語活力教師',
-        '師範大學英語系畢業，熱愛教學，擅長以遊戲與故事帶動孩子學習英語，適合低年級啟蒙。',
-        'https://cdn.learning.com/certs/tutor9_cert1.jpg', 'CELTA 認證',
-        'https://cdn.learning.com/certs/tutor9_cert2.jpg', 4,
-        'https://cdn.learning.com/videos/tutor9_intro.mp4', NULL,
-        '808', '321654987012', 1);
-=======
 -- ============================================================
 INSERT INTO `tutors` (`id`, `apply_date`, `avatar`, `title`, `intro`, `certificate_1`, `certificate_name_1`, `certificate_2`, `certificate_name_2`, `video_url_1`, `video_url_2`, `bank_code`, `bank_account`, `status`) VALUES
 (6, '2025-08-01', 'https://drive.google.com/file/d/1DXU3uHxuMw2IvxwI6i0Sp5FLRMziZeq_/view?usp=drive_link',
     '兒童英語教學專家',
     '擁有 10 年兒童英語教學經驗，專攻小學中低年級聽說讀寫，課程活潑有趣，讓孩子愛上英文！',
     'https://drive.google.com/file/d/1GyM8OkWUQ_s_LZe07njf7P03NiDcFnBG/view?usp=drive_link', 'TESOL 國際英語教師認證',
-    'https://drive.google.com/file/d/1-yT3YxcuMpdF4xML_hPUxT5W4F-7aNWp/view?usp=drive_link', 2,
+    'https://drive.google.com/file/d/1-yT3YxcuMpdF4xML_hPUxT5W4F-7aNWp/view?usp=drive_link', 'IELTS雅思認證',
     'https://drive.google.com/file/d/1UCHd6M_Z4-ZnJPp6RTry15iZiMyH3tMP/view?usp=drive_link', NULL,
     '004', '123456789012', 2),
->>>>>>> origin/feature/ApiTest
 
-(7, '2025-08-15', 'https://cdn.learning.com/avatars/tutor7.jpg',
+(7, '2025-08-15', 'https://drive.google.com/file/d/1Vu5PPw9Q5QyT9oM7eHMoh4khCvIehELL/view?usp=drive_link',
     'GEPT 全民英檢補習名師',
     '專精 GEPT 初級、中級與 YLE 劍橋兒童英檢備考，歷年學生通過率逾 90%。',
-    'https://cdn.learning.com/certs/tutor7_cert1.jpg', 'TKT 劍橋教師認證',
-    'https://cdn.learning.com/certs/tutor7_cert2.jpg', 1,
-    'https://cdn.learning.com/videos/tutor7_intro.mp4', 'https://cdn.learning.com/videos/tutor7_demo.mp4',
+    'https://drive.google.com/file/d/1GyM8OkWUQ_s_LZe07njf7P03NiDcFnBG/view?usp=drive_link', 'TKT 劍橋教師認證',
+    'https://drive.google.com/file/d/1-yT3YxcuMpdF4xML_hPUxT5W4F-7aNWp/view?usp=drive_link', 'PTE 英語考試認證',
+    'https://drive.google.com/file/d/1SM4W0ZhD9VAcxJwBeTwq4TqzhjvaWooV/view?usp=drive_link', 'https://drive.google.com/file/d/1UCHd6M_Z4-ZnJPp6RTry15iZiMyH3tMP/view?usp=drive_link ',
     '013', '987654321098', 2),
 
-(8, '2025-09-01', 'https://cdn.learning.com/avatars/tutor8.jpg',
+(8, '2025-09-01', 'https://drive.google.com/file/d/1TtPgevM66DsIDygoF7Bd8NiksejSKJ6q/view?usp=drive_link',
     '國中英文一對一家教',
     '台大外文系畢業，擅長國中文法與閱讀，協助學生建立完整文法觀念，應對會考輕鬆上手。',
-    'https://cdn.learning.com/certs/tutor8_cert1.jpg', '台灣大學外國語文學系',
-    'https://cdn.learning.com/certs/tutor8_cert2.jpg', 3,
-    'https://cdn.learning.com/videos/tutor8_intro.mp4', NULL,
+    'https://drive.google.com/file/d/1-yT3YxcuMpdF4xML_hPUxT5W4F-7aNWp/view?usp=drive_link', '台灣大學外國語文學系',
+    'https://drive.google.com/file/d/1fTK7nkWoPwCF1clzKlZ1Rdj_RJs-DuiC/view?usp=drive_link', 'GRE英語考試認證',
+    'https://drive.google.com/file/d/1aNwVmwi9WtF2IEqyj9kWEAQxSdBT4am9/view?usp=drive_link', NULL,
     '822', '456789012345', 2),
 
-(9, '2025-10-10', 'https://cdn.learning.com/avatars/tutor9.jpg',
+(9, '2025-10-10', 'https://drive.google.com/file/d/1PRcsio0qw1es3Eph11SZGKhiBRUVdWFy/view?usp=drive_link',
     '小學英語活力教師',
     '師範大學英語系畢業，熱愛教學，擅長以遊戲與故事帶動孩子學習英語，適合低年級啟蒙。',
-    'https://cdn.learning.com/certs/tutor9_cert1.jpg', 'CELTA 認證',
-    'https://cdn.learning.com/certs/tutor9_cert2.jpg', 4,
-    'https://cdn.learning.com/videos/tutor9_intro.mp4', NULL,
+    'https://drive.google.com/file/d/1aCGYv6GldHtweRgnSR3nrTkH_bPZzMSy/view?usp=drive_link', 'CELTA 認證',
+    'https://drive.google.com/file/d/1fTK7nkWoPwCF1clzKlZ1Rdj_RJs-DuiC/view?usp=drive_link', 'IELTS雅思認證',
+    'https://drive.google.com/file/d/12alT0Rmmd0IXXfKwiCi9xowuBoSIhlqM/view?usp=drive_link', NULL,
     '808', '321654987012', 1);
 
 -- ============================================================
