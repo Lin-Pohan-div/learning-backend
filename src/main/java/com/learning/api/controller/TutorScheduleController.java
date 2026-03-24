@@ -14,7 +14,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/tutor/schedules")
 public class TutorScheduleController {
-    @Autowired
+    
     private TutorScheduleService scheduleService;
 
     @PostMapping("me/batch-toggle")

@@ -2,7 +2,6 @@ package com.learning.api.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -19,10 +18,12 @@ import com.learning.api.dto.CourseDTO;
 import com.learning.api.dto.CourseReq;
 import com.learning.api.security.SecurityUser;
 import com.learning.api.service.CourseService;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/tutor/me/courses")
 @CrossOrigin(origins = "http://localhost:5173")
+@RequiredArgsConstructor
 public class CourseController {
 
     private final CourseService courseService;

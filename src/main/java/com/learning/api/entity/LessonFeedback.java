@@ -1,4 +1,4 @@
-/* package com.learning.api.entity;
+package com.learning.api.entity;
 
 import java.time.Instant;
 import jakarta.persistence.*;
@@ -14,22 +14,24 @@ public class LessonFeedback {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 👉 修正：單純存 ID 就用 @Column，不要用 @JoinColumn
     @Column(name = "booking_id", nullable = false)
     private Long bookingId;
 
-    @Column(name="focus_score" ,nullable = false)
+    @Column(name = "focus_score", nullable = false)
     private Integer focusScore;
 
-    @Column(name="comprehension_score" ,nullable = false)
+    @Column(name = "comprehension_score", nullable = false)
     private Integer comprehensionScore;
 
-    @Column(name="confidence_score" ,nullable = false)
+    @Column(name = "confidence_score", nullable = false)
     private Integer confidenceScore;
+
+    @Column(nullable = false)
+    private Integer rating;
 
     @Column(nullable = true, length = 1000)
     private String comment;
 
     @Column(name = "created_at", insertable = false, updatable = false)
     private Instant createdAt;
-}*/
+}

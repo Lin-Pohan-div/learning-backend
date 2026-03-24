@@ -4,7 +4,7 @@ import com.learning.api.dto.ChatRoom.ChatMessageRequest;
 import com.learning.api.dto.videoroom.RoomError;
 import com.learning.api.dto.videoroom.RoomEvent;
 import com.learning.api.dto.videoroom.SignalingMessage;
-import com.learning.api.entity.Booking;
+import com.learning.api.entity.Bookings;
 import com.learning.api.entity.ChatMessage;
 import com.learning.api.enums.MessageType;
 import com.learning.api.repo.BookingRepo;
@@ -120,7 +120,7 @@ public class VideoRoomController {
         }
 
         // 1. bookingId 存在
-        Optional<Booking> bookingOpt = bookingRepo.findById(bookingId);
+        Optional<Bookings> bookingOpt = bookingRepo.findById(bookingId);
         if (bookingOpt.isEmpty()) {
             sendError(bookingId, sessionId, "BOOKING_NOT_FOUND",
                     "Booking " + bookingId + " 不存在");
@@ -142,7 +142,7 @@ public class VideoRoomController {
         }
 
         // 4. JWT userId 必須符合 booking 中對應角色的使用者
-        Booking booking = bookingOpt.get();
+        Bookings booking = bookingOpt.get();
         boolean isOwner = (role == 1)
                 ? userId.equals(booking.getStudentId())
                 : userId.equals(booking.getTutorId());

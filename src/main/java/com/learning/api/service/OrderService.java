@@ -29,7 +29,7 @@ public class OrderService {
         if (!userRepo.existsById(req.getUserId())) return false;
 
         Course course = courseRepo.findById(req.getCourseId()).orElse(null);
-        if (course == null || !course.getActive()) return false;
+        if (course == null || !course.getIsActive()) return false;
 
         Order order = new Order();
         order.setUserId(req.getUserId());

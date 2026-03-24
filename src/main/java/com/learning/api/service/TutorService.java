@@ -6,17 +6,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.learning.api.dto.TutorUpdateDTO;
+import com.learning.api.dto.tutor.TutorUpdateReq;
 import com.learning.api.entity.Course;
 import com.learning.api.entity.Review;
 import com.learning.api.entity.Tutor;
 import com.learning.api.entity.TutorSchedule;
+import com.learning.api.entity.User;
 import com.learning.api.repo.CourseRepo;
-import com.learning.api.repo.ReviewRepository; // Repo
+import com.learning.api.repo.ReviewRepository;
 import com.learning.api.repo.TutorRepo;
 import com.learning.api.repo.TutorScheduleRepo;
+import com.learning.api.repo.UserRepo;
 
 @Service
-@RequiredArgsConstructor
 public class TutorService {
 
     @Autowired
@@ -30,6 +32,9 @@ public class TutorService {
 
     @Autowired
     private ReviewRepository reviewRepo;
+
+    @Autowired
+    private UserRepo userRepo;
 
     // ── 查詢功能 (Query) ──────────────────────────────────────────
 
@@ -86,13 +91,10 @@ public class TutorService {
         Tutor tutor = tutorRepo.findById(tutorId)
                 .orElseThrow(() -> new RuntimeException("找不到老師 id=" + tutorId));
 
-        // 核心欄位更新
         if (dto.getAvatar() != null)
             tutor.setAvatar(dto.getAvatar());
         if (dto.getTitle() != null)
             tutor.setTitle(dto.getTitle());
-
-        // 詳細資訊更新
         if (dto.getIntro() != null)
             tutor.setIntro(dto.getIntro());
         if (dto.getCertificate1() != null)
@@ -109,12 +111,6 @@ public class TutorService {
             tutor.setVideoUrl2(dto.getVideoUrl2());
 
         tutorRepo.save(tutor);
-
-        if (dto.getName() != null && !dto.getName().trim().isEmpty()) {
-            user.setName(dto.getName());
-            userRepo.save(user);
-        }
-        return "success";
     }
 
     @Transactional
@@ -146,7 +142,6 @@ public class TutorService {
         tutor.setTitle(dto.getTitle());
         tutor.setAvatarUrl(dto.getAvatar());
         tutor.setIntro(dto.getIntro());
-        tutor.setEducation(dto.getEducation());
         tutor.setCertificate1(dto.getCertificate1());
         tutor.setCertificateName1(dto.getCertificateName1());
         tutor.setCertificate2(dto.getCertificate2());
@@ -156,8 +151,4 @@ public class TutorService {
         tutor.setBankCode(dto.getBankCode());
         tutor.setBankAccount(dto.getBankAccount());
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> upstream/feature/develop

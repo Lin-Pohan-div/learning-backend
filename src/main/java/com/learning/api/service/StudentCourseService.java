@@ -20,7 +20,7 @@ import com.learning.api.dto.CancelResponseDTO;
 import com.learning.api.dto.CourseResponseDto;
 import com.learning.api.dto.PackageResponseDTO;
 import com.learning.api.dto.TodayCourseDto;
-import com.learning.api.entity.Booking;
+import com.learning.api.entity.Bookings;
 import com.learning.api.entity.Course;
 import com.learning.api.entity.Order;
 
@@ -179,12 +179,12 @@ public class StudentCourseService {
     }
 
     public List<BookingResponseDTO> getMyCourses(Long userId) {
-    	List<Booking> bookings = bookingsRepo.findByStudentId(userId);
+    	List<Bookings> bookings = bookingsRepo.findByStudentId(userId);
 	 	
-    	Set<Long> orderIds = bookings.stream().map(Booking::getOrderId).collect(Collectors.toSet());
+    	Set<Long> orderIds = bookings.stream().map(Bookings::getOrderId).collect(Collectors.toSet());
     	List<Order> orders = ordersRepo.findAllById(orderIds);
     	Set<Long> courseIds = orders.stream().map(Order::getCourseId).collect(Collectors.toSet());
-    	Set<Long> tutorIds = bookings.stream().map(Booking::getTutorId).collect(Collectors.toSet());
+    	Set<Long> tutorIds = bookings.stream().map(Bookings::getTutorId).collect(Collectors.toSet());
         
     	Set<Long> allUserIds = new HashSet<>(tutorIds);
         allUserIds.add(userId);
@@ -211,11 +211,11 @@ public class StudentCourseService {
             )).toList();
     }
     public List<BookingResponseDTO> getBookingsByOrder(Long orderId) {
-    	List<Booking> bookings = bookingsRepo.findByOrderId(orderId); 
+    	List<Bookings> bookings = bookingsRepo.findByOrderId(orderId); 
     	
-    	Set<Long> studentIds = bookings.stream().map(Booking::getStudentId).collect(Collectors.toSet());
-        Set<Long> tutorIds = bookings.stream().map(Booking::getTutorId).collect(Collectors.toSet());
-        Set<Long> orderIds = bookings.stream().map(Booking::getOrderId).collect(Collectors.toSet());
+    	Set<Long> studentIds = bookings.stream().map(Bookings::getStudentId).collect(Collectors.toSet());
+        Set<Long> tutorIds = bookings.stream().map(Bookings::getTutorId).collect(Collectors.toSet());
+        Set<Long> orderIds = bookings.stream().map(Bookings::getOrderId).collect(Collectors.toSet());
         List<Order> orders = ordersRepo.findAllById(orderIds);
         Set<Long> courseIds = orders.stream().map(Order::getCourseId).collect(Collectors.toSet());
         
@@ -244,9 +244,9 @@ public class StudentCourseService {
     }
     public List<TodayCourseDto> getTodayCourses(Long studentId) {
         LocalDate today = LocalDate.now();
-        List<Booking> bookings = bookingsRepo.findByStudentIdAndDateOrderByHourAsc(studentId, today);
+        List<Bookings> bookings = bookingsRepo.findByStudentIdAndDateOrderByHourAsc(studentId, today);
         
-        Set<Long> tutorIds = bookings.stream().map(Booking::getTutorId).collect(Collectors.toSet());
+        Set<Long> tutorIds = bookings.stream().map(Bookings::getTutorId).collect(Collectors.toSet());
         
         Map<Long, String> tutorNameMap = usersRepo.findAllById(tutorIds).stream()
                 .collect(Collectors.toMap(User::getId, User::getName));
@@ -263,9 +263,9 @@ public class StudentCourseService {
     
     public List<CourseResponseDto> getCoursesByDate(Long studentId, LocalDate date) {
         // 使用傳入的 date 取代 LocalDate.now()
-        List<Booking> bookings = bookingsRepo.findByStudentIdAndDateOrderByHourAsc(studentId, date);
+        List<Bookings> bookings = bookingsRepo.findByStudentIdAndDateOrderByHourAsc(studentId, date);
 
-        Set<Long> tutorIds = bookings.stream().map(Booking::getTutorId).collect(Collectors.toSet());
+        Set<Long> tutorIds = bookings.stream().map(Bookings::getTutorId).collect(Collectors.toSet());
         
         Map<Long, String> tutorNameMap = usersRepo.findAllById(tutorIds).stream()
                 .collect(Collectors.toMap(User::getId, User::getName));
@@ -284,12 +284,12 @@ public class StudentCourseService {
         LocalDate today = LocalDate.now();
         
         // 修改查詢條件為：日期大於等於今天，並按日期與小時排序
-        List<Booking> bookings = bookingsRepo.findByStudentIdAndDateGreaterThanEqualOrderByDateAscHourAsc(studentId, today);
+        List<Bookings> bookings = bookingsRepo.findByStudentIdAndDateGreaterThanEqualOrderByDateAscHourAsc(studentId, today);
         
         if (bookings.isEmpty()) return Collections.emptyList();
 
         // 取得老師資訊（沿用你原本優化過的邏輯）
-        Set<Long> tutorIds = bookings.stream().map(Booking::getTutorId).collect(Collectors.toSet());
+        Set<Long> tutorIds = bookings.stream().map(Bookings::getTutorId).collect(Collectors.toSet());
         Map<Long, String> tutorNameMap = usersRepo.findAllById(tutorIds).stream()
                 .collect(Collectors.toMap(User::getId, User::getName));
         
@@ -306,7 +306,7 @@ public class StudentCourseService {
     @Transactional
     public CancelResponseDTO cancelBooking(Long bookingId, Long userId) {
         // 1. 查找預約並驗證身分
-        Booking booking = bookingsRepo.findByIdAndStudentId(bookingId, userId)
+        Bookings booking = bookingsRepo.findByIdAndStudentId(bookingId, userId)
                 .orElseThrow(() -> new RuntimeException("預約不存在或無權限"));
 
         // 2. 狀態檢查：僅 status=1 (排程中) 可申請取消
@@ -357,7 +357,7 @@ public class StudentCourseService {
         if (order.getStatus() != 1) {
             return "訂單狀態不符（可能已結案或已退費），無法辦理退課";
         }
-        List<Booking> allBookings = bookingsRepo.findByOrderId(orderId);
+        List<Bookings> allBookings = bookingsRepo.findByOrderId(orderId);
         LocalDateTime now = LocalDateTime.now();
 
         AtomicBoolean isin12hr = new AtomicBoolean(false);

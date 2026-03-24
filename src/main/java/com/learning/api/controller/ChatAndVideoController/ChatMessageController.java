@@ -152,19 +152,16 @@ public class ChatMessageController {
                 messageType = MessageType.FILE;
             }
 
-            String fileUrl = fileStorageService.store(file);
+            String fileUrl = fileStorageService.store(file, "chat");
 
             ChatMessage chatMessage = chatMessageService.save(
-                    bookingId, role, messageType.getValue(), null, fileUrl);
+                    bookingId, String.valueOf(role), messageType.getValue(), null, fileUrl);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(chatMessage);
 
         } catch (NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ErrorResponse("錯誤: " + e.getMessage()));
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponse("檔案儲存失敗: " + e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse("伺服器錯誤: " + e.getMessage()));

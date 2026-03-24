@@ -9,7 +9,9 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,11 +23,12 @@ import com.learning.api.dto.ReviewDTO;
 import com.learning.api.dto.TutorProfileDTO;
 import com.learning.api.dto.TutorScheduleDTO;
 import com.learning.api.entity.Course;
-import com.learning.api.entity.Reviews;
+import com.learning.api.entity.Review;
 import com.learning.api.entity.Tutor;
 import com.learning.api.entity.TutorSchedule;
 import com.learning.api.entity.WalletLog;
 import com.learning.api.service.BookingService;
+import com.learning.api.service.CourseService;
 import com.learning.api.service.TutorService;
 import com.learning.api.service.WalletLogsService;
 
@@ -37,6 +40,7 @@ public class TutorController {
     @Autowired private TutorService tutorService;
     @Autowired private BookingService bookingService;
     @Autowired private WalletLogsService walletLogsService;
+    @Autowired private CourseService courseService;
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getTutorProfile(

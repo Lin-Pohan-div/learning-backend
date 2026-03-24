@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import com.learning.api.entity.Booking;
+import com.learning.api.entity.Bookings;
 import com.learning.api.entity.TutorSchedule;
 import java.util.Optional;
 
@@ -23,7 +23,7 @@ public interface TutorScheduleRepo extends JpaRepository<TutorSchedule, Long> {
     Optional<TutorSchedule> findByTutorIdAndWeekdayAndHour(Long tutorId, Integer weekday, Integer hour);
 
     @Query("""
-        SELECT b FROM Booking b
+        SELECT b FROM Bookings b
         WHERE b.studentId = :studentId
         AND b.slotLocked = true
         AND (
@@ -33,7 +33,7 @@ public interface TutorScheduleRepo extends JpaRepository<TutorSchedule, Long> {
         )
         ORDER BY b.date, b.hour
         """)
-        List<Booking> findStudentFutureBookings(
+        List<Bookings> findStudentFutureBookings(
             Long studentId,
             LocalDate startDate,
             LocalDate endDate,
@@ -41,7 +41,7 @@ public interface TutorScheduleRepo extends JpaRepository<TutorSchedule, Long> {
             int endHour
         );
         @Query("""
-        SELECT b FROM Booking b
+        SELECT b FROM Bookings b
         WHERE b.tutorId = :tutorId
         AND b.slotLocked = true
         AND (
@@ -51,7 +51,7 @@ public interface TutorScheduleRepo extends JpaRepository<TutorSchedule, Long> {
         )
         ORDER BY b.date, b.hour
         """)
-        List<Booking> findTutorFutureBookings(
+        List<Bookings> findTutorFutureBookings(
             Long tutorId,
             LocalDate startDate,
             LocalDate endDate,

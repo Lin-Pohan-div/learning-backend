@@ -4,15 +4,15 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import com.learning.api.dto.FeedbackEmailDTO;
-import com.learning.api.entity.Booking;
+import com.learning.api.dto.feedback.FeedbackEmailDTO;
+import com.learning.api.entity.Bookings;
 import com.learning.api.entity.Course;
-import com.learning.api.entity.Feedback;
+import com.learning.api.entity.LessonFeedback;
 import com.learning.api.entity.Order;
 import com.learning.api.entity.User;
 import com.learning.api.repo.BookingRepo;
 import com.learning.api.repo.CourseRepo;
-import com.learning.api.repo.FeedbackRepository;
+import com.learning.api.repo.LessonFeedbackRepository;
 import com.learning.api.repo.OrderRepository;
 import com.learning.api.repo.UserRepo;
 import java.util.List;
@@ -22,9 +22,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class LessonFeedbackService {
 
-    private static final Logger log = LoggerFactory.getLogger(FeedbackService.class);
+    private static final Logger log = LoggerFactory.getLogger(LessonFeedbackService.class);
 
-    private final FeedbackRepository lessonFeedbackRepository;
+    private final LessonFeedbackRepository lessonFeedbackRepository;
     private final BookingRepo bookingRepo;
     private final UserRepo userRepo;
     private final OrderRepository orderRepository;
@@ -57,14 +57,14 @@ public class LessonFeedbackService {
             throw new IllegalArgumentException("這堂課已經填寫過回饋囉！");
         }
         validate(feedback);
-        Feedback saved = lessonFeedbackRepository.save(feedback);
+        LessonFeedback saved = lessonFeedbackRepository.save(feedback);
         buildAndSendFeedbackEmail(saved);
         return saved;
     }
 
-    private void buildAndSendFeedbackEmail(Feedback saved) {
+    private void buildAndSendFeedbackEmail(LessonFeedback saved) {
         // Step 1: 查 Booking（需要 date, hour, studentId, tutorId, orderId）
-        Booking booking = bookingRepo.findById(saved.getBookingId()).orElse(null);
+        Bookings booking = bookingRepo.findById(saved.getBookingId()).orElse(null);
         if (booking == null) {
             log.warn("Feedback email 略過：找不到 booking，bookingId={}", saved.getBookingId());
             return;

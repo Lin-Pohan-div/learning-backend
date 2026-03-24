@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /d/learning-backend/src/main/java -name \"*.java\" -exec grep -l \"@RequiredArgsConstructor\" {})",
+      "Bash(xargs grep:*)",
+      "Bash(mvn compile:*)"
+    ]
+  }
+}

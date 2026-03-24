@@ -67,6 +67,9 @@ public class Tutor {
     @Column(name = "bank_account", length = 20)
     private String bankAccount;
 
+    @Column
+    private Integer status;
+
     // 為了讓 CourseSpec 能順利從課程連動到課表
     @OneToMany(mappedBy = "tutor")
     private List<TutorSchedule> schedules;

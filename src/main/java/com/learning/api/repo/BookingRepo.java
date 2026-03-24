@@ -1,7 +1,7 @@
 package com.learning.api.repo;
 
 import com.learning.api.dto.CheckoutReq;
-import com.learning.api.entity.Booking;
+import com.learning.api.entity.Bookings;
 
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,22 +12,22 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-public interface BookingRepo extends JpaRepository<Booking, Long> {
+public interface BookingRepo extends JpaRepository<Bookings, Long> {
 
     /**
      * 防超賣核心查詢：
      * 根據 老師ID、日期、小時，檢查是否已經存在「且仍在鎖定中(slotLocked=true)」的預約紀錄。
      * 若被取消 (slotLocked=null 或 false)，則不列入計算，允許新學生預約。
      */
-    Optional<Booking> findByTutorIdAndDateAndHourAndSlotLockedTrue(Long tutorId, LocalDate date, Integer hour);
+    Optional<Bookings> findByTutorIdAndDateAndHourAndSlotLockedTrue(Long tutorId, LocalDate date, Integer hour);
 
-    Optional<Booking> findByStudentIdAndDateAndHourAndSlotLockedTrue(Long studentId, LocalDate date, Integer hour);
+    Optional<Bookings> findByStudentIdAndDateAndHourAndSlotLockedTrue(Long studentId, LocalDate date, Integer hour);
 
-    List<Booking> findByTutorId(Long tutorId);
+    List<Bookings> findByTutorId(Long tutorId);
 
     @Query("""
         SELECT new com.learning.api.dto.CheckoutReq$Slot(b.date, b.hour)
-        FROM Booking b
+        FROM Bookings b
         WHERE b.studentId = :studentId
         AND b.slotLocked = true
         AND (
@@ -48,7 +48,7 @@ public interface BookingRepo extends JpaRepository<Booking, Long> {
 
     @Query("""
         SELECT new com.learning.api.dto.CheckoutReq$Slot(b.date, b.hour)
-        FROM Booking b
+        FROM Bookings b
         WHERE b.tutorId = :tutorId
         AND b.slotLocked = true
         AND (
@@ -68,11 +68,11 @@ public interface BookingRepo extends JpaRepository<Booking, Long> {
 
 
 
-    List<Booking> findByStudentId(Long studentId);
-    List<Booking> findByStudentIdAndDateOrderByHourAsc(Long studentId, LocalDate date);
-    List<Booking> findByOrderId(Long orderId);
-    Optional<Booking> findByIdAndStudentId(Long id, Long studentId);
+    List<Bookings> findByStudentId(Long studentId);
+    List<Bookings> findByStudentIdAndDateOrderByHourAsc(Long studentId, LocalDate date);
+    List<Bookings> findByOrderId(Long orderId);
+    Optional<Bookings> findByIdAndStudentId(Long id, Long studentId);
  // 使用 Spring Data JPA 的命名規範自動生成 SQL
-    List<Booking> findByStudentIdAndDateGreaterThanEqualOrderByDateAscHourAsc(Long studentId, LocalDate date);
+    List<Bookings> findByStudentIdAndDateGreaterThanEqualOrderByDateAscHourAsc(Long studentId, LocalDate date);
 
 }

@@ -17,6 +17,7 @@ public class ChatMessageService {
 
     private final ChatMessageRepository chatMessageRepository;
     private final OrderRepository orderRepo;
+    private final BookingRepository bookingRepo;
 
     public List<ChatMessage> findByBookingId(Long bookingId) {
         return chatMessageRepository.findByBookingIdOrderByCreatedAtAsc(bookingId);

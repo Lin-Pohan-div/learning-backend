@@ -1,7 +1,7 @@
 package com.learning.api.service;
 
 import com.learning.api.dto.BookingDTO;
-import com.learning.api.entity.Booking;
+import com.learning.api.entity.Bookings;
 import com.learning.api.entity.Course;
 import com.learning.api.entity.User;
 import com.learning.api.repo.BookingRepo;
@@ -10,14 +10,12 @@ import com.learning.api.repo.OrderRepository;
 import com.learning.api.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class BookingService {
 
     @Autowired
@@ -56,10 +54,10 @@ public class BookingService {
      * 建立單筆預約紀錄（由 CheckoutService 呼叫，不對外開放）
      * 把建立 Booking 的邏輯集中在這裡，讓 CheckoutService 職責更單純
      */
-    public Booking createBooking(Long orderId, Long tutorId, Long studentId,
+    public Bookings createBooking(Long orderId, Long tutorId, Long studentId,
                                  LocalDate date, Integer hour) {
         // 1. 建立新的預約物件
-        Booking b = new Booking();
+        Bookings b = new Bookings();
         b.setOrderId(orderId);     // 綁定訂單 ID（必填，DB 規定不能為空）
         b.setTutorId(tutorId);     // 老師 ID
         b.setStudentId(studentId); // 學生 ID

@@ -38,7 +38,7 @@ public class Bookings {
     private Boolean slotLocked;//請假OR退款SETNULL
 
     @Column(nullable = false)
-    private Byte status;
+    private Integer status;
 
     //@OneToOne(mappedBy = "lesson")
     //private LessonFeedback feedback;
