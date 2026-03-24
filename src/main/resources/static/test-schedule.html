@@ -3,154 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>老師常態排班測試 (純前端)</title>
+    <title>老師排班與預約管理系統</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: #f0f2f5; color: #333; }
-        .container { max-width: 900px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        h2 { color: #2563eb; border-bottom: 2px solid #bfdbfe; padding-bottom: 10px; margin-top: 0; }
-        .control-panel { margin-bottom: 20px; padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
-        input[type="number"] { padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; width: 60px; text-align: center; }
-        button { padding: 8px 16px; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        button:hover { background: #1d4ed8; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: #f0f2f5; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h2 { color: #2563eb; margin-top: 0; }
+        .legend { display: flex; gap: 20px; margin-bottom: 15px; font-size: 14px; align-items: center; }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .box { width: 15px; height: 15px; border-radius: 3px; border: 1px solid #ddd; }
 
-        .calendar-grid { display: grid; grid-template-columns: 60px repeat(7, 1fr); gap: 5px; margin-top: 20px; }
+        .calendar-grid { display: grid; grid-template-columns: 80px repeat(7, 1fr); gap: 5px; }
         .header-cell { background: #334155; color: white; font-weight: bold; text-align: center; padding: 10px; border-radius: 4px; }
         .time-label { background: #e2e8f0; font-weight: bold; text-align: center; padding: 10px 0; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
 
-        .slot { border: 2px solid #cbd5e1; border-radius: 6px; padding: 10px; text-align: center; cursor: pointer; transition: 0.2s; background: white; color: #94a3b8; font-size: 14px; user-select: none; }
-        .slot:hover { border-color: #60a5fa; transform: scale(1.05); }
+        .slot { border: 1px solid #cbd5e1; border-radius: 6px; padding: 12px 5px; text-align: center; cursor: pointer; transition: 0.2s; background: white; color: #94a3b8; font-size: 13px; }
 
-        /* 狀態顏色 */
         .status-available { background: #dcfce7; border-color: #22c55e; color: #166534; font-weight: bold; }
+        .status-booked { background: #fee2e2 !important; border-color: #ef4444 !important; color: #991b1b !important; font-weight: bold; cursor: not-allowed; }
 
-        #logArea { margin-top: 20px; padding: 10px; background: #1e293b; color: #4ade80; border-radius: 6px; font-family: monospace; height: 100px; overflow-y: auto; font-size: 13px; }
+        #logArea { margin-top: 20px; padding: 15px; background: #1e293b; color: #4ade80; border-radius: 6px; font-family: monospace; height: 120px; overflow-y: auto; font-size: 12px; border: 1px solid #334155; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>🗓️ 老師「常態營業時間」設定測試</h2>
+    <h2>🗓️ 老師排班與預約管理</h2>
 
-    <div class="control-panel">
-        <label>測試的老師 ID: <input type="number" id="tutorId" value="2"></label>
-        <button onclick="loadSchedule()">重新載入課表</button>
-        <span style="margin-left: 15px; font-size: 14px; color: #64748b;">💡 點擊下方格子即可切換「開放 (綠色)」與「關閉 (白色)」</span>
+    <div class="legend">
+        <label>老師 ID: <input type="number" id="tutorId" value="2" style="width: 50px; padding: 5px;" onchange="loadData()"></label>
+        <div class="legend-item"><div class="box" style="background: white;"></div> 休息</div>
+        <div class="legend-item"><div class="box" style="background: #dcfce7;"></div> 開放中</div>
+        <div class="legend-item"><div class="box" style="background: #fee2e2;"></div> 已預約</div>
+        <button onclick="loadData()" style="padding: 5px 15px; cursor: pointer;">手動整理</button>
     </div>
 
-    <div class="calendar-grid" id="calendar">
-        <!-- JS 會在這裡動態產生格子 -->
-    </div>
+    <div class="calendar-grid" id="calendar"></div>
 
-    <div id="logArea">等待操作...</div>
+    <div style="margin-top: 20px; font-weight: bold; color: #475569;">系統日誌 (Debug Log):</div>
+    <div id="logArea">正在初始化系統...</div>
 </div>
 
 <script>
-    const days = ['一', '二', '三', '四', '五', '六', '日'];
-    const startHour = 9;
-    const endHour = 21;
+    const startHour = 9, endHour = 21;
 
-    // 寫入 Log 視窗
     function log(msg) {
-        const logArea = document.getElementById('logArea');
-        logArea.innerHTML = `<div>> ${msg}</div>` + logArea.innerHTML;
+        const area = document.getElementById('logArea');
+        area.innerHTML = `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>` + area.innerHTML;
     }
 
-    // 1. 初始化畫出空的課表網格
-    function initGrid() {
+    // 關鍵函數：將各種格式的日期轉為星期幾 (1-7)
+    function getWeekdayFromData(dateData) {
+        let date;
+        if (Array.isArray(dateData)) {
+            // 如果後端回傳 [2026, 3, 16] (Spring Boot 預設的 LocalDate JSON 格式)
+            date = new Date(dateData[0], dateData[1] - 1, dateData[2]);
+        } else {
+            // 如果後端回傳 "2026-03-16"
+            date = new Date(dateData.replace(/-/g, '/'));
+        }
+        const day = date.getDay();
+        return day === 0 ? 7 : day; // 將週日 0 轉為 7
+    }
+
+    async function loadData() {
+        const tutorId = document.getElementById('tutorId').value;
         const cal = document.getElementById('calendar');
+        log(`開始載入老師 ${tutorId} 的排班與預約資料...`);
+
+        // 1. 初始化網格
         cal.innerHTML = '<div class="header-cell">時間</div>';
-
-        // 畫星期標頭
-        days.forEach(d => {
-            cal.innerHTML += `<div class="header-cell">星期${d}</div>`;
-        });
-
-        // 畫時間列與格子
+        ['一','二','三','四','五','六','日'].forEach(d => cal.innerHTML += `<div class="header-cell">週${d}</div>`);
         for (let h = startHour; h <= endHour; h++) {
             cal.innerHTML += `<div class="time-label">${h}:00</div>`;
             for (let d = 1; d <= 7; d++) {
-                // 預設全部都是 inactive (未開放)
-                cal.innerHTML += `
-                    <div class="slot" id="slot-${d}-${h}" onclick="toggleSlot(${d}, ${h})">
-                        休息
-                    </div>`;
+                cal.innerHTML += `<div class="slot" id="slot-${d}-${h}" onclick="toggleSlot(${d}, ${h})">休息</div>`;
             }
         }
-    }
-
-    // 2. 呼叫 GET API 取得資料庫目前的設定
-    async function loadSchedule() {
-        const tutorId = document.getElementById('tutorId').value;
-        log(`正在取得老師 ${tutorId} 的課表...`);
-        initGrid(); // 先把畫面洗乾淨
 
         try {
-            // 因為網頁放在 static，所以直接用相對路徑呼叫 API
-            const res = await fetch(`/api/teacher/schedules/${tutorId}`);
-            if (!res.ok) throw new Error(`HTTP 錯誤 ${res.status}`);
+            // 2. 抓取常態排班 (Template)
+            const resSched = await fetch(`/api/teacher/schedules/${tutorId}`);
+            const schedules = await resSched.json();
+            log(`收到排班資料: 總共 ${schedules.length} 筆`);
 
-            const data = await res.json();
-            log(`✅ 成功載入 ${data.length} 筆已開放的時段！`);
-
-            // 將資料庫回傳的 available 時段塗成綠色
-            data.forEach(item => {
-                if (item.status === 'available') {
-                    const el = document.getElementById(`slot-${item.weekday}-${item.hour}`);
-                    if (el) {
-                        el.className = 'slot status-available';
-                        el.innerText = '開放中';
-                        el.dataset.status = 'available'; // 綁定狀態到 DOM 元素上
-                    }
+            schedules.forEach(s => {
+                const el = document.getElementById(`slot-${s.weekday}-${s.hour}`);
+                // 🌟 修正 1：對齊後端的 isAvailable (布林值)
+                if (el && s.isAvailable) {
+                    el.className = 'slot status-available';
+                    el.innerText = '開放中';
+                    el.dataset.type = 'template';
                 }
             });
-        } catch (error) {
-            log(`❌ 載入失敗: ${error.message} (請確認後端已啟動並重建資料庫)`);
+
+            // 3. 抓取實際預約 (Bookings)
+            const resBook = await fetch(`/api/bookings/tutor/${tutorId}`);
+            const bookings = await resBook.json();
+            log(`收到預約資料: 總共 ${bookings.length} 筆`);
+
+            bookings.forEach(b => {
+                const weekday = getWeekdayFromData(b.date);
+                const el = document.getElementById(`slot-${weekday}-${b.hour}`);
+                if (el) {
+                    el.className = 'slot status-booked';
+                    el.innerText = '已預約';
+                    el.onclick = null; // 鎖死格子，不允許點擊切換
+                    el.dataset.type = 'booked';
+                }
+            });
+
+            log(`✅ 完成更新！目前有 ${bookings.length} 筆已預約。`);
+        } catch (e) {
+            log(`❌ 載入失敗: ${e.message}`);
+            console.error(e);
         }
     }
 
-    // 3. 呼叫 POST API 切換狀態
     async function toggleSlot(weekday, hour) {
         const tutorId = document.getElementById('tutorId').value;
         const el = document.getElementById(`slot-${weekday}-${hour}`);
+        if (el.dataset.type === 'booked') {
+            log(`❌ 警告：週${weekday} ${hour}:00 已被預約，無法更改狀態！`);
+            return;
+        }
 
-        // 判斷當前狀態，決定要變成什麼 (如果現在是開放，就要變成關閉)
-        const currentStatus = el.dataset.status || 'inactive';
-        const targetStatus = currentStatus === 'available' ? 'inactive' : 'available';
+        const isNowAvailable = el.classList.contains('status-available');
+        // 🌟 修正 2：準備要傳給後端的布林值狀態
+        const targetIsAvailable = !isNowAvailable;
 
-        const requestBody = {
-            tutorId: parseInt(tutorId),
-            weekday: weekday,
-            hour: hour,
-            targetStatus: targetStatus
-        };
-
-        log(`⏳ 傳送切換請求：星期${weekday} ${hour}:00 設為 ${targetStatus}...`);
+        log(`要求切換狀態: 週${weekday} ${hour}:00 -> ${targetIsAvailable ? '開放' : '休息'}`);
 
         try {
             const res = await fetch('/api/teacher/schedules/toggle', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(requestBody)
+                // 🌟 修正 3：對齊 ToggleReq.java 裡的 isAvailable 變數名稱
+                body: JSON.stringify({ tutorId, weekday, hour, isAvailable: targetIsAvailable })
             });
 
-            const result = await res.json();
-
             if (res.ok) {
-                log(`✅ 儲存成功！`);
-                // 儲存成功後，重撈一次資料刷新畫面
-                loadSchedule();
+                log(`✅ 切換成功！重新整理畫面中...`);
+                loadData();
             } else {
-                log(`❌ 儲存失敗: ${result.msg}`);
-                alert('操作失敗：' + result.msg);
+                log(`❌ 切換失敗，伺服器回傳錯誤`);
             }
-        } catch (error) {
-            log(`❌ 請求發生例外錯誤: ${error.message}`);
+        } catch (e) {
+            log(`❌ 網路錯誤: ${e.message}`);
         }
     }
 
-    // 網頁載入時先初始化一次網格
-    initGrid();
+    // 啟動時自動載入
+    loadData();
 </script>
-
 </body>
 </html>

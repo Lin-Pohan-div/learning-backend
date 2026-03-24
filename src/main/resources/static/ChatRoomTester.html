@@ -141,6 +141,8 @@
     }
     .msg-row.self  .bubble { background: #2b6cb0; color: #fff; border-bottom-right-radius: 4px; }
     .msg-row.other .bubble { background: #2d3748; color: #e2e8f0; border-bottom-left-radius: 4px; }
+    .bubble a { color: #90cdf4; text-decoration: underline; }
+    .msg-row.self .bubble a { color: #bee3f8; }
     .bubble.media { background: transparent !important; padding: 4px; }
 
     .msg-time { font-size: 10px; color: #4a5568; padding: 0 4px; }
@@ -253,6 +255,33 @@
     .log-line.out { color: #68d391; }
     .log-line.sys { color: #b794f4; }
     .log-line.err { color: #fc8181; }
+
+    /* ── link preview card ── */
+    .link-preview {
+      margin-top: 8px; border-radius: 10px; overflow: hidden;
+      border: 1px solid #2d3748; max-width: 300px;
+      background: #1a1d2e; cursor: pointer; display: block;
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .link-preview:hover { border-color: #4299e1; }
+    .link-preview-thumb { width: 100%; max-height: 160px; object-fit: cover; display: block; background: #0f1117; }
+    .link-preview-thumb.yt { aspect-ratio: 16/9; }
+    .link-preview-meta { padding: 8px 10px; }
+    .link-preview-title {
+      font-size: 12px; font-weight: 600; color: #e2e8f0;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px;
+    }
+    .link-preview-desc {
+      font-size: 11px; color: #718096;
+      display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .link-preview-domain { font-size: 10px; color: #4a5568; margin-top: 4px; }
+    .inline-img-preview {
+      margin-top: 6px; max-width: 300px; max-height: 200px;
+      border-radius: 8px; display: block; object-fit: cover;
+      cursor: pointer; transition: opacity 0.2s;
+    }
+    .inline-img-preview:hover { opacity: 0.85; }
   </style>
 </head>
 <body>
@@ -280,10 +309,11 @@
 // ─────────────────────────────────────────────
 // 常數
 // ─────────────────────────────────────────────
-const ROLE       = { A: 1, B: 2 };
-const ROLE_NAME  = { 1: '學生', 2: '導師' };
+const ROLE       = { A: 'student', B: 'tutor' };
+const ROLE_INT   = { A: 1, B: 2 };
+const ROLE_NAME  = { 'student': '學生', 'tutor': '導師', 1: '學生', 2: '導師' };
 const TYPE_NAME  = { 1: 'TEXT', 2: 'STICKER', 3: 'VOICE', 4: 'IMAGE', 5: 'VIDEO', 6: 'FILE' };
-const MEDIA_TYPES = new Set([2, 3, 4, 5]);
+const MEDIA_TYPES = new Set([2, 3, 4, 5, 6]);
 
 const state = { A: { client: null }, B: { client: null } };
 
@@ -317,23 +347,17 @@ function createPanel(p) {
 
     <div class="chat-input-area">
       <div class="input-options">
-        <span class="type-label">訊息類型：</span>
-        <select id="type${p}" onchange="onTypeChange('${p}')">
-          <option value="1">文字 TEXT</option>
-          <option value="2">貼圖 STICKER</option>
-          <option value="3">語音 VOICE</option>
-          <option value="4">圖片 IMAGE</option>
-          <option value="5">影片 VIDEO</option>
-        </select>
+        <span class="type-label" id="typeHint${p}">類型：自動偵測</span>
         <div class="event-btns">
           <button class="btn-event btn-join"  onclick="sendEvent('${p}','joined')">加入房間</button>
           <button class="btn-event btn-leave" onclick="sendEvent('${p}','left')">離開房間</button>
         </div>
       </div>
-      <div class="input-row" id="textRow${p}">
+      <div class="input-row">
         <input class="msg-input" id="input${p}" type="text"
-               placeholder="輸入訊息，按 Enter 傳送…"
-               onkeydown="if(event.key==='Enter') sendChat('${p}')" />
+               placeholder="輸入文字或貼上媒體 URL，自動判斷類型…"
+               onkeydown="if(event.key==='Enter') sendChat('${p}')"
+               oninput="updateTypeHint('${p}')" />
         <input type="file" id="fileInput${p}" style="display:none"
                onchange="onFileSelected('${p}', this)" />
         <button class="btn-upload" id="uploadBtn${p}" title="上傳檔案"
@@ -342,10 +366,6 @@ function createPanel(p) {
             <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
           </svg>
         </button>
-        <button class="btn-send" onclick="sendChat('${p}')">傳送</button>
-      </div>
-      <div class="input-row" id="mediaRow${p}" style="display:none">
-        <input class="media-input" id="media${p}" type="text" placeholder="媒體 URL（https://...）" />
         <button class="btn-send" onclick="sendChat('${p}')">傳送</button>
       </div>
     </div>
@@ -402,12 +422,28 @@ function toggleLog(p) {
 }
 
 // ─────────────────────────────────────────────
-// 訊息類型切換
+// 自動偵測訊息類型
 // ─────────────────────────────────────────────
-function onTypeChange(p) {
-  const isMedia = MEDIA_TYPES.has(parseInt(document.getElementById('type' + p).value));
-  document.getElementById('textRow'  + p).style.display = isMedia ? 'none' : 'flex';
-  document.getElementById('mediaRow' + p).style.display = isMedia ? 'flex' : 'none';
+const IMG_EXTS   = /\.(jpe?g|png|gif|webp|bmp|svg|ico)(\?.*)?$/i;
+const VIDEO_EXTS = /\.(mp4|webm|mov|avi|mkv)(\?.*)?$/i;
+const AUDIO_EXTS = /\.(mp3|wav|ogg|aac|flac|m4a)(\?.*)?$/i;
+const URL_PATTERN = /^(https?:\/\/.+|\/\S+)/i;
+
+function autoDetectType(text) {
+  if (!URL_PATTERN.test(text)) return 1; // TEXT
+  if (IMG_EXTS.test(text))     return 4; // IMAGE
+  if (VIDEO_EXTS.test(text))   return 5; // VIDEO
+  if (AUDIO_EXTS.test(text))   return 3; // VOICE
+  return 1;                              // 非媒體 URL → TEXT
+}
+
+const TYPE_HINT_MAP = { 1: '文字 TEXT', 2: '貼圖 STICKER', 3: '語音 VOICE', 4: '圖片 IMAGE', 5: '影片 VIDEO', 6: '檔案 FILE' };
+
+function updateTypeHint(p) {
+  const val  = document.getElementById('input' + p).value.trim();
+  const type = val ? autoDetectType(val) : 0;
+  const hint = document.getElementById('typeHint' + p);
+  hint.textContent = type ? `類型：${TYPE_HINT_MAP[type]}` : '類型：自動偵測';
 }
 
 // ─────────────────────────────────────────────
@@ -433,6 +469,8 @@ function connect(p) {
 
     client.subscribe(`/topic/room/${bid}/chat`, (frame) => {
       rawLog(p, 'in', frame.body);
+      const msg = JSON.parse(frame.body);
+      renderMessage(p, msg);
     });
 
     client.subscribe(`/topic/room/${bid}/events`, (frame) => {
@@ -440,6 +478,12 @@ function connect(p) {
       const ev  = JSON.parse(frame.body);
       const who = ROLE_NAME[ev.role] || `role=${ev.role}`;
       addSys(p, `${who} ${ev.type === 'joined' ? '加入' : '離開'}了房間`);
+    });
+
+    client.subscribe(`/topic/room/${bid}/errors`, (frame) => {
+      rawLog(p, 'err', frame.body);
+      const err = JSON.parse(frame.body);
+      addSys(p, `[錯誤] ${err.code}: ${err.message}`);
     });
 
   }, (err) => {
@@ -465,31 +509,26 @@ function disconnect(p) {
 function sendChat(p) {
   if (!state[p].client?.connected) { addSys(p, '請先連線'); return; }
 
-  const type    = parseInt(document.getElementById('type' + p).value);
-  const isMedia = MEDIA_TYPES.has(type);
-  const message  = isMedia ? '' : document.getElementById('input' + p).value.trim();
-  const mediaUrl = isMedia ? document.getElementById('media' + p).value.trim() : '';
+  const inputVal = document.getElementById('input' + p).value.trim();
+  if (!inputVal) return;
 
-  if (!isMedia && !message)  return;
-  if (isMedia  && !mediaUrl) { addSys(p, '請輸入媒體 URL'); return; }
+  const type     = autoDetectType(inputVal);
+  const isMedia  = MEDIA_TYPES.has(type);
+  const message  = isMedia ? '' : inputVal;
+  const mediaUrl = isMedia ? inputVal : '';
 
   const payload  = { bookingId: parseInt(bookingId()), role: ROLE[p], messageType: type, message, mediaUrl };
-  const localMsg = { role: ROLE[p], messageType: type, message, mediaUrl };
-
-  // 立即顯示在自己面板，並中繼到對方面板
-  renderMessage(p, localMsg);
-  renderMessage(p === 'A' ? 'B' : 'A', localMsg);
 
   state[p].client.send(`/app/chat/${bookingId()}`, {}, JSON.stringify(payload));
   rawLog(p, 'out', JSON.stringify(payload));
 
-  if (isMedia) document.getElementById('media' + p).value = '';
-  else         document.getElementById('input' + p).value = '';
+  document.getElementById('input' + p).value = '';
+  updateTypeHint(p);
 }
 
 function sendEvent(p, type) {
   if (!state[p].client?.connected) { addSys(p, '請先連線'); return; }
-  const payload = { type, role: ROLE[p] };
+  const payload = { type, role: ROLE_INT[p] };
   state[p].client.send(`/app/event/${bookingId()}`, {}, JSON.stringify(payload));
   rawLog(p, 'out', JSON.stringify(payload));
 }
@@ -504,16 +543,37 @@ function onFileSelected(p, input) {
   uploadFile(p, file);
 }
 
+function detectLocalType(file) {
+  const t = file.type || '';
+  if (t.startsWith('image/')) return 4;
+  if (t.startsWith('video/')) return 5;
+  if (t.startsWith('audio/')) return 3;
+  return 6;
+}
+
 async function uploadFile(p, file) {
   const btn = document.getElementById('uploadBtn' + p);
   btn.disabled = true;
+
+  // 讀取輸入框中的文字，作為附帶訊息一併上傳
+  const inputEl = document.getElementById('input' + p);
+  const textMsg = inputEl.value.trim();
+
   addSys(p, `上傳中：${file.name}…`);
-  rawLog(p, 'out', `UPLOAD ${file.name} (${file.size} bytes)`);
+  rawLog(p, 'out', `UPLOAD ${file.name} (${file.size} bytes)` + (textMsg ? ` msg="${textMsg}"` : ''));
+
+  // 立即用本地 Blob URL 顯示預覽縮圖（不需等待伺服器回應）
+  const localType = detectLocalType(file);
+  const blobUrl   = URL.createObjectURL(file);
+  const previewMsg = { role: ROLE[p], messageType: localType, mediaUrl: blobUrl, message: textMsg || file.name };
+  renderMessage(p, previewMsg);
+  renderMessage(p === 'A' ? 'B' : 'A', previewMsg);
 
   const form = new FormData();
   form.append('file', file);
   form.append('bookingId', bookingId());
   form.append('role', ROLE[p]);
+  if (textMsg) form.append('message', textMsg);
 
   const headers = {};
   const token = jwtToken();
@@ -524,18 +584,20 @@ async function uploadFile(p, file) {
     const data = await res.json();
 
     if (!res.ok) {
-      addSys(p, `上傳失敗: ${data.msg || res.status}`);
+      addSys(p, `上傳失敗: ${data.msg || data.message || res.status}`);
       rawLog(p, 'err', JSON.stringify(data));
       return;
     }
 
     rawLog(p, 'in', JSON.stringify(data));
-    renderMessage(p, data);
-    renderMessage(p === 'A' ? 'B' : 'A', data);
+    addSys(p, `上傳成功：${file.name}`);
+    inputEl.value = '';
+    updateTypeHint(p);
   } catch (e) {
     addSys(p, `上傳錯誤: ${e.message}`);
     rawLog(p, 'err', String(e));
   } finally {
+    URL.revokeObjectURL(blobUrl);
     btn.disabled = false;
   }
 }
@@ -543,6 +605,128 @@ async function uploadFile(p, file) {
 // ─────────────────────────────────────────────
 // 渲染聊天氣泡（DOM 操作，避免 XSS）
 // ─────────────────────────────────────────────
+const LINKIFY_RE = /(https?:\/\/[^\s<]+)/gi;
+
+function linkifyText(text, container) {
+  const parts = text.split(LINKIFY_RE);
+  let firstUrl = null;
+  for (const part of parts) {
+    LINKIFY_RE.lastIndex = 0;
+    if (LINKIFY_RE.test(part)) {
+      LINKIFY_RE.lastIndex = 0;
+      const a = document.createElement('a');
+      a.href = part;
+      a.textContent = part;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      container.appendChild(a);
+      if (!firstUrl) firstUrl = part;
+    } else if (part) {
+      container.appendChild(document.createTextNode(part));
+    }
+    LINKIFY_RE.lastIndex = 0;
+  }
+  if (firstUrl) appendUrlPreview(firstUrl, container);
+}
+
+// ─────────────────────────────────────────────
+// URL 預覽卡片
+// ─────────────────────────────────────────────
+const YT_RE      = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/;
+const IMG_URL_RE = /\.(jpe?g|png|gif|webp)(\?[^\s]*)?$/i;
+
+function extractYouTubeId(url) { const m = YT_RE.exec(url); return m ? m[1] : null; }
+function isDirectImageUrl(url) { return IMG_URL_RE.test(url); }
+
+function buildYouTubePreview(url, videoId) {
+  const a = document.createElement('a');
+  a.className = 'link-preview';
+  a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+
+  const img = document.createElement('img');
+  img.className = 'link-preview-thumb yt';
+  img.alt = 'YouTube thumbnail';
+  img.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+  img.onerror = function() { this.closest('.link-preview').remove(); };
+
+  const meta = document.createElement('div');
+  meta.className = 'link-preview-meta';
+  const domain = document.createElement('div');
+  domain.className = 'link-preview-domain';
+  domain.textContent = 'youtube.com';
+  meta.appendChild(domain);
+
+  a.append(img, meta);
+  return a;
+}
+
+function buildInlineImagePreview(url) {
+  const img = document.createElement('img');
+  img.className = 'inline-img-preview';
+  img.alt = '圖片預覽'; img.title = '點擊查看原圖'; img.src = url;
+  img.onerror = function() { this.remove(); };
+  img.addEventListener('click', () => window.open(url, '_blank'));
+  return img;
+}
+
+const previewCache = new Map();
+
+async function buildGenericPreview(url) {
+  try {
+    let data = previewCache.get(url);
+    if (!data) {
+      const res = await fetch(`/api/linkPreview?url=${encodeURIComponent(url)}`);
+      if (!res.ok) return null;
+      data = await res.json();
+      previewCache.set(url, data);
+    }
+    if (!data.title) return null;
+
+    const a = document.createElement('a');
+    a.className = 'link-preview';
+    a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+
+    if (data.imageUrl) {
+      const img = document.createElement('img');
+      img.className = 'link-preview-thumb';
+      img.src = data.imageUrl;
+      img.onerror = function() { this.remove(); };
+      a.appendChild(img);
+    }
+
+    const meta = document.createElement('div');
+    meta.className = 'link-preview-meta';
+
+    const title = document.createElement('div');
+    title.className = 'link-preview-title';
+    title.textContent = data.title;
+    meta.appendChild(title);
+
+    if (data.description) {
+      const desc = document.createElement('div');
+      desc.className = 'link-preview-desc';
+      desc.textContent = data.description;
+      meta.appendChild(desc);
+    }
+
+    const domain = document.createElement('div');
+    domain.className = 'link-preview-domain';
+    try { domain.textContent = new URL(url).hostname; } catch(_) { domain.textContent = url; }
+    meta.appendChild(domain);
+
+    a.appendChild(meta);
+    return a;
+  } catch(_) { return null; }
+}
+
+async function appendUrlPreview(url, container) {
+  const ytId = extractYouTubeId(url);
+  if (ytId) { container.appendChild(buildYouTubePreview(url, ytId)); return; }
+  if (isDirectImageUrl(url)) { container.appendChild(buildInlineImagePreview(url)); return; }
+  const card = await buildGenericPreview(url);
+  if (card) container.appendChild(card);
+}
+
 function createMediaElement(msg) {
   const url = msg.mediaUrl || '';
   switch (msg.messageType) {
@@ -558,25 +742,32 @@ function createMediaElement(msg) {
     }
     case 4: {
       const el = document.createElement('img');
-      el.className = 'chat-img'; el.alt = '圖片'; el.title = '點擊查看原圖'; el.src = url;
+      el.className = 'chat-img'; el.alt = '圖片'; el.title = '點擊查看原圖';
+      el.src = url;
+      el.onerror = function() { this.alt = '圖片載入失敗'; this.style.border = '1px dashed #4a5568'; };
       el.addEventListener('click', () => window.open(url, '_blank'));
       return el;
     }
     case 5: {
       const el = document.createElement('video');
-      el.className = 'chat-video'; el.controls = true; el.src = url;
+      el.className = 'chat-video'; el.controls = true; el.preload = 'auto'; el.muted = true;
+      el.src = url;
+      // 確保瀏覽器載入後自動顯示第一幀作為縮圖
+      el.addEventListener('loadeddata', function() { this.currentTime = 0.1; });
       return el;
     }
     case 6: {
-      const filename = url.split('/').pop() || '下載檔案';
+      const storedName = url.split('/').pop() || '';
+      const originalName = msg.message || storedName || '下載檔案';
+      const downloadUrl = `/api/chatMessage/download/${encodeURIComponent(storedName)}?name=${encodeURIComponent(originalName)}`;
       const a = document.createElement('a');
-      a.className = 'chat-file'; a.href = url; a.target = '_blank';
+      a.className = 'chat-file'; a.href = downloadUrl; a.download = originalName;
 
       const icon = document.createElement('span');
       icon.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
 
       const name = document.createElement('span');
-      name.className = 'chat-file-name'; name.textContent = filename;
+      name.className = 'chat-file-name'; name.textContent = originalName;
 
       a.append(icon, name);
       return a;
@@ -594,8 +785,8 @@ function renderMessage(panel, msg) {
   row.className = `msg-row ${isSelf ? 'self' : 'other'}`;
 
   const avatar = document.createElement('div');
-  avatar.className   = `msg-avatar ${msg.role === 1 ? 'avatar-student' : 'avatar-tutor'}`;
-  avatar.textContent = msg.role === 1 ? 'S' : 'T';
+  avatar.className   = `msg-avatar ${msg.role === 'student' ? 'avatar-student' : 'avatar-tutor'}`;
+  avatar.textContent = msg.role === 'student' ? 'S' : 'T';
 
   const content = document.createElement('div');
   content.className = 'msg-content';
@@ -613,8 +804,15 @@ function renderMessage(panel, msg) {
     const mediaEl = createMediaElement(msg);
     if (mediaEl) bubble.appendChild(mediaEl);
     else bubble.textContent = `[${TYPE_NAME[msg.messageType] || msg.messageType}] ${msg.mediaUrl || ''}`;
+    // 顯示附帶的文字訊息（排除純檔名）
+    if (msg.message && msg.message.trim()) {
+      const caption = document.createElement('div');
+      caption.style.cssText = 'margin-top:6px;font-size:13px;line-height:1.4;color:#e2e8f0;';
+      caption.textContent = msg.message;
+      bubble.appendChild(caption);
+    }
   } else {
-    bubble.textContent = msg.message || '';
+    linkifyText(msg.message || '', bubble);
   }
 
   const timeStr = msg.createdAt

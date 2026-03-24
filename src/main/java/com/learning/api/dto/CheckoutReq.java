@@ -10,6 +10,7 @@ import java.util.List;
 public class CheckoutReq {
     private Long studentId;
     private Long courseId;
+    private Integer lessonCount;
     private List<Slot> selectedSlots; // 學生選的多個時段
 
     @Getter
@@ -17,5 +18,11 @@ public class CheckoutReq {
     public static class Slot {
         private LocalDate date;
         private Integer hour;
+
+        public Slot(LocalDate date, Integer hour) {
+            this.date = date;
+            this.hour = hour;
+        }
     }
+
 }

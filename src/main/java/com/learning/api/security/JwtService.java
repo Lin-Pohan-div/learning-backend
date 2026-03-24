@@ -28,17 +28,15 @@ public class JwtService {
 
     // 生成 token
     public String generateToken(User user) {
-
         Date now = new Date();
         Date exp = new Date(now.getTime() + expMinutes * 60 * 1000);
 
         return Jwts.builder()
-                // who
-                .subject(user.getEmail())
+                .subject(user.getEmail()) // who
                 .claim("userId", user.getId())
                 .claim("role", user.getRole().name())
-
-                // token 發放 / 過期時間
+                // 🌟 加這行！把真實姓名塞進 Token 裡
+                .claim("name", user.getName())
                 .issuedAt(now)
                 .expiration(exp)
                 .signWith(getSignKey())
@@ -58,7 +56,9 @@ public class JwtService {
     public String email(String token) {
         return parseToken(token).getSubject();
     }
-
+    public Long userId(String token){
+        return parseToken(token).get("userId", Long.class);
+    }
     // role
     public String role(String token){
         return parseToken(token).get("role", String.class);

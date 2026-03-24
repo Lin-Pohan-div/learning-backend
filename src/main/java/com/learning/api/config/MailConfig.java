@@ -8,7 +8,8 @@ import lombok.Getter;
 @Getter
 public class MailConfig {
 
-    @Value("${spring.mail.username:}")
+    // Keep startup resilient in local/dev when mail settings are not provided.
+    @Value("${spring.mail.username:no-reply@local.dev}")
     private String from;
 
 }

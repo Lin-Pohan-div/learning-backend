@@ -25,3 +25,4 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(Map.of("msg", e.getMessage()));
     }
 }
+

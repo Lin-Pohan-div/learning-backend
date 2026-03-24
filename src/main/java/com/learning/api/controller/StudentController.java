@@ -1,36 +1,47 @@
 package com.learning.api.controller;
 
-import com.learning.api.annotation.ApiController;
-import com.learning.api.repo.BookingRepository;
-import com.learning.api.repo.WalletLogRepository;
+import com.learning.api.dto.BookingDTO;
+import com.learning.api.dto.auth.UserResp;
+import com.learning.api.entity.User;
 import com.learning.api.security.SecurityUser;
-import lombok.RequiredArgsConstructor;
+import com.learning.api.service.BookingService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-/**
- * 學生專屬 API — 需要 STUDENT role（SecurityConfig 已設定 /api/student/** → STUDENT）
- */
-@ApiController
+import java.util.List;
+
+@CrossOrigin(origins = "http://localhost:5173")
+@RestController
 @RequestMapping("/api/student")
-@RequiredArgsConstructor
 public class StudentController {
 
-    private final BookingRepository bookingRepo;
-    private final WalletLogRepository walletLogRepo;
+    @Autowired
+    private BookingService bookingService;
 
-    /** 查詢自己的所有預約 */
-    @GetMapping("/bookings")
-    public ResponseEntity<?> getMyBookings(@AuthenticationPrincipal SecurityUser principal) {
-        Long studentId = principal.getUser().getId();
-        return ResponseEntity.ok(bookingRepo.findByStudentId(studentId));
+    @GetMapping("/profile")
+    public ResponseEntity<UserResp> getProfile(@AuthenticationPrincipal SecurityUser securityUser) {
+        User user = securityUser.getUser();
+        UserResp resp = new UserResp(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getBirthday(),
+                user.getRole(),
+                user.getWallet(),
+                user.getCreatedAt(),
+                user.getUpdatedAt()
+        );
+        return ResponseEntity.ok(resp);
     }
 
-    /** 查詢自己的錢包交易紀錄 */
-    @GetMapping("/wallet/logs")
-    public ResponseEntity<?> getMyWalletLogs(@AuthenticationPrincipal SecurityUser principal) {
-        Long userId = principal.getUser().getId();
-        return ResponseEntity.ok(walletLogRepo.findByUserId(userId));
+    @GetMapping("/bookings")
+    public ResponseEntity<List<BookingDTO>> getBookings(@AuthenticationPrincipal SecurityUser securityUser) {
+        Long studentId = securityUser.getUser().getId();
+        return ResponseEntity.ok(bookingService.getTutorBookings(studentId));
     }
 }

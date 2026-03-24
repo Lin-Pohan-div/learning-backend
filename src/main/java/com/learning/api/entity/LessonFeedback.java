@@ -1,7 +1,7 @@
-package com.learning.api.entity;
+/* package com.learning.api.entity;
 
-import jakarta.persistence.*;
 import java.time.Instant;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,8 +14,8 @@ public class LessonFeedback {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    
-    @Column(name = "booking_id")
+    // 👉 修正：單純存 ID 就用 @Column，不要用 @JoinColumn
+    @Column(name = "booking_id", nullable = false)
     private Long bookingId;
 
     @Column(name="focus_score" ,nullable = false)
@@ -28,13 +28,8 @@ public class LessonFeedback {
     private Integer confidenceScore;
 
     @Column(nullable = true, length = 1000)
-    private String comment; 
-
-    @Column(nullable = false)
-    private Integer rating;
+    private String comment;
 
     @Column(name = "created_at", insertable = false, updatable = false)
     private Instant createdAt;
-    
-
-}
+}*/

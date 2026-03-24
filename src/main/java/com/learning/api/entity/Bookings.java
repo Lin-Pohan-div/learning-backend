@@ -21,8 +21,7 @@ public class Bookings {
     
     @Column(name = "order_id")
     private Long orderId;
-
-
+    
     @Column(name = "tutor_id", nullable = false)
     private Long tutorId;
 

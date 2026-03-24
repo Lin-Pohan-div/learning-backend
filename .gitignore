@@ -35,6 +35,7 @@ build/
 
 ### VS Code ###
 .vscode/
+<<<<<<< HEAD
 *.code-workspace
 
 # Sensitive settings and passwords
@@ -49,3 +50,6 @@ dist/
 
 # OS generated files
 Thumbs.db
+=======
+*.md
+>>>>>>> upstream/feature/develop

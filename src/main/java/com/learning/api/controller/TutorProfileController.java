@@ -1,75 +1,63 @@
 package com.learning.api.controller;
 
-import com.learning.api.annotation.ApiController;
-import com.learning.api.dto.tutor.TutorUpdateReq;
-import com.learning.api.entity.Tutor;
-import com.learning.api.service.TutorService;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
+import com.learning.api.dto.TutorUpdateDTO;
+import com.learning.api.security.SecurityUser;
+import com.learning.api.service.Chat.FileStorageService;
+import com.learning.api.service.TutorService;
 
-@ApiController
-@RequestMapping("/api/teacher/profile")
-@RequiredArgsConstructor
+@RestController
+@RequestMapping("/api/tutor/me/profile")
+@CrossOrigin(origins = "http://localhost:5173")
 public class TutorProfileController {
 
-    private final TutorService tutorService;
+    @Autowired
+    private TutorService tutorService;
 
-    // [GET] 取得老師個人檔案
-    @GetMapping("/{tutorId}")
-    public ResponseEntity<?> getProfile(@PathVariable Long tutorId) {
-        Tutor tutor = tutorService.getTutor(tutorId);
-        if (tutor == null) {
-            return ResponseEntity.status(404).body(Map.of("msg", "找不到該名老師的個人檔案"));
-        }
-        return ResponseEntity.ok(tutor);
+    @Autowired
+    private FileStorageService fileStorageService;
+
+    // GET /api/tutor/me/profile
+    @GetMapping
+    public ResponseEntity<TutorUpdateDTO> getProfile(
+            @AuthenticationPrincipal SecurityUser me) {
+        return ResponseEntity.ok(tutorService.getProfileDTO(me.getUser().getId()));
     }
 
-    // [POST] 建立老師個人檔案（初次設定）
-    @PostMapping
-    public ResponseEntity<?> createProfile(@RequestBody TutorUpdateReq dto) {
-        if (dto.getTutorId() == null) {
-            return ResponseEntity.status(400).body(Map.of("msg", "必須提供老師 ID"));
-        }
-
-        String result = tutorService.createProfile(dto);
-
-        if (result.equals("success")) {
-            return ResponseEntity.status(201).body(Map.of("msg", "個人檔案建立成功！"));
-        } else if (result.contains("已存在")) {
-            return ResponseEntity.status(409).body(Map.of("msg", result));
-        } else {
-            return ResponseEntity.status(404).body(Map.of("msg", result));
-        }
-    }
-
-    // [PUT] 更新老師個人檔案
+    // PUT /api/tutor/me/profile
     @PutMapping
-    public ResponseEntity<?> updateProfile(@RequestBody TutorUpdateReq dto) {
-        if (dto.getTutorId() == null) {
-            return ResponseEntity.status(400).body(Map.of("msg", "必須提供老師 ID"));
-        }
+    public ResponseEntity<String> updateProfile(
+            @AuthenticationPrincipal SecurityUser me,
+            @RequestBody TutorUpdateDTO dto) {
 
-        String result = tutorService.updateProfile(dto);
+        Long tutorId = me.getUser().getId();
+        TutorUpdateDTO current = tutorService.getProfileDTO(tutorId);
 
-        if (!result.equals("success")) {
-            return ResponseEntity.status(404).body(Map.of("msg", result));
-        }
+        // 若有新的 URL 且與舊的不同，刪除舊的實體檔案
+        deleteOldFileIfReplaced(current.getAvatar(),       dto.getAvatar());
+        deleteOldFileIfReplaced(current.getCertificate1(), dto.getCertificate1());
+        deleteOldFileIfReplaced(current.getCertificate2(), dto.getCertificate2());
+        deleteOldFileIfReplaced(current.getVideoUrl1(),    dto.getVideoUrl1());
+        deleteOldFileIfReplaced(current.getVideoUrl2(),    dto.getVideoUrl2());
 
-        return ResponseEntity.ok(Map.of("msg", "個人檔案更新成功！"));
+        tutorService.updateProfile(tutorId, dto);
+        return ResponseEntity.ok("個人資料已更新");
     }
 
-    // [DELETE] 刪除老師個人檔案
-    @DeleteMapping("/{tutorId}")
-    public ResponseEntity<?> deleteProfile(@PathVariable Long tutorId) {
-        String result = tutorService.deleteProfile(tutorId);
+    // ── 私有輔助方法 ──────────────────────────────────────────────────
 
-        if (!result.equals("success")) {
-            return ResponseEntity.status(404).body(Map.of("msg", result));
+    private void deleteOldFileIfReplaced(String oldUrl, String newUrl) {
+        if (oldUrl != null && !oldUrl.equals(newUrl)) {
+            fileStorageService.deleteFileByUrl(oldUrl);
         }
-
-        return ResponseEntity.ok(Map.of("msg", "個人檔案已成功刪除！"));
     }
 }

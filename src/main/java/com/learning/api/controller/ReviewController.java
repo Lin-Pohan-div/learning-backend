@@ -8,6 +8,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.learning.api.dto.ReviewRequest;
+import com.learning.api.entity.Review;
+import com.learning.api.entity.User;
+import com.learning.api.repo.UserRepo;
+import com.learning.api.service.ReviewService;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -18,26 +23,27 @@ import java.util.NoSuchElementException;
 public class ReviewController {
 
     private final ReviewService reviewService;
+    private final UserRepo userRepo;
 
     @GetMapping
-    public List<Reviews> getAll() {
+    public List<Review> getAll() {
         return reviewService.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Reviews> getById(@PathVariable Long id) {
+    public ResponseEntity<Review> getById(@PathVariable Long id) {
         return reviewService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/user/{userId}")
-    public List<Reviews> getByUserId(@PathVariable Long userId) {
+    public List<Review> getByUserId(@PathVariable Long userId) {
         return reviewService.findByUserId(userId);
     }
 
     @GetMapping("/course/{courseId}")
-    public List<Reviews> getByCourseId(@PathVariable Long courseId) {
+    public List<Review> getByCourseId(@PathVariable Long courseId) {
         return reviewService.findByCourseId(courseId);
     }
 
@@ -62,15 +68,16 @@ public class ReviewController {
                         .body(new ErrorResponse("驗證失敗: courseId 不能為空"));
             }
 
-            Reviews review = new Reviews();
-            review.setUserId(request.getUserId());
+            User student = userRepo.findById(request.getUserId())
+                    .orElseThrow(() -> new NoSuchElementException("找不到用戶: " + request.getUserId()));
+
+            Review review = new Review();
+            review.setStudent(student);
             review.setCourseId(request.getCourseId());
-            review.setFocusScore(request.getFocusScore());
-            review.setComprehensionScore(request.getComprehensionScore());
-            review.setConfidenceScore(request.getConfidenceScore());
+            review.setRating(request.getRating());
             review.setComment(request.getComment());
 
-            Reviews saved = reviewService.save(review);
+            Review saved = reviewService.save(review);
             return ResponseEntity.status(HttpStatus.CREATED).body(saved);
         } catch (NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -85,7 +92,7 @@ public class ReviewController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Reviews> update(@PathVariable Long id, @RequestBody Reviews review) {
+    public ResponseEntity<Review> update(@PathVariable Long id, @RequestBody Review review) {
         return reviewService.update(id, review)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());

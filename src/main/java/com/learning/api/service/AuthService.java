@@ -3,7 +3,7 @@ package com.learning.api.service;
 import com.learning.api.dto.auth.LoginReq;
 import com.learning.api.dto.auth.LoginResp;
 import com.learning.api.entity.User;
-import com.learning.api.repo.UserRepository;
+import com.learning.api.repo.UserRepo;
 import com.learning.api.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,9 +13,14 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final JwtService jwtService;
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    @Autowired
+    private JwtService jwtService;
+
+    @Autowired
+    private UserRepo memberRepo;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public LoginResp loginReq(LoginReq loginReq){
         // 查人

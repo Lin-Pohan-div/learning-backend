@@ -285,6 +285,8 @@
   <input id="bookingId" type="number" value="1" min="1" />
   <label>WebSocket URL</label>
   <input id="wsUrl" type="text" placeholder="ws URL" />
+  <label>JWT Token</label>
+  <input id="jwtToken" type="text" placeholder="Bearer token（連線必填）" style="width:260px;" />
   <span class="topbar-hint">兩個面板共用同一房間，模擬學生與導師視訊對話</span>
 </div>
 
@@ -616,7 +618,14 @@ function connect(panel) {
 
   state[panel].client = client;
 
-  client.connect({}, () => {
+  const token = document.getElementById('jwtToken').value.trim();
+  if (!token) {
+    log(panel, 'ERR', '請先在頂部填入 JWT Token');
+    return;
+  }
+  const connectHeaders = { Authorization: 'Bearer ' + token };
+
+  client.connect(connectHeaders, () => {
     const pill = document.getElementById('pill' + panel);
     pill.textContent = '連線中';
     pill.classList.add('online');

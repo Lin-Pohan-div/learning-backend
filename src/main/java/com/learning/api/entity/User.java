@@ -1,12 +1,14 @@
 package com.learning.api.entity;
+
 import com.learning.api.enums.UserRole;
+import com.learning.api.enums.UserRoleConverter;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
 import java.time.LocalDate;
-
 
 @Entity
 @Table(name = "users")
@@ -29,16 +31,17 @@ public class User {
 
     private LocalDate birthday;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = UserRoleConverter.class)
     @Column(nullable = false)
-    private UserRole role; //1:student/2:teacher/3admin
+    /* @Enumerated(EnumType.STRING) */
+    private UserRole role;
 
-    @Column(nullable=false)
-    private Long wallet=0L;
+    @Column(nullable = false)
+    private Integer wallet = 0;
 
     @Column(name = "created_at", insertable = false, updatable = false)
     private Instant createdAt;
-    
+
     @Column(name = "updated_at", insertable = false, updatable = false)
     private Instant updatedAt;
 }

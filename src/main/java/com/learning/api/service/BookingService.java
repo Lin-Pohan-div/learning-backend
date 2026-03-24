@@ -1,126 +1,74 @@
 package com.learning.api.service;
 
-import com.learning.api.dto.booking.BookingReq;
-import com.learning.api.entity.Bookings;
+import com.learning.api.dto.BookingDTO;
+import com.learning.api.entity.Booking;
 import com.learning.api.entity.Course;
-import com.learning.api.entity.Order;
-import com.learning.api.repo.BookingRepository;
+import com.learning.api.entity.User;
+import com.learning.api.repo.BookingRepo;
 import com.learning.api.repo.CourseRepo;
 import com.learning.api.repo.OrderRepository;
-import com.learning.api.repo.UserRepository;
-
-import lombok.RequiredArgsConstructor;
+import com.learning.api.repo.UserRepo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * BookingService 負責預約入口驗證與課程狀態管理。
- */
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class BookingService {
-    private final UserRepository userRepository;
-    private final CourseRepo courseRepo;
-    private final BookingRepository bookingRepo;
-    private final OrderRepository orderRepo;
-    private final WalletService walletService;
 
-    // bookingReq.getUserId() 僅供開發測試使用，正式版改由登入資訊取得
-    public boolean sendBooking(BookingReq bookingReq) {
-        if (bookingReq == null) return false;
+    @Autowired
+    private BookingRepo bookingRepo;
+    @Autowired
+    private UserRepo userRepo;
+    @Autowired
+    private OrderRepository orderRepo;
+    @Autowired
+    private CourseRepo courseRepo;
 
-        // lessonCount > 0
-        if (bookingReq.getLessonCount() <= 0) return false;
+    public List<BookingDTO> getTutorBookings(Long tutorId) {
+        return bookingRepo.findByTutorId(tutorId).stream()
+                .map(b -> {
+                    String studentName = userRepo.findById(b.getStudentId())
+                            .map(User::getName)
+                            .orElse("學生 #" + b.getStudentId());
 
-        // member existsById
-        if (!userRepository.existsById(bookingReq.getUserId())) return false;
+                    // 從 order 查 courseId，再查課程名稱
+                    String courseName = orderRepo.findById(b.getOrderId())
+                            .flatMap(o -> courseRepo.findById(o.getCourseId()))
+                            .map(Course::getName)
+                            .orElse("課程");
 
-        // course findById
-        Course course = courseRepo.findById(bookingReq.getCourseId()).orElse(null);
-        if (course == null) return false;
-
-        // check courseId isActive
-        if (!course.getActive()) return false;
-
-        // buildBooking
-        Bookings booking = buildBooking(bookingReq, course);
-        bookingRepo.save(booking);
-
-        return true;
+                    return new BookingDTO(
+                            b.getId(), b.getOrderId(), b.getTutorId(),
+                            b.getStudentId(), studentName,
+                            courseName,  // ← 新增
+                            b.getDate(), b.getHour(), b.getStatus(), b.getSlotLocked()
+                    );
+                })
+                .collect(Collectors.toList());
     }
 
     /**
-     * 課程完成：status 1→2，發放教師授課收入。
+     * 建立單筆預約紀錄（由 CheckoutService 呼叫，不對外開放）
+     * 把建立 Booking 的邏輯集中在這裡，讓 CheckoutService 職責更單純
      */
-    @Transactional
-    public String completeBooking(Long bookingId) {
-        Bookings booking = bookingRepo.findById(bookingId).orElse(null);
-        if (booking == null) return "預約不存在";
-        if (booking.getStatus() != 1) return "只有排程中的課程可標記為完成";
+    public Booking createBooking(Long orderId, Long tutorId, Long studentId,
+                                 LocalDate date, Integer hour) {
+        // 1. 建立新的預約物件
+        Booking b = new Booking();
+        b.setOrderId(orderId);     // 綁定訂單 ID（必填，DB 規定不能為空）
+        b.setTutorId(tutorId);     // 老師 ID
+        b.setStudentId(studentId); // 學生 ID
+        b.setDate(date);           // 預約日期
+        b.setHour(hour);           // 預約小時
+        b.setStatus(1);            // 1 = 排程中（scheduled）
+        b.setSlotLocked(true);     // 鎖定時段，防止其他人搶訂
 
-        booking.setStatus((byte) 2); // 2: Complete
-        bookingRepo.save(booking);
-
-        // 從訂單取得課程單價，發放教師收入並更新已使用堂數
-        Order order = orderRepo.findById(booking.getOrderId()).orElse(null);
-        if (order != null) {
-            long income = order.getUnitPrice();
-            // 增加教師錢包並記錄授課收入 (type=3, relatedType=2 Booking)
-            walletService.credit(booking.getTutorId(), income, 3, 2, bookingId);
-
-            // 遞增已使用堂數
-            order.setLessonUsed(order.getLessonUsed() + 1);
-            orderRepo.save(order);
-        }
-
-        return "success";
-    }
-
-    /**
-     * 取消課程：status 1→3，釋放時段，退款給學生。
-     */
-    @Transactional
-    public String cancelBooking(Long bookingId) {
-        Bookings booking = bookingRepo.findById(bookingId).orElse(null);
-        if (booking == null) return "預約不存在";
-        if (booking.getStatus() != 1) return "只有排程中的課程可取消";
-
-        booking.setStatus((byte) 3); // 3: Cancelled
-        booking.setSlotLocked(null); // 釋放時段，允許其他人預約
-        bookingRepo.save(booking);
-
-        // 從訂單取得折扣後單價，退款給學生 (type=4, relatedType=1 Order)
-        Order order = orderRepo.findById(booking.getOrderId()).orElse(null);
-        if (order != null) {
-            walletService.credit(booking.getStudentId(), order.getDiscountPrice(), 4, 1, booking.getOrderId());
-        }
-
-        return "success";
-    }
-
-    private Bookings buildBooking(BookingReq req, Course course) {
-        Bookings booking = new Bookings();
-        booking.setOrderId(req.getOrderId());
-        booking.setTutorId(course.getTutorId());
-        booking.setStudentId(req.getUserId());
-        booking.setDate(req.getDate());
-        booking.setHour(req.getHour());
-        booking.setSlotLocked(true);
-        booking.setStatus((byte) 1); // 1: Scheduled
-        return booking;
-    }
-
-    /** CheckoutService 用：根據時段資訊建立 Bookings 實體（不儲存）。 */
-    public Bookings buildFromSlot(Long orderId, Long tutorId, Long studentId,
-                                  java.time.LocalDate date, Integer hour) {
-        Bookings b = new Bookings();
-        b.setOrderId(orderId);
-        b.setTutorId(tutorId);
-        b.setStudentId(studentId);
-        b.setDate(date);
-        b.setHour(hour);
-        b.setSlotLocked(true);
-        b.setStatus((byte) 1); // 1: Scheduled
-        return b;
+        // 2. 寫入資料庫並回傳儲存後的物件（含自動產生的 ID）
+        return bookingRepo.save(b);
     }
 }
