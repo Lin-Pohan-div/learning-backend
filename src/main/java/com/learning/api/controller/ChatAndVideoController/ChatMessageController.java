@@ -6,20 +6,25 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.learning.api.dto.ChatRoom.ChatMessageRequest;
+import com.learning.api.dto.ChatRoom.StudentConversationDTO;
 import com.learning.api.entity.ChatMessage;
 import com.learning.api.enums.MessageType;
+import com.learning.api.security.SecurityUser;
 import com.learning.api.service.Chat.ChatMessageService;
 import com.learning.api.service.Chat.FileStorageService;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/chatMessage")
@@ -32,6 +37,21 @@ public class ChatMessageController {
     @GetMapping("/booking/{bookingId}")
     public ResponseEntity<List<ChatMessage>> getByBookingId(@PathVariable Long bookingId) {
         return ResponseEntity.ok(chatMessageService.findByBookingId(bookingId));
+    }
+
+    @GetMapping("/conversations")
+    public ResponseEntity<List<StudentConversationDTO>> getConversations(
+            @AuthenticationPrincipal SecurityUser securityUser) {
+        Long studentId = securityUser.getUser().getId();
+        return ResponseEntity.ok(chatMessageService.getStudentConversations(studentId));
+    }
+
+    @GetMapping("/orders")
+    public ResponseEntity<List<ChatMessage>> getByBookingIds(@RequestParam("ids") String ids) {
+        List<Long> idList = Arrays.stream(ids.split(","))
+            .map(String::trim).filter(s -> !s.isEmpty())
+            .map(Long::parseLong).collect(Collectors.toList());
+        return ResponseEntity.ok(chatMessageService.findByBookingIds(idList));
     }
 
     /**

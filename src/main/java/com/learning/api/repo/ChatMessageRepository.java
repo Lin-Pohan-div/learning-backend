@@ -9,4 +9,7 @@ import java.util.List;
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
     @Query("SELECT c FROM ChatMessage c WHERE c.orderId = :bookingId ORDER BY c.createdAt ASC")
     List<ChatMessage> findByBookingIdOrderByCreatedAtAsc(@Param("bookingId") Long bookingId);
+
+    @Query("SELECT c FROM ChatMessage c WHERE c.orderId IN :ids ORDER BY c.createdAt ASC")
+    List<ChatMessage> findByOrderIdInOrderByCreatedAtAsc(@Param("ids") List<Long> ids);
 }
